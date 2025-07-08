@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.0.0" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsAspireHost>true</IsAspireHost>
+    <UserSecretsId>46179680-2646-487c-bb91-14be8f94cd28</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.3.1" />
+    <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.3.1" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.3.1" />
+    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="9.3.1" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="9.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Huddle.SignalR\Huddle.SignalR.csproj" />
+    <ProjectReference Include="..\ChannelService\Huddle.Channel.WebApi\Huddle.Channel.WebApi.csproj" />
+    <ProjectReference Include="..\Gateways\Huddle.ApiGateway\Huddle.ApiGateway.csproj" />
+    <ProjectReference Include="..\Huddle.Identity\Huddle.Identity.csproj" />
+    <ProjectReference Include="..\Huddle.Voice.WebApi\Huddle.Voice.WebApi.csproj" />
+  </ItemGroup>
+
+</Project>
