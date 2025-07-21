@@ -1,5 +1,6 @@
 ﻿using Huddle.Channel.Application.Commands.Member;
 using Huddle.Channel.Application.Dto;
+using Huddle.Channel.Application.Queries.Members;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +11,28 @@ namespace Huddle.Channel.WebApi.Controllers
     public class MembersController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IMembersQueries _membersQueries;
 
-        public MembersController(IMediator mediator)
+        public MembersController(IMediator mediator, IMembersQueries membersQueries)
         {
             _mediator = mediator;
+            _membersQueries = membersQueries;
+        }
+
+        [HttpGet("{mebmerId}")]
+        public async Task<ActionResult<MemberDto>> Get(Guid memberId)
+        {
+            var member = await _membersQueries.GetAsync(memberId);
+
+            return Ok(member);
+        }
+
+        [HttpGet()]
+        public async Task<ActionResult<IEnumerable<MemberDto>>> GetByServerId(Guid serverId)
+        {
+            var members = await _membersQueries.GetByServerId(serverId);
+
+            return Ok(members);
         }
 
         // POST api/server/5/<MembersController>
@@ -29,7 +48,7 @@ namespace Huddle.Channel.WebApi.Controllers
 
         // PUT api/server/5/<MembersController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(Guid serverId, Guid id, [FromBody] UpdateMemberRequest request)
+        public async Task<IActionResult> Put(Guid serverId, Guid memberId, [FromBody] UpdateMemberRequest request)
         {
             Guid sender = Guid.NewGuid(); // GetFromJWT
 
@@ -42,11 +61,11 @@ namespace Huddle.Channel.WebApi.Controllers
 
         // DELETE api/server/5/<MembersController>/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid serverId, Guid id)
+        public async Task<IActionResult> Delete(Guid serverId, Guid memberId)
         {
             Guid sender = Guid.NewGuid(); // GetFromJWT
 
-            DeleteMemberCommand command = new(id, serverId, sender);
+            DeleteMemberCommand command = new(memberId, serverId, sender);
 
             var result = await _mediator.Send(command);
 
