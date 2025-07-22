@@ -38,6 +38,16 @@ namespace Huddle.Channel.WebApi.Controllers
             return null;
         }
 
+        // GET /servers/{serverId}/invites
+        [HttpGet]
+        public async Task<IActionResult> GetInvitesByUserId(Guid userId)
+        {
+            //var invites = await _inviteService.GetInvitesByUserIdAsync(serverId);
+            //return Ok(invites);
+
+            return null;
+        }
+
         // GET /invites/{code}
         [HttpGet]
         public async Task<IActionResult> GetInvite(string code)
