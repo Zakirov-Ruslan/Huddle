@@ -12,7 +12,6 @@
 
     public record CreateMessageRequest
     (
-        Guid AuthorId,
         string Text
     );
 

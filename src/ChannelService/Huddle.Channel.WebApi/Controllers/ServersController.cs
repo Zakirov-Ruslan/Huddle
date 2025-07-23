@@ -1,6 +1,7 @@
 ﻿using Huddle.Channel.Application.Commands.Server;
 using Huddle.Channel.Application.Dto;
 using Huddle.Channel.Application.Queries.Servers;
+using Huddle.Channel.WebApi.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,20 +11,24 @@ namespace Huddle.Channel.WebApi.Controllers
     [ApiController]
     public class ServersController : ControllerBase
     {
-        private readonly IServersQueries _severQueries;
+        private readonly IServersQueries _serverQueries;
         private readonly IMediator _mediator;
 
         public ServersController(IServersQueries severQueries, IMediator mediator)
         {
-            _severQueries = severQueries;
+            _serverQueries = severQueries;
             _mediator = mediator;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ServerDto>>> GetByMemberId([FromQuery]Guid memberId)
+        [HttpGet("my")]
+        public async Task<ActionResult<IEnumerable<ServerDto>>> GetServersForCurrentUser()
         {
-            var servers = await _severQueries.GetServersByMemberAsync(memberId);
+            var identityId = User.GetCurrentUserIdentityId();
+            if (identityId == null)
+                return Unauthorized();
 
+
+            var servers = await _serverQueries.GetServersByMemberAsync(identityId.Value);
             return Ok(servers);
         }
 
@@ -33,7 +38,7 @@ namespace Huddle.Channel.WebApi.Controllers
         {
             try
             {
-                var server = await _severQueries.GetServerAsync(id);
+                var server = await _serverQueries.GetServerAsync(id);
 
                 return Ok(server);
             }
@@ -47,10 +52,12 @@ namespace Huddle.Channel.WebApi.Controllers
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] CreateServerRequest request)
         {
-            Guid creatorId = Guid.NewGuid(); // get from jwt
+            var identityId = User.GetCurrentUserIdentityId();
+            if (identityId == null)
+                return Unauthorized();
 
             var command = new CreateServerCommand(
-                creatorId: creatorId,
+                creatorId: identityId.Value,
                 name: request.Name,
                 isPrivate: request.isPrivate
             );

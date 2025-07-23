@@ -1,6 +1,7 @@
 ﻿using Huddle.Channel.Application.Commands.Message;
 using Huddle.Channel.Application.Dto;
 using Huddle.Channel.Application.Queries.Messages;
+using Huddle.Channel.WebApi.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,7 +29,7 @@ namespace Huddle.Channel.WebApi.Controllers
         }
 
         // GET api/<MessagesController>/5
-        [HttpGet("/older")]
+        [HttpGet("older")]
         public async Task<ActionResult<IEnumerable<MessageDto>>> GetOlder(Guid channelId, [FromQuery] Guid beforeMessageId, [FromQuery] int pageSize = 50)
         {
             var messages = await _messageQueries.GetOlderAsync(channelId, 50, beforeMessageId);
@@ -40,7 +41,11 @@ namespace Huddle.Channel.WebApi.Controllers
         [HttpPost]
         public async Task<ActionResult> Post(Guid channelId, [FromBody] CreateMessageRequest request)
         {
-            CreateMemberCommand command = new(request.AuthorId, channelId, request.Text);
+            var identityId = User.GetCurrentUserIdentityId();
+            if (identityId == null)
+                return Unauthorized();
+
+            CreateMemberCommand command = new(identityId.Value, channelId, request.Text);
 
             var result = await _mediator.Send(command);
 
@@ -51,9 +56,11 @@ namespace Huddle.Channel.WebApi.Controllers
         [HttpPatch("{id}")]
         public async Task<ActionResult> Patch(Guid id, [FromBody] UpdateMessageRequest request)
         {
-            Guid commandSenderId = Guid.NewGuid(); // GetFromJwt
+            var identityId = User.GetCurrentUserIdentityId();
+            if (identityId == null)
+                return Unauthorized();
 
-            UpdateMessageCommand command = new(id, commandSenderId, request.Text);
+            UpdateMessageCommand command = new(id, identityId.Value, request.Text);
 
             var result = await _mediator.Send(command);
 
@@ -64,9 +71,11 @@ namespace Huddle.Channel.WebApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            Guid commandSenderId = Guid.NewGuid(); // GetFromJwt
+            var identityId = User.GetCurrentUserIdentityId();
+            if (identityId == null)
+                return Unauthorized();
 
-            DeleteMessageCommand command = new(id, commandSenderId);
+            DeleteMessageCommand command = new(id, identityId.Value);
 
             var result = await _mediator.Send(command);
 

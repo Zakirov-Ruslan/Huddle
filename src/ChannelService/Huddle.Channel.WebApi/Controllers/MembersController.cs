@@ -1,6 +1,7 @@
 ﻿using Huddle.Channel.Application.Commands.Member;
 using Huddle.Channel.Application.Dto;
 using Huddle.Channel.Application.Queries.Members;
+using Huddle.Channel.WebApi.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,11 +36,15 @@ namespace Huddle.Channel.WebApi.Controllers
             return Ok(members);
         }
 
-        // POST api/server/5/<MembersController>
-        [HttpPost]
-        public async Task<IActionResult> Post(Guid serverId, [FromBody] CreateMemberRequest request)
+        // POST api/server/5/join
+        [HttpPost("~/api/server/{serverId}/join")]
+        public async Task<IActionResult> Post(Guid serverId)
         {
-            CreateMemberCommand command = new(serverId, request.IdentityId);
+            var identityId = User.GetCurrentUserIdentityId();
+            if (identityId == null)
+                return Unauthorized();
+
+            CreateMemberCommand command = new(serverId, identityId.Value);
 
             var result = await _mediator.Send(command);
 
@@ -50,9 +55,11 @@ namespace Huddle.Channel.WebApi.Controllers
         [HttpPut("~/api/[controller]/{memberId}")]
         public async Task<IActionResult> Put(Guid memberId, [FromBody] UpdateMemberRequest request)
         {
-            Guid sender = Guid.NewGuid(); // GetFromJWT
+            var identityId = User.GetCurrentUserIdentityId();
+            if (identityId == null)
+                return Unauthorized();
 
-            UpdateMemberCommand command = new(memberId, request.ServerUsername, sender);
+            UpdateMemberCommand command = new(memberId, request.ServerUsername, identityId.Value);
 
             var result = await _mediator.Send(command);
 
@@ -63,9 +70,11 @@ namespace Huddle.Channel.WebApi.Controllers
         [HttpDelete("~/api/[controller]/{memberId}")]
         public async Task<IActionResult> Delete(Guid memberId)
         {
-            Guid sender = Guid.NewGuid(); // GetFromJWT
+            var identityId = User.GetCurrentUserIdentityId();
+            if (identityId == null)
+                return Unauthorized();
 
-            DeleteMemberCommand command = new(memberId, sender);
+            DeleteMemberCommand command = new(memberId, identityId.Value);
 
             var result = await _mediator.Send(command);
 

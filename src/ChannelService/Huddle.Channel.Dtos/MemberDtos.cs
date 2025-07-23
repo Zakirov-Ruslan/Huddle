@@ -9,11 +9,6 @@
         string Description
     );
 
-    public record CreateMemberRequest
-    (
-        Guid IdentityId
-    );
-
     public record UpdateMemberRequest
     (
         string ServerUsername,

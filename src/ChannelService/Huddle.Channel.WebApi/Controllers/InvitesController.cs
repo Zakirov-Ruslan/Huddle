@@ -1,6 +1,7 @@
 ﻿using Huddle.Channel.Application.Commands.Invite;
 using Huddle.Channel.Application.Dto;
 using Huddle.Channel.Application.Queries.Invites;
+using Huddle.Channel.WebApi.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,11 +28,15 @@ namespace Huddle.Channel.WebApi.Controllers
             return Ok(invites);
         }
 
-        // GET api/invites/{code}
+        // GET api/invites/
         [HttpGet]
-        public async Task<IActionResult> GetInvitesByUserId([FromQuery] Guid userId)
+        public async Task<IActionResult> GetInvitesByUserId()
         {
-            var invites = await _invitesQuesries.GetInvitesByServerId(userId);
+            var identityId = User.GetCurrentUserIdentityId();
+            if (identityId == null)
+                return Unauthorized();
+
+            var invites = await _invitesQuesries.GetInvitesByServerId(identityId.Value);
 
             return Ok(invites);
         }
@@ -48,7 +53,7 @@ namespace Huddle.Channel.WebApi.Controllers
         }
 
         // POST api/invites/{inviteId}/accept
-        [HttpPost("{inviteId:guid}/accept")]
+        [HttpPost("{inviteId}/accept")]
         public async Task<IActionResult> AcceptInvite(Guid inviteId)
         {
             var command = new AcceptInviteCommand(inviteId);
