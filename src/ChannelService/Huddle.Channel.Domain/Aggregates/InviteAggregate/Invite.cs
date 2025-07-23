@@ -3,6 +3,7 @@ using Huddle.Channel.Domain.SeedWork;
 
 namespace Huddle.Channel.Domain.Aggregates.InviteAggregate
 {
+    // Its just personal invite model. Need to create another one for a public link with some code like this https://discord.gg/ptFxAC9Y
     public class Invite : Entity, IAggregateRoot
     {
         public Guid ServerId { get; private set; }

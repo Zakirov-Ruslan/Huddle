@@ -8,7 +8,6 @@
 
     public record CreateInviteRequest
     (
-        Guid ServerId,
         Guid UserId
     );
 }

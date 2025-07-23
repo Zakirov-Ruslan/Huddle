@@ -62,10 +62,10 @@ namespace Huddle.Channel.WebApi.Controllers
 
         // PUT api/<ServersController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(Guid id, [FromBody] UpdateSeverRequest request)
+        public async Task<IActionResult> Put(Guid id, [FromBody] UpdateServerRequest request)
         {
             var command = new UpdateServerCommand(
-                Id: request.Id,
+                Id: id,
                 name: request.Name
             );
 

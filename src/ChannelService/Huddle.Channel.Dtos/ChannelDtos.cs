@@ -16,7 +16,6 @@
 
     public record UpdatedChannelRequest
     (
-        Guid Id,
         string Name,
         string ChannelType
     );

@@ -19,7 +19,7 @@ namespace Huddle.Channel.WebApi.Controllers
             _membersQueries = membersQueries;
         }
 
-        [HttpGet("{mebmerId}")]
+        [HttpGet("{memberId}")]
         public async Task<ActionResult<MemberDto>> Get(Guid memberId)
         {
             var member = await _membersQueries.GetAsync(memberId);
@@ -46,26 +46,26 @@ namespace Huddle.Channel.WebApi.Controllers
             return Created();
         }
 
-        // PUT api/server/5/<MembersController>/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(Guid serverId, Guid memberId, [FromBody] UpdateMemberRequest request)
+        // PUT api/<MembersController>/5
+        [HttpPut("~/api/[controller]/{memberId}")]
+        public async Task<IActionResult> Put(Guid memberId, [FromBody] UpdateMemberRequest request)
         {
             Guid sender = Guid.NewGuid(); // GetFromJWT
 
-            UpdateMemberCommand command = new(request.Id, request.ServerUsername, sender, serverId);
+            UpdateMemberCommand command = new(memberId, request.ServerUsername, sender);
 
             var result = await _mediator.Send(command);
 
             return Ok();
         }
 
-        // DELETE api/server/5/<MembersController>/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid serverId, Guid memberId)
+        // DELETE api/<MembersController>/5
+        [HttpDelete("~/api/[controller]/{memberId}")]
+        public async Task<IActionResult> Delete(Guid memberId)
         {
             Guid sender = Guid.NewGuid(); // GetFromJWT
 
-            DeleteMemberCommand command = new(memberId, serverId, sender);
+            DeleteMemberCommand command = new(memberId, sender);
 
             var result = await _mediator.Send(command);
 

@@ -1,4 +1,5 @@
-﻿using Huddle.Channel.Application.Dto;
+﻿using Huddle.Channel.Application.Commands.Invite;
+using Huddle.Channel.Application.Dto;
 using Huddle.Channel.Application.Queries.Invites;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -17,56 +18,60 @@ namespace Huddle.Channel.WebApi.Controllers
             _invitesQuesries = invitesQuesries;
         }
 
-        // POST /servers/{serverId}/invites
-        [HttpPost]
-        public async Task<IActionResult> CreateInvite(Guid serverId, [FromBody] CreateInviteRequest request)
-        {
-            //request.ServerId = serverId;
-            //var response = await _inviteService.CreateInviteAsync(request);
-            //return Created($"/invites/{response.Code}", response);
-
-            return null;
-        }
-
-        // GET /servers/{serverId}/invites
-        [HttpGet]
+        // GET api/servers/{serverId}/invites
+        [HttpGet("~/api/servers/{serverId}/invites")]
         public async Task<IActionResult> GetInvites(Guid serverId)
         {
-            //var invites = await _inviteService.GetInvitesByServerIdAsync(serverId);
-            //return Ok(invites);
+            var invites = await _invitesQuesries.GetInvitesByServerId(serverId);
 
-            return null;
+            return Ok(invites);
         }
 
-        // GET /servers/{serverId}/invites
+        // GET api/invites/{code}
         [HttpGet]
-        public async Task<IActionResult> GetInvitesByUserId(Guid userId)
+        public async Task<IActionResult> GetInvitesByUserId([FromQuery] Guid userId)
         {
-            //var invites = await _inviteService.GetInvitesByUserIdAsync(serverId);
-            //return Ok(invites);
+            var invites = await _invitesQuesries.GetInvitesByServerId(userId);
 
-            return null;
+            return Ok(invites);
         }
 
-        // GET /invites/{code}
-        [HttpGet]
-        public async Task<IActionResult> GetInvite(string code)
+        // POST api/servers/{serverId}/invites
+        [HttpPost("~/api/servers/{serverId}/invites")]
+        public async Task<IActionResult> CreateInvite(Guid serverId, [FromBody] CreateInviteRequest request)
         {
-            //var invite = await _inviteService.GetInviteByCodeAsync(code);
-            //if (invite == null) return NotFound();
-            //return Ok(invite);
+            var command = new CreateInviteCommand(serverId, request.UserId);
 
-            return null;
+            await _mediator.Send(command);
+
+            return Ok();
         }
 
-        // DELETE /invites/{code}
-        [HttpDelete]
-        public async Task<IActionResult> DeleteInvite(string code)
+        // POST api/invites/{inviteId}/accept
+        [HttpPost("{inviteId:guid}/accept")]
+        public async Task<IActionResult> AcceptInvite(Guid inviteId)
         {
-            //await _inviteService.RevokeInviteAsync(code);
-            //return NoContent();
+            var command = new AcceptInviteCommand(inviteId);
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
 
-            return null;
+        // POST api/invites/{inviteId}/decline
+        [HttpPost("{inviteId}/decline")]
+        public async Task<IActionResult> DeclineInvite(Guid inviteId)
+        {
+            var command = new DeclineInviteCommand(inviteId);
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
+        // DELETE api/invites/{code}
+        [HttpDelete("{inviteId}")]
+        public async Task<IActionResult> DeleteInvite(Guid inviteId)
+        {
+            var command = new DeleteInviteCommand(inviteId);
+            var result = await _mediator.Send(command);
+            return NoContent();
         }
     }
 }

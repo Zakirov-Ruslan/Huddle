@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Huddle.Channel.WebApi.Controllers
 {
-    [Route("api/Servers/{serverId}/[controller]")]
+    [Route("api/servers/{serverId}/[controller]")]
     [ApiController]
     public class ChannelsController : ControllerBase
     {
@@ -31,7 +31,7 @@ namespace Huddle.Channel.WebApi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid serverId, Guid id, UpdatedChannelRequest updateChannelRequest)
         {
-            var command = new UpdateChannelCommand(serverId, updateChannelRequest.Id, updateChannelRequest.Name);
+            var command = new UpdateChannelCommand(serverId, id, updateChannelRequest.Name);
 
             var result = await _mediator.Send(command);
 

@@ -18,7 +18,6 @@
 
     public record UpdateMessageRequest
     (
-        Guid MessageId,
         string Text
     );
 }

@@ -13,9 +13,8 @@
         bool isPrivate
     );
 
-    public record UpdateSeverRequest
+    public record UpdateServerRequest
     (
-        Guid Id,
         string Name
     );
 }

@@ -16,7 +16,6 @@
 
     public record UpdateMemberRequest
     (
-        Guid Id,
         string ServerUsername,
         string Description
     );        

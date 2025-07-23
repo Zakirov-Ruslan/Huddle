@@ -53,7 +53,7 @@ namespace Huddle.Channel.WebApi.Controllers
         {
             Guid commandSenderId = Guid.NewGuid(); // GetFromJwt
 
-            UpdateMessageCommand command = new(request.MessageId, commandSenderId, request.Text);
+            UpdateMessageCommand command = new(id, commandSenderId, request.Text);
 
             var result = await _mediator.Send(command);
 

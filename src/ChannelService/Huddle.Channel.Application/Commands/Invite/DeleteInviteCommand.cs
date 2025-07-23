@@ -1,10 +1,10 @@
 ﻿namespace Huddle.Channel.Application.Commands.Invite
 {
-    public class AcceptInviteCommand
+    public class DeleteInviteCommand
     {
         public Guid InviteId { get; private set; }
 
-        public AcceptInviteCommand(Guid inviteId)
+        public DeleteInviteCommand(Guid inviteId)
         {
             InviteId = inviteId;
         }
