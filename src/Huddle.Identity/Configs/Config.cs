@@ -64,7 +64,7 @@ namespace Huddle.Identity.Configs
         {
             return new List<ApiResource>
             {
-                new ApiResource("api1", "Sample API")
+                new ApiResource("huddle.channel.api", "Huddle Channel API")
             };
         }
     }

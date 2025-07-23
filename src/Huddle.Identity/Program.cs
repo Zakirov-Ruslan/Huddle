@@ -49,11 +49,12 @@ public class Program
         .AddDeveloperSigningCredential();
 
         // JWT
+        var url = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(";").First();
         builder.Services.AddAuthentication()
             .AddJwtBearer(options =>
             {
-                options.Authority = "https://localhost:7285";
-                options.TokenValidationParameters.ValidateAudience = false;
+                options.Authority = url;
+                options.TokenValidationParameters.ValidateAudience = true;
             });
 
         var app = builder.Build();

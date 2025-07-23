@@ -41,7 +41,8 @@ internal class Program
 
         // Identity has a reference to all of the apps for callback urls, this is a cyclic reference
         identity.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"));
-        channelService.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"));
+        channelService.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"))
+            .WithEnvironment("IDENTITY_URL", identity.GetEndpoint("https"));
 
         builder.Build().Run();
     }
