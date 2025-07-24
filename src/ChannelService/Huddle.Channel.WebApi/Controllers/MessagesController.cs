@@ -47,9 +47,9 @@ namespace Huddle.Channel.WebApi.Controllers
 
             CreateMemberCommand command = new(identityId.Value, channelId, request.Text);
 
-            var result = await _mediator.Send(command);
+            var createdMessage = await _mediator.Send(command);
 
-            return Ok();
+            return Ok(createdMessage);
         }
 
         // PUT api/<MessagesController>/5

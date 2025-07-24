@@ -1,8 +1,9 @@
-﻿using MediatR;
+﻿using Huddle.Channel.Application.Dto;
+using MediatR;
 
 namespace Huddle.Channel.Application.Commands.Message
 {
-    public class CreateMemberCommand : IRequest<bool>
+    public class CreateMemberCommand : IRequest<MessageDto>
     {
         public Guid AuthodId { get; private set; }
         public Guid ChannelId { get; private set; }

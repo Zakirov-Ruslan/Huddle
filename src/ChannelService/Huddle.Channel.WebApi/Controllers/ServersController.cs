@@ -62,9 +62,9 @@ namespace Huddle.Channel.WebApi.Controllers
                 isPrivate: request.isPrivate
             );
 
-            var result = await _mediator.Send(command);
+            var createdServer = await _mediator.Send(command);
 
-            return Created();
+            return CreatedAtRoute(nameof(Get), new { Id = createdServer.Id }, createdServer);
         }
 
         // PUT api/<ServersController>/5

@@ -47,9 +47,9 @@ namespace Huddle.Channel.WebApi.Controllers
         {
             var command = new CreateInviteCommand(serverId, request.UserId);
 
-            await _mediator.Send(command);
+            var result = await _mediator.Send(command);
 
-            return Ok();
+            return Created();
         }
 
         // POST api/invites/{inviteId}/accept

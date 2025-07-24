@@ -1,8 +1,9 @@
-﻿using MediatR;
+﻿using Huddle.Channel.Application.Dto;
+using MediatR;
 
 namespace Huddle.Channel.Application.Commands.Channel
 {
-    public class CreateChannelCommand : IRequest<bool>
+    public class CreateChannelCommand : IRequest<ChannelDto>
     {
         public Guid ServerId { get; private set; }
         public string ChannelType { get; private set; }

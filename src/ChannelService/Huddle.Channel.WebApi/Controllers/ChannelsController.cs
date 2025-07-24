@@ -22,9 +22,9 @@ namespace Huddle.Channel.WebApi.Controllers
         {
             var command = new CreateChannelCommand(serverId, createChannelRequest.ChannelType, createChannelRequest.Name);
 
-            var result = await _mediator.Send(command);
+            var createdChannel = await _mediator.Send(command);
 
-            return Created();
+            return Ok(createdChannel);
         }
 
         // PUT api/servers/5/<ChannelsController>/5
