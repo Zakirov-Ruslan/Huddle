@@ -22,6 +22,11 @@ namespace Huddle.Channel.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<Invite?> GetAsync(Guid inviteId)
+        {
+            return await _context.Invites.FirstOrDefaultAsync(i => i.Id == inviteId);
+        }
+
         public async Task<IEnumerable<Invite>> GetByUserId(Guid identityId)
         {
             return await _context.Invites
@@ -36,7 +41,8 @@ namespace Huddle.Channel.Infrastructure.Repositories
 
         public async Task Delete(Guid inviteId)
         {
-            var invite = await _context.Invites.FirstAsync(i => i.Id == inviteId);
+            var invite = await _context.Invites.FindAsync(inviteId)
+                ?? throw new KeyNotFoundException("Invite not found");
             _context.Invites.Remove(invite);
         }
     }

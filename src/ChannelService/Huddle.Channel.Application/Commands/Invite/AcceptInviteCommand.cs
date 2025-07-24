@@ -1,6 +1,8 @@
-﻿namespace Huddle.Channel.Application.Commands.Invite
+﻿using MediatR;
+
+namespace Huddle.Channel.Application.Commands.Invite
 {
-    public class AcceptInviteCommand
+    public class AcceptInviteCommand : IRequest<bool>
     {
         public Guid InviteId { get; private set; }
 

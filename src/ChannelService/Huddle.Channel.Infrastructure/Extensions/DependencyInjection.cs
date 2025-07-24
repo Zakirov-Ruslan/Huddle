@@ -25,7 +25,7 @@ namespace Huddle.Channel.Infrastructure.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             var connectionString = configuration.GetConnectionString("channeldb")
-                ?? throw new ArgumentNullException("Connection string 'DefaultConnection' not found");
+                ?? throw new ArgumentNullException("Connection string 'channeldb' not found");
             services.AddDbContext<ChannelContext>(options =>
                 options.UseNpgsql(connectionString));
 

@@ -6,6 +6,7 @@ namespace Huddle.Channel.Domain.Aggregates.InviteAggregate
     {
         Task<IEnumerable<Invite>> GetByUserId(Guid identityId);
         Task<IEnumerable<Invite>> GetBySeverId(Guid serverId);
+        Task<Invite?> GetAsync(Guid inviteId);
         Invite Add(Invite invite);
         Task Delete(Guid inviteId);
     }

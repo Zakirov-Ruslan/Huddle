@@ -29,14 +29,14 @@ namespace Huddle.Channel.WebApi.Controllers
         }
 
         // GET api/invites/
-        [HttpGet]
-        public async Task<IActionResult> GetInvitesByUserId()
+        [HttpGet("pending")]
+        public async Task<IActionResult> GetUserInvites()
         {
             var identityId = User.GetCurrentUserIdentityId();
             if (identityId == null)
                 return Unauthorized();
 
-            var invites = await _invitesQuesries.GetInvitesByServerId(identityId.Value);
+            var invites = await _invitesQuesries.GetInvitesByUserId(identityId.Value);
 
             return Ok(invites);
         }
@@ -57,8 +57,9 @@ namespace Huddle.Channel.WebApi.Controllers
         public async Task<IActionResult> AcceptInvite(Guid inviteId)
         {
             var command = new AcceptInviteCommand(inviteId);
-            var result = await _mediator.Send(command);
-            return Ok(result);
+            await _mediator.Send(command);
+
+            return NoContent();
         }
 
         // POST api/invites/{inviteId}/decline
@@ -66,8 +67,8 @@ namespace Huddle.Channel.WebApi.Controllers
         public async Task<IActionResult> DeclineInvite(Guid inviteId)
         {
             var command = new DeclineInviteCommand(inviteId);
-            var result = await _mediator.Send(command);
-            return Ok(result);
+            await _mediator.Send(command);
+            return NoContent();
         }
 
         // DELETE api/invites/{code}
@@ -75,7 +76,7 @@ namespace Huddle.Channel.WebApi.Controllers
         public async Task<IActionResult> DeleteInvite(Guid inviteId)
         {
             var command = new DeleteInviteCommand(inviteId);
-            var result = await _mediator.Send(command);
+            await _mediator.Send(command);
             return NoContent();
         }
     }

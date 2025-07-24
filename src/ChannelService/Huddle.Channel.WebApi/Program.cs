@@ -36,7 +36,7 @@ public class Program
 
             options.TokenValidationParameters.ValidateAudience = true;
             options.TokenValidationParameters.ValidateLifetime = true;
-            options.TokenValidationParameters.ClockSkew = TimeSpan.FromMinutes(2); // допуск на разницу во времени
+            options.TokenValidationParameters.ClockSkew = TimeSpan.FromMinutes(2);
         });
 
         var app = builder.Build();
