@@ -1,4 +1,5 @@
-﻿using Huddle.Channel.Domain.Aggregates.ServerAggregate;
+﻿using Huddle.Channel.Application.Exceptions;
+using Huddle.Channel.Domain.Aggregates.ServerAggregate;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -18,6 +19,9 @@ namespace Huddle.Channel.Application.Commands.Server
         {
             var server = await _serverRepository.GetAsync(request.Id)
                 ?? throw new KeyNotFoundException("Server not found");
+
+            if (server.OwnerIdentityId != request.CommandSenderIdenityId)
+                throw new ForbiddenAccessException("User are not owner of this server");
 
             server.UpdateName(request.Name);
 

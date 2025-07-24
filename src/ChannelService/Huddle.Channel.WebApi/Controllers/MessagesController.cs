@@ -1,5 +1,6 @@
 ﻿using Huddle.Channel.Application.Commands.Message;
 using Huddle.Channel.Application.Dto;
+using Huddle.Channel.Application.Exceptions;
 using Huddle.Channel.Application.Queries.Messages;
 using Huddle.Channel.WebApi.Extensions;
 using MediatR;
@@ -23,18 +24,48 @@ namespace Huddle.Channel.WebApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MessageDto>>> GetRecent(Guid channelId, [FromQuery] int pageSize = 50)
         {
-            var messages = await _messageQueries.GetRecentAsync(channelId, pageSize);
+            var identityId = User.GetCurrentUserIdentityId();
+            if (identityId == null)
+                return Unauthorized();
 
-            return Ok(messages);
+            try
+            {
+                var messages = await _messageQueries.GetRecentAsync(channelId, pageSize, identityId.Value);
+
+                return Ok(messages);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ForbiddenAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
         }
 
         // GET api/<MessagesController>/5
         [HttpGet("older")]
         public async Task<ActionResult<IEnumerable<MessageDto>>> GetOlder(Guid channelId, [FromQuery] Guid beforeMessageId, [FromQuery] int pageSize = 50)
         {
-            var messages = await _messageQueries.GetOlderAsync(channelId, 50, beforeMessageId);
+            var identityId = User.GetCurrentUserIdentityId();
+            if (identityId == null)
+                return Unauthorized();
 
-            return Ok(messages);
+            try
+            {
+                var messages = await _messageQueries.GetOlderAsync(channelId, pageSize, beforeMessageId, identityId.Value);
+
+                return Ok(messages);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ForbiddenAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
         }
 
         // POST api/<MessagesController>
@@ -45,11 +76,17 @@ namespace Huddle.Channel.WebApi.Controllers
             if (identityId == null)
                 return Unauthorized();
 
-            CreateMemberCommand command = new(identityId.Value, channelId, request.Text);
+            try
+            {
+                CreateMessageCommand command = new(identityId.Value, channelId, request.Text);
 
-            var createdMessage = await _mediator.Send(command);
-
-            return Ok(createdMessage);
+                var createdMessage = await _mediator.Send(command);
+                return Ok(createdMessage);
+            }
+            catch (ForbiddenAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
         }
 
         // PUT api/<MessagesController>/5
@@ -62,9 +99,20 @@ namespace Huddle.Channel.WebApi.Controllers
 
             UpdateMessageCommand command = new(id, identityId.Value, request.Text);
 
-            var result = await _mediator.Send(command);
+            try
+            {
+                var result = await _mediator.Send(command);
 
-            return Ok();
+                return Ok();
+            }
+            catch (ForbiddenAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return Forbid(ex.Message);
+            }
         }
 
         // DELETE api/<MessagesController>/5
@@ -77,9 +125,20 @@ namespace Huddle.Channel.WebApi.Controllers
 
             DeleteMessageCommand command = new(id, identityId.Value);
 
-            var result = await _mediator.Send(command);
+            try
+            {
+                var result = await _mediator.Send(command);
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (ForbiddenAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return Forbid(ex.Message);
+            }
         }
     }
 }

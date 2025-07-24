@@ -20,6 +20,8 @@ namespace Huddle.Channel.Application.Commands.Message
             if (message.AuthorId != request.CommandSenderId)
                 return false;
 
+            // Add admin/sever owner checks
+
             await _messageRepository.Delete(request.MessageId);
             return await _messageRepository.UnitOfWork.SaveEntitiesAsync();
         }

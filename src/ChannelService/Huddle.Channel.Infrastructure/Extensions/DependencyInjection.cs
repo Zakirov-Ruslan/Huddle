@@ -2,6 +2,8 @@
 using Huddle.Channel.Application.Dto;
 using Huddle.Channel.Application.IntegrationEvents;
 using Huddle.Channel.Application.Queries.Servers;
+using Huddle.Channel.Application.Services;
+using Huddle.Channel.Domain.Aggregates.InviteAggregate;
 using Huddle.Channel.Domain.Aggregates.MemberAggregate;
 using Huddle.Channel.Domain.Aggregates.MessageAggregate;
 using Huddle.Channel.Domain.Aggregates.ServerAggregate;
@@ -50,6 +52,8 @@ namespace Huddle.Channel.Infrastructure.Extensions
             services.AddScoped<IServerRepository, ServerRepository>();
             services.AddScoped<IMessageRepository, MessageRepository>();
             services.AddScoped<IMemberRepository, MemberRepository>();
+            services.AddScoped<IInviteRepository, InviteRepository>();
+            services.AddScoped<IAccessService, AccessService>();
 
             return services;
         }

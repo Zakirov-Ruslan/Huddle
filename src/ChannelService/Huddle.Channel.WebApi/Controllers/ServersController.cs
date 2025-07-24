@@ -1,5 +1,6 @@
 ﻿using Huddle.Channel.Application.Commands.Server;
 using Huddle.Channel.Application.Dto;
+using Huddle.Channel.Application.Exceptions;
 using Huddle.Channel.Application.Queries.Servers;
 using Huddle.Channel.WebApi.Extensions;
 using MediatR;
@@ -27,7 +28,6 @@ namespace Huddle.Channel.WebApi.Controllers
             if (identityId == null)
                 return Unauthorized();
 
-
             var servers = await _serverQueries.GetServersByMemberAsync(identityId.Value);
             return Ok(servers);
         }
@@ -36,15 +36,23 @@ namespace Huddle.Channel.WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ServerDto>> Get(Guid id)
         {
+            var identityId = User.GetCurrentUserIdentityId();
+            if (identityId == null)
+                return Unauthorized();
+
             try
             {
-                var server = await _serverQueries.GetServerAsync(id);
+                var server = await _serverQueries.GetServerAsync(id, identityId.Value);
 
                 return Ok(server);
             }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
+            }
+            catch (ForbiddenAccessException ex)
+            {
+                return Forbid(ex.Message);
             }
         }
 
@@ -62,36 +70,79 @@ namespace Huddle.Channel.WebApi.Controllers
                 isPrivate: request.isPrivate
             );
 
-            var createdServer = await _mediator.Send(command);
+            try
+            {
+                var createdServer = await _mediator.Send(command);
 
-            return CreatedAtRoute(nameof(Get), new { Id = createdServer.Id }, createdServer);
+                return CreatedAtRoute(nameof(Get), new { Id = createdServer.Id }, createdServer);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // PUT api/<ServersController>/5
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, [FromBody] UpdateServerRequest request)
         {
+            var identityId = User.GetCurrentUserIdentityId();
+            if (identityId == null)
+                return Unauthorized();
+
             var command = new UpdateServerCommand(
-                Id: id,
-                name: request.Name
+                id: id,
+                name: request.Name,
+                commandSenderIdenityId: identityId.Value
             );
 
-            await _mediator.Send(command);
+            try
+            {
+                await _mediator.Send(command);
 
-            return Ok();
+                return Ok();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // DELETE api/<ServersController>/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            var identityId = User.GetCurrentUserIdentityId();
+            if (identityId == null)
+                return Unauthorized();
+
             var command = new DeleteServerCommand(
-                serverId: id
+                serverId: id,
+                commandSenderIdenityId: identityId.Value
             );
 
-            await _mediator.Send(command);
+            try
+            {
+                await _mediator.Send(command);
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (ForbiddenAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
     }
 }

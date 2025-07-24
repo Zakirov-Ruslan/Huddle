@@ -7,7 +7,7 @@ namespace Huddle.Channel.Domain.Aggregates.MemberAggregate
         Task<IEnumerable<Member>> GetByServerIdAsync(Guid serverId); //need pagination here
         Task<Member?> GetAsync(Guid memberId);
         Member Add(Member mebmer);
-        void Update(Member mebmer);
         Task Delete(Guid memberId);
+        Task<Member?> GetByServerAndIdentityIdAsync(Guid serverId, Guid identityId);
     }
 }

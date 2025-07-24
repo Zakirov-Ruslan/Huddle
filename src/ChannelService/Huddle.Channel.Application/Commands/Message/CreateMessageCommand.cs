@@ -3,15 +3,15 @@ using MediatR;
 
 namespace Huddle.Channel.Application.Commands.Message
 {
-    public class CreateMemberCommand : IRequest<MessageDto>
+    public class CreateMessageCommand : IRequest<MessageDto>
     {
         public Guid AuthodId { get; private set; }
         public Guid ChannelId { get; private set; }
         public string Text { get; private set; }
 
-        public CreateMemberCommand(Guid aauthodId, Guid channelId, string text)
+        public CreateMessageCommand(Guid authodId, Guid channelId, string text)
         {
-            AuthodId = aauthodId;
+            AuthodId = authodId;
             ChannelId = channelId;
             Text = text;
         }

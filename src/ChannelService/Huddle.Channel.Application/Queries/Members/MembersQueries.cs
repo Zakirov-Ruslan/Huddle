@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using AutoMapper.Execution;
 using Huddle.Channel.Application.Dto;
-using Huddle.Channel.Domain.Aggregates.InviteAggregate;
 using Huddle.Channel.Domain.Aggregates.MemberAggregate;
 
 namespace Huddle.Channel.Application.Queries.Members

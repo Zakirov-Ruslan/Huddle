@@ -1,4 +1,5 @@
-﻿using Huddle.Channel.Domain.Aggregates.ServerAggregate;
+﻿using Huddle.Channel.Application.Exceptions;
+using Huddle.Channel.Domain.Aggregates.ServerAggregate;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -16,6 +17,12 @@ namespace Huddle.Channel.Application.Commands.Server
         }
         public async Task<bool> Handle(DeleteServerCommand request, CancellationToken cancellationToken)
         {
+            var server = await _serverRepository.GetAsync(request.ServerId)
+                ?? throw new KeyNotFoundException("Server not found");
+
+            if (server.OwnerIdentityId != request.CommandSenderIdenityId)
+                throw new ForbiddenAccessException("User are not owner of this server");
+
             await _serverRepository.Delete(request.ServerId);
 
             return await _serverRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);

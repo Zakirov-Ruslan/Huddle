@@ -4,7 +4,7 @@ namespace Huddle.Channel.Application.Queries.Servers
 {
     public interface IServersQueries
     {
-        Task<ServerDto> GetServerAsync(Guid id);
+        Task<ServerDto> GetServerAsync(Guid serverId, Guid identityId);
         Task<IEnumerable<ServerDto>> GetServersByMemberAsync(Guid memberId);
     }
 }

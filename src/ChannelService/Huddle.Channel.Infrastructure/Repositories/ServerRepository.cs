@@ -46,10 +46,15 @@ namespace Huddle.Channel.Infrastructure.Repositories
 
         public async Task Delete(Guid id)
         {
-            var server = await GetAsync(id) ??
-                throw new KeyNotFoundException($"Server with id {id} not found");
+            var server = await _context.Servers.FindAsync(id)
+                ?? throw new KeyNotFoundException($"Server with id {id} not found");
 
             _context.Servers.Remove(server);
+        }
+
+        public async Task<Domain.Aggregates.ServerAggregate.Channel?> GetChannelAsync(Guid channelId)
+        {
+            return await _context.Channels.FirstOrDefaultAsync(ch => ch.Id == channelId);
         }
     }
 }

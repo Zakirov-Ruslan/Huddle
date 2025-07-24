@@ -11,6 +11,9 @@ namespace Huddle.Channel.Infrastructure.EntityConfigurations
         {
             memberConfiguration.HasKey(x => x.Id);
 
+            memberConfiguration
+                .HasIndex(m => new { m.ServerId, m.IdentityId });
+
             memberConfiguration.Ignore(s => s.DomainEvents);
 
             memberConfiguration

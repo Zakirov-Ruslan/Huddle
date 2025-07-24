@@ -10,5 +10,7 @@ namespace Huddle.Channel.Domain.Aggregates.ServerAggregate
         Server Add(Server server);
         void Update(Server server);
         Task Delete(Guid id);
+
+        Task<Channel?> GetChannelAsync(Guid channelId);
     }
 }
