@@ -23,6 +23,7 @@ public class Program
 
         var identityUrl = Environment.GetEnvironmentVariable("IDENTITY_URL")
             ?? throw new ArgumentNullException("IDENTITY_URL environment variable not defined");
+
         builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -36,6 +37,8 @@ public class Program
 
             options.TokenValidationParameters.ValidateAudience = true;
             options.TokenValidationParameters.ValidateLifetime = true;
+            options.TokenValidationParameters.ValidateIssuer = true;
+            options.TokenValidationParameters.ValidIssuer = identityUrl;
             options.TokenValidationParameters.ClockSkew = TimeSpan.FromMinutes(2);
         });
 
@@ -55,7 +58,8 @@ public class Program
 
             options.WithOrigins(spaUrl)
                    .AllowAnyMethod()
-                   .AllowAnyHeader();
+                   .AllowAnyHeader()
+                   .AllowCredentials();
         });
 
         app.UseHttpsRedirection();

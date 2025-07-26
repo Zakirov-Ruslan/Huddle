@@ -33,7 +33,7 @@ namespace Huddle.Identity.Configs
                     },
 
                     AllowOfflineAccess = true,
-                    AccessTokenLifetime = 60,
+                    AccessTokenLifetime = 3600,
                     AbsoluteRefreshTokenLifetime = 24 * 60 * 60,
                     SlidingRefreshTokenLifetime = 12 * 60 * 60,
 
@@ -65,6 +65,9 @@ namespace Huddle.Identity.Configs
             return new List<ApiResource>
             {
                 new ApiResource("huddle.channel.api", "Huddle Channel API")
+                {
+                    Scopes = { "api1" }
+                }
             };
         }
     }

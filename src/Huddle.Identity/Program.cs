@@ -1,8 +1,10 @@
+using Duende.IdentityServer.Models;
 using Huddle.Identity.Configs;
 using Huddle.Identity.Data;
 using Huddle.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Huddle.Identity;
 
@@ -39,6 +41,8 @@ public class Program
 
             // TODO: Remove this line in production.
             options.KeyManagement.Enabled = false;
+
+
         })
         .AddInMemoryIdentityResources(Config.GetResources())
         .AddInMemoryApiScopes(Config.GetApiScopes())
@@ -54,7 +58,10 @@ public class Program
             .AddJwtBearer(options =>
             {
                 options.Authority = url;
-                options.TokenValidationParameters.ValidateAudience = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateAudience = false,
+                };
             });
 
         var app = builder.Build();

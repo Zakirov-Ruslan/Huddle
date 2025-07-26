@@ -6,8 +6,10 @@ namespace Huddle.Channel.WebApi.Extensions
     {
         public static Guid? GetCurrentUserIdentityId(this ClaimsPrincipal user)
         {
-            var claim = user.FindFirst("sub")?.Value;
-            return Guid.TryParse(claim, out var id) ? id : null;
+            var claim = user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            if (claim == null)
+                return null;
+            return Guid.TryParse(claim.Value, out var id) ? id : null;
         }
     }
 }
