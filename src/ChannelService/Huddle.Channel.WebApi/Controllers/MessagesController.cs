@@ -40,7 +40,7 @@ namespace Huddle.Channel.WebApi.Controllers
             }
             catch (ForbiddenAccessException ex)
             {
-                return Forbid(ex.Message);
+                return Forbid();
             }
         }
 
@@ -64,7 +64,7 @@ namespace Huddle.Channel.WebApi.Controllers
             }
             catch (ForbiddenAccessException ex)
             {
-                return Forbid(ex.Message);
+                return Forbid();
             }
         }
 
@@ -85,7 +85,7 @@ namespace Huddle.Channel.WebApi.Controllers
             }
             catch (ForbiddenAccessException ex)
             {
-                return Forbid(ex.Message);
+                return Forbid();
             }
         }
 
@@ -107,11 +107,11 @@ namespace Huddle.Channel.WebApi.Controllers
             }
             catch (ForbiddenAccessException ex)
             {
-                return Forbid(ex.Message);
+                return Forbid();
             }
             catch (KeyNotFoundException ex)
             {
-                return Forbid(ex.Message);
+                return NotFound(ex.Message);
             }
         }
 
@@ -133,11 +133,11 @@ namespace Huddle.Channel.WebApi.Controllers
             }
             catch (ForbiddenAccessException ex)
             {
-                return Forbid(ex.Message);
+                return Forbid();
             }
             catch (KeyNotFoundException ex)
             {
-                return Forbid(ex.Message);
+                return NotFound(ex.Message);
             }
         }
     }

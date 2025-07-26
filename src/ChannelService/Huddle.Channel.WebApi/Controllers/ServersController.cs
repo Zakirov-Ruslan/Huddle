@@ -50,9 +50,9 @@ namespace Huddle.Channel.WebApi.Controllers
             {
                 return NotFound(ex.Message);
             }
-            catch (ForbiddenAccessException ex)
+            catch (ForbiddenAccessException)
             {
-                return Forbid(ex.Message);
+                return Forbid();
             }
         }
 
@@ -108,7 +108,7 @@ namespace Huddle.Channel.WebApi.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Forbid(ex.Message);
+                return Forbid();
             }
             catch (ArgumentException ex)
             {
@@ -137,7 +137,7 @@ namespace Huddle.Channel.WebApi.Controllers
             }
             catch (ForbiddenAccessException ex)
             {
-                return Forbid(ex.Message);
+                return Forbid();
             }
             catch (KeyNotFoundException ex)
             {
