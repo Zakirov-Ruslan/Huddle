@@ -1,4 +1,5 @@
 using Aspire.Hosting;
+using Projects;
 
 internal class Program
 {
@@ -15,6 +16,11 @@ internal class Program
 
         var channelDb = postgres.AddDatabase("channeldb");
         var identityDb = postgres.AddDatabase("identitydb");
+
+
+        var minio = builder.AddMinioContainer("minio");
+        var fileServise = builder.AddProject<Huddle_FileService>("minio")
+            .WithReference(minio).WaitFor(minio);
 
         var identity = builder.AddProject<Projects.Huddle_Identity>("identity")
             .WithReference(identityDb).WaitFor(identityDb);
@@ -39,7 +45,6 @@ internal class Program
             .WithExternalHttpEndpoints()
             .WithEnvironment("VITE_IDENTITY_URL", identityEndpoint);
 
-        // Identity has a reference to all of the apps for callback urls, this is a cyclic reference
         identity.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"));
         channelService.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"))
             .WithEnvironment("IDENTITY_URL", identity.GetEndpoint("https"));
