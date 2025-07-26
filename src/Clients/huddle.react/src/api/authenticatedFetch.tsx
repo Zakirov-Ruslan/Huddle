@@ -1,0 +1,50 @@
+import { User } from "oidc-client-ts"
+
+function getUser(): User {
+    const identityUrl = import.meta.env.VITE_IDENTITY_URL;
+    const storageUserString = `oidc.user:${identityUrl}:interactive.confidential`;
+    const oidcStorage = sessionStorage.getItem(storageUserString);
+
+    if (!oidcStorage)
+        throw new Error('No user data in session storage');
+
+    const user = User.fromStorageString(oidcStorage);
+    console.log(user);
+    return user;
+}
+
+export const authenticatedFetch = async (url: string, options: RequestInit = {}) => {
+    const user = getUser();
+
+    console.log(user);
+
+    const token = user?.access_token;
+
+    if (!token)
+        throw new Error('No token provided');
+
+    const defaultHeaders: HeadersInit = {
+        'Content-Type': 'application/json',
+    };
+
+    defaultHeaders['Authorization'] = `Bearer ${token}`;
+
+
+    const config: RequestInit = {
+        ...options,
+        headers: {
+        ...defaultHeaders,
+        ...options.headers,
+        },
+    };
+
+    const response = await fetch(url, config);
+
+    if (!response.ok) {
+        // Обработка ошибок
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    }
+
+    return response;
+};

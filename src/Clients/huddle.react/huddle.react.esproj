@@ -11,6 +11,6 @@
   <ItemGroup>
     <Folder Include="public\" />
     <Folder Include="src\assets\" />
-    <Folder Include="src\api\" />
+    <Folder Include="src\services\" />
   </ItemGroup>
 </Project>

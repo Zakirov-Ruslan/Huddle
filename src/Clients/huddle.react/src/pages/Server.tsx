@@ -1,5 +1,6 @@
 ﻿import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { useServer } from "../api/servers/serverApiHooks";
 
 function Server() {
 
@@ -15,13 +16,7 @@ function Server() {
 
     const serverId = '06b6b8c5-86e8-42af-9933-a29c0ef8c93a';
 
-    const { isPending, error, data } = useQuery({
-        queryKey: ['repoData'],
-        queryFn: () =>
-            fetch(`https://localhost:7062/channel/api/servers/${serverId}`).then((res) =>
-                res.json(),
-            ),
-    })
+    const { data: server, error, isPending } = useServer(serverId);
 
     const handleSendMessage = (e) => {
         e.preventDefault();

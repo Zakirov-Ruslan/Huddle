@@ -3,10 +3,13 @@ import { GoHomeFill } from "react-icons/go";
 import { useAuth } from "react-oidc-context";
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 import { TbHeadphonesOff } from "react-icons/tb";
+import { useMyServers } from "../api/servers/serverApiHooks";
 
 function Layout() {
 
     const auth = useAuth();
+
+    const { data: servers, error, isPending } = useMyServers();
 
     switch (auth.activeNavigator) {
         case "signinSilent":
@@ -24,6 +27,9 @@ function Layout() {
     }
 
     if (auth.isAuthenticated) {
+
+        //const { data: servers, error, isPending } = useMyServers();
+
         return (
             <>
                 <div className="grid h-full grid-cols-[auto_1fr]">
@@ -40,6 +46,12 @@ function Layout() {
                                 <Link to="s" className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-slate-200">
                                     C
                                 </Link>
+                                {
+                                    servers?.map(server => 
+                                    <Link to="s" className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-slate-200">
+                                        { server.name }
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     </div>
