@@ -19,7 +19,7 @@ internal class Program
 
 
         var minio = builder.AddMinioContainer("minio");
-        var fileServise = builder.AddProject<Huddle_FileService>("minio")
+        var fileServise = builder.AddProject<Huddle_FileService>("minio-client")
             .WithReference(minio).WaitFor(minio);
 
         var identity = builder.AddProject<Projects.Huddle_Identity>("identity")
@@ -38,12 +38,13 @@ internal class Program
         builder.AddProject<Projects.Huddle_Voice_WebApi>("voice")
             .WithReference(redis).WaitFor(redis);
 
-        builder.AddProject<Projects.Huddle_ApiGateway>("gateway");
+        var gateway = builder.AddProject<Projects.Huddle_ApiGateway>("gateway");
 
         var reactApp = builder.AddNpmApp("react-vite", "../Clients/huddle.react", "dev")
             .WithHttpEndpoint(env: "PORT")
             .WithExternalHttpEndpoints()
-            .WithEnvironment("VITE_IDENTITY_URL", identityEndpoint);
+            .WithEnvironment("VITE_IDENTITY_URL", identityEndpoint)
+            .WithEnvironment("VITE_GATEWAY_URL", gateway.GetEndpoint("https"));
 
         identity.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"));
         channelService.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"))
