@@ -4,6 +4,7 @@ import { useAuth } from "react-oidc-context";
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 import { TbHeadphonesOff } from "react-icons/tb";
 import { useMyServers } from "../api/servers/serverApiHooks";
+import { FaCirclePlus } from "react-icons/fa6";
 
 function Layout() {
 
@@ -32,45 +33,44 @@ function Layout() {
 
         return (
             <>
-                <div className="grid h-full grid-cols-[auto_1fr]">
-                    <div>
-                        <div className="">
-                            <div className="flex flex-col items-center gap-3 p-4">
-                                <Link to="/h" className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-slate-200">
-                                    <GoHomeFill className="h-8 w-8" />
-                                </Link>
-                                <div className="my-1 w-13 border-b border-slate-300"></div>
-                                <Link to="s" className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-slate-200">
-                                    C
-                                </Link>
-                                <Link to="s" className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-slate-200">
-                                    C
-                                </Link>
-                                {
-                                    servers?.map(server => 
-                                    <Link to="s" className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-slate-200">
-                                        { server.name }
+                <div className="grid h-full grid-cols-[auto_1fr] bg-gray-100">
+                        <div className="flex flex-col items-center gap-3 p-4">
+                            <Link to="/h" className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200">
+                                <GoHomeFill className="h-8 w-8 text-black" />
+                            </Link>
+                            <div className="my-1 w-13 border-b border-slate-300"></div>
+                            <Link to="s" className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200">
+                                C
+                            </Link>
+                            <Link to="s" className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200">
+                                C
+                            </Link>
+                            {
+                                servers?.map(server =>
+                                    <Link to="s" className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200">
+                                        {server.name}
                                     </Link>
-                                )}
+                            )}
+                        <button type="button" title="new-server" className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200">
+                                <FaCirclePlus className="scale-150" />
+                        </button>
+                            <div className="absolute bottom-4 left-4 z-10 flex h-17 w-90 flex-row gap-2 rounded-xl border-1 border-gray-200 bg-white p-2 shadow-2xl">
+                                <div className="flex-grow-1">
+                                    {auth.user?.profile.name ?? 'username must be here'}
+                                </div>
+                                <button className="">
+                                    <FaMicrophone />
+                                </button>
+                                <button className="">
+                                    <TbHeadphonesOff />
+                                </button>
                             </div>
                         </div>
-                    </div>
                     <div className="flex flex-row pt-4">
-                        <div className="flex-grow-1 overflow-hidden rounded-tl-2xl bg-slate-100">
+                        <div className="grid flex-grow-1 grid-cols-[300px_1fr] grid-rows-[50px_1fr] overflow-hidden rounded-tl-2xl border-1 border-gray-300 bg-gray-100">
                             <Outlet />
                         </div>
                     </div>
-                </div>
-                <div className="absolute bottom-2 left-2 z-10 flex h-15 w-83 flex-row gap-2 rounded-md bg-slate-300 p-2">
-                    <div className="flex-grow-1">
-                        {auth.user?.profile.name ?? 'username must be here'}
-                    </div>
-                    <button className="">
-                        <FaMicrophone /> 
-                    </button>
-                    <button className="">
-                        <TbHeadphonesOff />
-                    </button>
                 </div>
             </>
         );
