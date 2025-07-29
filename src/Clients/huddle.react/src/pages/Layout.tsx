@@ -5,12 +5,17 @@ import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 import { TbHeadphonesOff } from "react-icons/tb";
 import { useMyServers } from "../api/servers/serverApiHooks";
 import { FaCirclePlus } from "react-icons/fa6";
+import ReactModal from 'react-modal';
+import CreateServerDialog from "../dialogs/CreateServerDialog";
+import { useState } from "react";
+import { Navigate } from "react-router";
 
 function Layout() {
 
     const auth = useAuth();
 
     const { data: servers, error, isPending } = useMyServers();
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
 
     switch (auth.activeNavigator) {
         case "signinSilent":
@@ -51,7 +56,11 @@ function Layout() {
                                         {server.name}
                                     </Link>
                             )}
-                        <button type="button" title="new-server" className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200">
+                        <button
+                            type="button"
+                            title="new-server"
+                            onClick={() => setIsModalOpen(true) }
+                            className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200">
                                 <FaCirclePlus className="scale-150" />
                         </button>
                             <div className="absolute bottom-4 left-4 z-10 flex h-17 w-90 flex-row gap-2 rounded-xl border-1 border-gray-200 bg-white p-2 shadow-2xl">
@@ -72,6 +81,18 @@ function Layout() {
                         </div>
                     </div>
                 </div>
+
+                <ReactModal
+                    isOpen={isModalOpen}
+                    className="modal"
+                    overlayClassName="modal-overlay"
+                    onRequestClose={() => setIsModalOpen(false)}
+                    closeTimeoutMS={150}
+                    shouldFocusAfterRender={false}
+                    appElement={document.getElementById('root')!}
+                >
+                    <CreateServerDialog onCreateServer={() => { setIsModalOpen(false); } } />
+                </ReactModal>
             </>
         );
     }
@@ -81,3 +102,4 @@ function Layout() {
 }
 
 export default Layout;
+
