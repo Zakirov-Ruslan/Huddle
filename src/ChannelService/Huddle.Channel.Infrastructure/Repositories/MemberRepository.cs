@@ -38,9 +38,9 @@ namespace Huddle.Channel.Infrastructure.Repositories
             _context.Members.Remove(invite);
         }
 
-        public Task<Member?> GetByServerAndIdentityIdAsync(Guid serverId, Guid identityId)
+        public async Task<Member?> GetByServerAndIdentityIdAsync(Guid serverId, Guid identityId)
         {
-            return _context.Members.FirstOrDefaultAsync(m => m.ServerId == serverId && m.IdentityId == identityId);
+            return await _context.Members.FirstOrDefaultAsync(m => m.ServerId == serverId && m.IdentityId == identityId);
         }
     }
 }

@@ -22,8 +22,6 @@ namespace Huddle.Channel.Application.DomainEventHandlers.Server
             Member member = new Member(notification.ServerId, notification.OwnerIdentityId);
 
             _memberRepository.Add(member);
-
-            await _memberRepository.UnitOfWork.SaveChangesAsync();
         }
     }
 }

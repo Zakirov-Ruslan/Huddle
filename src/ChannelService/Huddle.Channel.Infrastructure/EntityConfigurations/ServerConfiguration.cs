@@ -1,4 +1,5 @@
 ﻿using Huddle.Channel.Domain.Aggregates.ServerAggregate;
+using Huddle.Channel.Domain.SeedWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,6 +10,7 @@ namespace Huddle.Channel.Infrastructure.EntityConfigurations
         public void Configure(EntityTypeBuilder<Server> serverConfiguration)
         {
             serverConfiguration.HasKey(x => x.Id);
+            serverConfiguration.Property(e => e.Id).ValueGeneratedNever();
 
             serverConfiguration.Ignore(s => s.DomainEvents);
         }

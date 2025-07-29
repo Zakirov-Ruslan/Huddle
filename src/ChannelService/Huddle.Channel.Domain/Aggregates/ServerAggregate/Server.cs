@@ -21,6 +21,7 @@ namespace Huddle.Channel.Domain.Aggregates.ServerAggregate
         {
             ValidateName(name);
 
+            Id = Guid.NewGuid();
             OwnerIdentityId = ownerId;
             Name = name;
             IsPrivate = isPrivate;
