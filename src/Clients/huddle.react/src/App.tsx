@@ -39,7 +39,7 @@ function App() {
                             <Route path="/" element={<Layout />}>
                                 <Route index element={<Navigate to="/h" replace />} />
                                 <Route path='h' element={<Home />} />
-                                <Route path="s" element={<Server />} >
+                                <Route path="s/:serverId" element={<Server />} >
                                     <Route path="ch" element={<Channel />} />
                                 </Route>
                             </Route>

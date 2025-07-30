@@ -12,9 +12,11 @@ namespace Huddle.Channel.Application.Dto
         {
             CreateMap<Message, MessageDto>();
             CreateMap<Server, ServerDto>();
-            CreateMap<Domain.Aggregates.ServerAggregate.Channel, ChannelDto>();
             CreateMap<Member, MemberDto>();
             CreateMap<Invite, InviteDto>();
+
+            CreateMap<Domain.Aggregates.ServerAggregate.Channel, ChannelDto>()
+                .ForCtorParam("ChannelType", opt => opt.MapFrom(src => src.Type.ToString()));
         }
     }
 }

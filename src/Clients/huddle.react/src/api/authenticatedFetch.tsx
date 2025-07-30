@@ -9,14 +9,11 @@ function getUser(): User {
         throw new Error('No user data in session storage');
 
     const user = User.fromStorageString(oidcStorage);
-    console.log(user);
     return user;
 }
 
 export const authenticatedFetch = async (url: string, options: RequestInit = {}) => {
     const user = getUser();
-
-    console.log(user);
 
     const token = user?.access_token;
 

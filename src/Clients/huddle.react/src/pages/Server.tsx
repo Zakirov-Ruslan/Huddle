@@ -4,19 +4,23 @@ import { RiAttachment2 } from "react-icons/ri";
 import { IoSend } from "react-icons/io5";
 import { adjustHeight } from "../utils/domHelpers";
 import { FaHashtag } from "react-icons/fa6";
+import { useParams } from "react-router";
+import type { ChannelDto } from "../api/dtos";
+import { HiSpeakerWave } from "react-icons/hi2";
 
 function Server() {
 
-    const [activeChannel, setActiveChannel] = useState('general');
+    const { serverId } = useParams();
+    if (!serverId) {
+        return <div>Invalid server ID</div>;
+    }
+
+    const [activeChannel, setActiveChannel] = useState<ChannelDto|null>(null);
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([
         { id: 1, user: 'Alice', text: 'Hello everyone!', timestamp: '10:00 AM' },
         { id: 2, user: 'Bob', text: 'Hi Alice!', timestamp: '10:05 AM' },
     ]);
-
-    const channels = ['general', 'announcements', 'rules', 'web-dev', 'mobile-app', 'design', 'random', 'memes', 'games'];
-
-    const serverId = '06b6b8c5-86e8-42af-9933-a29c0ef8c93a';
 
     const { data: server, error, isPending } = useServer(serverId);
 
@@ -36,13 +40,17 @@ function Server() {
     };
     return (
         <>
-            <div className="flex items-center justify-center border-b-1 border-gray-300 text-lg font-semibold">
-                Server
+            <div className="flex items-center justify-center border-b border-gray-300 text-lg font-semibold">
+                {server == null ? (
+                    <div className="h-6 w-32 animate-pulse rounded bg-gray-200"></div>
+                ) : (
+                    <span>{server.name}</span>
+                )}
             </div>
             <header className="flex items-center justify-between border-b-1 border-gray-300 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
                 <h2 className="flex flex-row items-center gap-1 font-semibold text-gray-800 dark:text-slate-200">
                     <FaHashtag />
-                    {activeChannel}
+                    {activeChannel?.name}
                 </h2>
                 <div className="flex space-x-2">
                     <button className="rounded p-1 hover:bg-gray-200 dark:hover:bg-gray-700">
@@ -58,9 +66,12 @@ function Server() {
                 </div>
             </header>
             <nav className="flex-1 overflow-y-auto p-4">
-                <ul className="space-y-1">
-                    {channels.map((channel) => (
-                        <li key={channel}>
+                <div className="mb-2 px-3 text-left text-sm font-semibold text-gray-500">
+                    Text channels
+                </div>
+                <ul className="mb-3 space-y-1">
+                    {server?.channels.filter(ch => ch.channelType == "Text").map((channel) => (
+                        <li key={channel.id}>
                             <button
                                 type="button"
                                 onClick={() => {
@@ -72,7 +83,29 @@ function Server() {
                                     }`}
                             >
                                 <FaHashtag/>
-                                {channel}
+                                {channel.name}
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+                <div className="mb-1 px-3 text-left text-sm font-semibold text-gray-500">
+                    Voice channels
+                </div>
+                <ul className="space-y-1">
+                    {server?.channels.filter(ch => ch.channelType == "Audio").map((channel) => (
+                        <li key={channel.id}>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setActiveChannel(channel);
+                                }}
+                                className={`w-full flex gap-2 flex-row items-center text-left rounded-xl px-3 py-1.5 transition-colors ${activeChannel === channel
+                                    ? 'bg-gray-300 text-white'
+                                    : 'hover:bg-gray-200'
+                                    }`}
+                            >
+                                <HiSpeakerWave />
+                                {channel.name}
                             </button>
                         </li>
                     ))}

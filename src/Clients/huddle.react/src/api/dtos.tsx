@@ -29,7 +29,7 @@ export interface UpdateMessageRequest {
 
 export interface CreateServerRequest {
   name: string;
-  isPrivate: boolean;
+  isPrivate?: boolean;
 }
 
 export interface UpdateServerRequest {

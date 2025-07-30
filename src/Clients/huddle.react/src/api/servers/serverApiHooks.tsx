@@ -22,7 +22,7 @@ export const useMyServers = () => {
 // Создать сервер
 export const useCreateServer = () => {
     const queryClient = useQueryClient();
-    return useMutation<void, Error, CreateServerRequest>({
+    return useMutation<ServerDto, Error, CreateServerRequest>({
         mutationFn: createServer,
         onSuccess: () => {
             // Инвалидируем кэш списка серверов, чтобы получить обновленные данные

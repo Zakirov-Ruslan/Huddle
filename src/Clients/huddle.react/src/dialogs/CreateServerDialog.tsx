@@ -20,18 +20,17 @@ const CreateServerDialog: React.FC<CreateServerDialogProps> = ({ onCreateServer 
                     { name: serverName },
                     {
                         onSuccess: (data, variables, context) => {
-                            onCreateServer(null);
+                            onCreateServer(data);
                         }
                     }
                 )
             }}
         >
             <div className="flex flex-col items-center">
-                <span className="font-medium">Create new project</span>
-                <img src=""></img>
+                <span className="font-medium">Create new server</span>
             </div>
             <div>
-                <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Project name</label>
+                <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Server name</label>
                 <input
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => setServerName(event.target.value)}
                     autoFocus={true}

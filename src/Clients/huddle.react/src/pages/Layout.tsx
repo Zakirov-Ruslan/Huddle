@@ -9,9 +9,12 @@ import ReactModal from 'react-modal';
 import CreateServerDialog from "../dialogs/CreateServerDialog";
 import { useState } from "react";
 import { Navigate } from "react-router";
+import { useNavigate } from "react-router";
+import type { ServerDto } from "../api/dtos";
 
 function Layout() {
 
+    const navigate = useNavigate();
     const auth = useAuth();
 
     const { data: servers, error, isPending } = useMyServers();
@@ -34,8 +37,6 @@ function Layout() {
 
     if (auth.isAuthenticated) {
 
-        //const { data: servers, error, isPending } = useMyServers();
-
         return (
             <>
                 <div className="grid h-full grid-cols-[auto_1fr] bg-gray-100">
@@ -44,17 +45,16 @@ function Layout() {
                                 <GoHomeFill className="h-8 w-8 text-black" />
                             </Link>
                             <div className="my-1 w-13 border-b border-slate-300"></div>
-                            <Link to="s" className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200">
-                                C
-                            </Link>
-                            <Link to="s" className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200">
-                                C
-                            </Link>
-                            {
-                                servers?.map(server =>
-                                    <Link to="s" className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200">
-                                        {server.name}
-                                    </Link>
+                        {
+                            servers?.map(server =>
+                                <Link
+                                    key={ server.id}
+                                    to={`s/${server.id}`}
+                                    className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200"
+                                >
+                                    {server.name} 
+                                        {/*Here should be an image or first letter of server*/}
+                                </Link>
                             )}
                         <button
                             type="button"
@@ -91,7 +91,7 @@ function Layout() {
                     shouldFocusAfterRender={false}
                     appElement={document.getElementById('root')!}
                 >
-                    <CreateServerDialog onCreateServer={() => { setIsModalOpen(false); } } />
+                    <CreateServerDialog onCreateServer={(createdServer: ServerDto) => { setIsModalOpen(false); navigate(`/s/${createdServer.id}`) } } />
                 </ReactModal>
             </>
         );

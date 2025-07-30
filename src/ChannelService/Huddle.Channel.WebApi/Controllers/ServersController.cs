@@ -33,7 +33,7 @@ namespace Huddle.Channel.WebApi.Controllers
         }
 
         // GET api/<ServersController>/5
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "Get")]
         public async Task<ActionResult<ServerDto>> Get(Guid id)
         {
             var identityId = User.GetCurrentUserIdentityId();

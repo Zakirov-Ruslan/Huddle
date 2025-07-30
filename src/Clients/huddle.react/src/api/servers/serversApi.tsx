@@ -34,9 +34,12 @@ export const deleteServer = async (id: string): Promise<void> => {
 };
 
 // Создать сервер
-export const createServer = async (data: CreateServerRequest): Promise<void> => {
-    await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/Servers`, {
+export const createServer = async (data: CreateServerRequest): Promise<ServerDto> => {
+    const response = await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/Servers`, {
         method: 'POST',
         body: JSON.stringify(data),
     });
+
+    const server: ServerDto = await response.json();
+    return server;
 };
