@@ -1,5 +1,4 @@
 ﻿using Huddle.Channel.Domain.Aggregates.ServerAggregate;
-using Huddle.Channel.Domain.SeedWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -13,6 +12,9 @@ namespace Huddle.Channel.Infrastructure.EntityConfigurations
             serverConfiguration.Property(e => e.Id).ValueGeneratedNever();
 
             serverConfiguration.Ignore(s => s.DomainEvents);
+
+            serverConfiguration.Metadata.FindNavigation(nameof(Server.Channels))
+                ?.SetPropertyAccessMode(PropertyAccessMode.Field);
         }
     }
 }
