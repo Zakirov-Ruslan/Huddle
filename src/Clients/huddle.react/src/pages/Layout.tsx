@@ -8,9 +8,9 @@ import { FaCirclePlus } from "react-icons/fa6";
 import ReactModal from 'react-modal';
 import CreateServerDialog from "../dialogs/CreateServerDialog";
 import { useState } from "react";
-import { Navigate } from "react-router";
 import { useNavigate } from "react-router";
 import type { ServerDto } from "../api/dtos";
+import { Tooltip } from 'react-tooltip'
 
 function Layout() {
 
@@ -47,14 +47,27 @@ function Layout() {
                             <div className="my-1 w-13 border-b border-slate-300"></div>
                         {
                             servers?.map(server =>
-                                <Link
-                                    key={ server.id}
-                                    to={`s/${server.id}`}
-                                    className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200"
-                                >
-                                    {server.name} 
+                                <>
+                                    <Link
+                                        key={server.id}
+                                        to={`s/${server.id}`}
+                                        className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200"
+                                        data-tooltip-id={`server-item-tooltip-${server.id}`}
+                                    >
+                                        {server.name[0]}
                                         {/*Here should be an image or first letter of server*/}
-                                </Link>
+                                    </Link>
+                                    <Tooltip
+                                        id={`server-item-tooltip-${server.id}`} data-tooltip-content="Hello to you too!"
+                                        style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding:"5px 10px 8px 10px" }}
+                                        opacity={1}
+                                        border= "1px solid #e8e8e8"
+                                        place="right"
+                                    >
+                                        
+                                        {server.name}
+                                    </Tooltip>
+                                </>
                             )}
                         <button
                             type="button"

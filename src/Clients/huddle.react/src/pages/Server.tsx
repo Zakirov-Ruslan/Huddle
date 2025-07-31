@@ -7,6 +7,7 @@ import { FaHashtag } from "react-icons/fa6";
 import { useParams } from "react-router";
 import type { ChannelDto } from "../api/dtos";
 import { HiSpeakerWave } from "react-icons/hi2";
+import { FaUsers } from "react-icons/fa";
 
 function Server() {
 
@@ -15,8 +16,10 @@ function Server() {
         return <div>Invalid server ID</div>;
     }
 
+    const [isShowMembers, setIsShowMembers] = useState(false);
     const [activeChannel, setActiveChannel] = useState<ChannelDto|null>(null);
     const [message, setMessage] = useState('');
+
     const [messages, setMessages] = useState([
         { id: 1, user: 'Alice', text: 'Hello everyone!', timestamp: '10:00 AM' },
         { id: 2, user: 'Bob', text: 'Hi Alice!', timestamp: '10:05 AM' },
@@ -38,6 +41,7 @@ function Server() {
         setMessages([...messages, newMessage]);
         setMessage('');
     };
+
     return (
         <>
             <div className="flex items-center justify-center border-b border-gray-300 text-lg font-semibold">
@@ -58,10 +62,10 @@ function Server() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                         </svg>
                     </button>
-                    <button className="rounded p-1 hover:bg-gray-200 dark:hover:bg-gray-700">
-                        <svg className="h-5 w-5 text-gray-600 dark:text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                        </svg>
+                    <button
+                        onClick={() => setIsShowMembers(!isShowMembers) }
+                        className="rounded p-1 hover:bg-gray-200 dark:hover:bg-gray-700">
+                        <FaUsers/>
                     </button>
                 </div>
             </header>
@@ -111,45 +115,49 @@ function Server() {
                     ))}
                 </ul>
             </nav>
-            <div className="flex flex-col">
-                <section className="flex-1 space-y-4 overflow-y-auto bg-white p-4 dark:bg-gray-900">
-                    {messages.map((msg) => (
-                        <div key={msg.id} className="flex items-start space-x-2">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-sm font-medium text-white">
-                                {msg.user.charAt(0)}
-                            </div>
-                            <div className="flex-1">
-                                <div className="flex items-center space-x-2">
-                                    <span className="font-medium text-gray-800 dark:text-slate-200">{msg.user}</span>
-                                    <span className="text-xs text-gray-500 dark:text-gray-400">{msg.timestamp}</span>
+            <div className="flex flex-row">
+                <div className="flex flex-grow flex-col">
+                    <section className="flex-1 space-y-4 overflow-y-auto bg-white p-4 dark:bg-gray-900">
+                        {messages.map((msg) => (
+                            <div key={msg.id} className="flex items-start space-x-2">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-sm font-medium text-white">
+                                    {msg.user.charAt(0)}
                                 </div>
-                                <p className="mt-1 text-gray-700 dark:text-slate-200">{msg.text}</p>
+                                <div className="flex-1">
+                                    <div className="flex items-center space-x-2">
+                                        <span className="font-medium text-gray-800 dark:text-slate-200">{msg.user}</span>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400">{msg.timestamp}</span>
+                                    </div>
+                                    <p className="mt-1 text-gray-700 dark:text-slate-200">{msg.text}</p>
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </section>
-                <main className="bg-white p-5">
-                    <form onSubmit={handleSendMessage}
-                        className="flex flex-grow flex-row items-center gap-2 rounded-xl border border-gray-200 bg-white p-2 shadow-2xl dark:border-gray-600 dark:bg-gray-800">
-                            <RiAttachment2 className="scale-150"/>
-                        <textarea
-                            onInput={adjustHeight}
-                            rows={1}
+                        ))}
+                    </section>
+                    <main className="bg-white p-5">
+                        <form onSubmit={handleSendMessage}
+                            className="flex flex-grow flex-row items-center gap-2 rounded-xl border border-gray-200 bg-white p-2 shadow-2xl dark:border-gray-600 dark:bg-gray-800">
+                            <RiAttachment2 className="scale-150" />
+                            <textarea
+                                onInput={adjustHeight}
+                                rows={1}
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                                 placeholder={`Message #${activeChannel}`}
-                            className=" flex-1  dark:bg-gray-700 px-4 py-2 outline-none resize-none"
+                                className=" flex-1  dark:bg-gray-700 px-4 py-2 outline-none resize-none"
                             />
                             <button
                                 type="submit"
                                 className="w-8"
                             >
-                                <IoSend className="scale-150"/>
+                                <IoSend className="scale-150" />
                             </button>
                         </form>
-                </main>
+                    </main>
+                </div>
+                {isShowMembers ? (<div className="w-60 border-l-1 border-gray-200 bg-white">
+                </div>) : (<></>)}
+                
             </div>
-            
         </>
     );
 }
