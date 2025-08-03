@@ -1,6 +1,9 @@
 ﻿using Huddle.Channel.Application.Commands.Server;
 using Huddle.Channel.Application.Dto;
 using Huddle.Channel.Application.IntegrationEvents;
+using Huddle.Channel.Application.Queries.Invites;
+using Huddle.Channel.Application.Queries.Members;
+using Huddle.Channel.Application.Queries.Messages;
 using Huddle.Channel.Application.Queries.Servers;
 using Huddle.Channel.Application.Services;
 using Huddle.Channel.Domain.Aggregates.InviteAggregate;
@@ -36,8 +39,6 @@ namespace Huddle.Channel.Infrastructure.Extensions
             services.AddTransient<IIntegrationEventLogService, IntegrationEventLogService<ChannelContext>>();
             services.AddTransient<IChannelsIntegrationEventService, ChannelsIntegrationEventService>();
 
-            services.AddScoped<IServersQueries, ServersQueries>();
-
             services.AddAutoMapper(s => s.AddProfile<MappingProfile>());
 
             services.AddMediatR(cfg =>
@@ -54,6 +55,11 @@ namespace Huddle.Channel.Infrastructure.Extensions
             services.AddScoped<IMemberRepository, MemberRepository>();
             services.AddScoped<IInviteRepository, InviteRepository>();
             services.AddScoped<IAccessService, AccessService>();
+
+            services.AddScoped<IMessagesQueries, MessagesQueries>();
+            services.AddScoped<IServersQueries, ServersQueries>();
+            services.AddScoped<IInvitesQueries, InvitesQueries>();
+            services.AddScoped<IMembersQueries, MembersQueries>();
 
             return services;
         }

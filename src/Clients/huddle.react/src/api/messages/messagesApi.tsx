@@ -16,17 +16,6 @@ export const getChannelMessages = async (
     return response.json();
 };
 
-// Создать сообщение
-export const createMessage = async (
-    channelId: string,
-    data: CreateMessageRequest
-): Promise<void> => {
-    await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/channels/${channelId}/Messages`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-    });
-};
-
 // Получить более старые сообщения
 export const getOlderMessages = async (
     channelId: string,
@@ -43,9 +32,22 @@ export const getOlderMessages = async (
     return response.json();
 };
 
+// Создать сообщение
+export const createMessage = async (
+    channelId: string,
+    data: CreateMessageRequest
+): Promise<MessageDto> => {
+    const response = await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/channels/${channelId}/Messages`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+
+    return response.json();
+};
+
 // Обновить сообщение
 export const updateMessage = async (
-    channelId: string, // Исправлено: добавлен channelId
+    channelId: string,
     id: string,
     data: UpdateMessageRequest
 ): Promise<void> => {

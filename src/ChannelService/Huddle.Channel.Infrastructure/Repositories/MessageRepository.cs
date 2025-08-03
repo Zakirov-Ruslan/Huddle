@@ -13,7 +13,7 @@ namespace Huddle.Channel.Infrastructure.Repositories
             _context = context;
         }
 
-        public IUnitOfWork UnitOfWork => throw new NotImplementedException();
+        public IUnitOfWork UnitOfWork => _context;
 
         public async Task<IEnumerable<Message>> GetRecentAsync(Guid chatId, int pageSize)
         {

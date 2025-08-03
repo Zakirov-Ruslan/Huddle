@@ -17,7 +17,7 @@ namespace Huddle.Channel.Domain.Aggregates.MessageAggregate
             AuthorId = authorId;
             ChannelId = channelId;
             Text = text;
-            SentAt = DateTime.Now;
+            SentAt = DateTime.UtcNow;
             IsEdited = false;
 
             MessageCreatedDomainEvent @event = new(Id, ChannelId, AuthorId, Text, SentAt, IsEdited);

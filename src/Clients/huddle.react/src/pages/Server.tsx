@@ -1,13 +1,24 @@
-﻿import { useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useServer } from "../api/servers/serverApiHooks";
-import { RiAttachment2 } from "react-icons/ri";
-import { IoSend } from "react-icons/io5";
-import { adjustHeight } from "../utils/domHelpers";
 import { FaHashtag } from "react-icons/fa6";
-import { useParams } from "react-router";
-import type { ChannelDto } from "../api/dtos";
+import { useNavigate, useParams } from "react-router";
+import type { ChannelDto, ServerDto } from "../api/dtos";
 import { HiSpeakerWave } from "react-icons/hi2";
 import { FaUsers } from "react-icons/fa";
+import { createContext, useContext } from "react";
+import { Outlet } from "react-router";
+import { GoPlus } from "react-icons/go";
+import { Tooltip } from "react-tooltip";
+export interface ServerContextType {
+    server: ServerDto | undefined;
+    isShowMembers: boolean;
+}
+export const ServerContext = createContext<ServerContextType | null>(null);
+export const useServerContext = () => {
+    const context = useContext(ServerContext);
+    //if (!context) throw new Error("useServerContext must be used within Server");
+    return context;
+};
 
 function Server() {
 
@@ -18,32 +29,28 @@ function Server() {
 
     const [isShowMembers, setIsShowMembers] = useState(false);
     const [activeChannel, setActiveChannel] = useState<ChannelDto|null>(null);
-    const [message, setMessage] = useState('');
-
-    const [messages, setMessages] = useState([
-        { id: 1, user: 'Alice', text: 'Hello everyone!', timestamp: '10:00 AM' },
-        { id: 2, user: 'Bob', text: 'Hi Alice!', timestamp: '10:05 AM' },
-    ]);
+    const navigate = useNavigate();
 
     const { data: server, error, isPending } = useServer(serverId);
 
-    const handleSendMessage = (e:any) => {
-        e.preventDefault();
-        if (!message.trim()) return;
+    useEffect(() => {
+        setActiveChannel(null);
+    }, [serverId]);
 
-        const newMessage = {
-            id: messages.length + 1,
-            user: 'You',
-            text: message,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        };
+    useEffect(() => {
 
-        setMessages([...messages, newMessage]);
-        setMessage('');
-    };
+        if (server && !activeChannel) {
+            const textChannel = server.channels.find(ch => ch.channelType.toLowerCase() == "text");
+
+            if (textChannel) {
+                setActiveChannel(textChannel);
+                navigate(`ch/${textChannel.id}`);
+            }
+        }
+    }, [server, activeChannel, navigate]);
 
     return (
-        <>
+        <ServerContext.Provider value={{ server: server, isShowMembers: isShowMembers } }>
             <div className="flex items-center justify-center border-b border-gray-300 text-lg font-semibold">
                 {server == null ? (
                     <div className="h-6 w-32 animate-pulse rounded bg-gray-200"></div>
@@ -70,95 +77,109 @@ function Server() {
                 </div>
             </header>
             <nav className="flex-1 overflow-y-auto p-4">
-                <div className="mb-2 px-3 text-left text-sm font-semibold text-gray-500">
-                    Text channels
+                <div className="mb-2 flex flex-row px-3 text-left text-sm font-semibold text-gray-500 hover:text-gray-600">
+                    <span className="flex-grow">Text channels</span>
+                    <button
+                        data-tooltip-id='create-text-channel-tooltip'
+                        type="button">
+                        <GoPlus />
+                    </button>
+
+                    <Tooltip
+                        id='create-text-channel-tooltip' data-tooltip-content=""
+                        style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding: "5px 10px 8px 10px", boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)"}}
+                        opacity={1}
+                        border="1px solid #e8e8e8"
+                        place="top"
+                    >
+
+                        Create channel
+                    </Tooltip>
                 </div>
                 <ul className="mb-3 space-y-1">
-                    {server?.channels.filter(ch => ch.channelType == "Text").map((channel) => (
-                        <li key={channel.id}>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setActiveChannel(channel);
-                                }}
-                                className={`w-full flex gap-2 flex-row items-center text-left rounded-xl px-3 py-1.5 transition-colors ${activeChannel === channel
-                                    ? 'bg-gray-300 text-white'
-                                    : 'hover:bg-gray-200'
-                                    }`}
-                            >
-                                <FaHashtag/>
-                                {channel.name}
-                            </button>
-                        </li>
-                    ))}
+                    {isPending ? (
+                        <>
+                            {[...Array(2)].map((_, i) => (
+                                <li key={i} className="animate-pulse">
+                                    <div className="h-8 w-full rounded-xl bg-gray-200"></div>
+                                </li>
+                            ))}
+                        </>
+                    ) : (
+                        <>
+                                {server?.channels.filter(ch => ch.channelType == "Text").map((channel) => (
+                                    <li key={channel.id}>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setActiveChannel(channel);
+                                                navigate(`ch/${channel.id}`)
+                                            }}
+                                            className={`w-full flex gap-2 flex-row items-center text-left rounded-xl px-3 py-1.5 transition-colors ${activeChannel === channel
+                                                ? 'bg-gray-300 text-white'
+                                                : 'hover:bg-gray-200'
+                                                }`}
+                                        >
+                                            <FaHashtag />
+                                            {channel.name}
+                                        </button>
+                                    </li>))}                            
+                        </>
+                    )}
                 </ul>
-                <div className="mb-1 px-3 text-left text-sm font-semibold text-gray-500">
-                    Voice channels
+                <div className="mb-2 flex flex-row px-3 text-left text-sm font-semibold text-gray-500 hover:text-gray-600">
+                    <span className="flex-grow">Voice channels</span>
+                    <button
+                        data-tooltip-id='create-voice-channel-tooltip'
+                        type="button">
+                        <GoPlus />
+                    </button>
+
+                    <Tooltip
+                        id='create-voice-channel-tooltip' data-tooltip-content=""
+                        style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding: "5px 10px 8px 10px", boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)" }}
+                        opacity={1}
+                        border="1px solid #e8e8e8"
+                        place="top"
+                    >
+
+                        Create channel
+                    </Tooltip>
                 </div>
                 <ul className="space-y-1">
-                    {server?.channels.filter(ch => ch.channelType == "Audio").map((channel) => (
-                        <li key={channel.id}>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setActiveChannel(channel);
-                                }}
-                                className={`w-full flex gap-2 flex-row items-center text-left rounded-xl px-3 py-1.5 transition-colors ${activeChannel === channel
-                                    ? 'bg-gray-300 text-white'
-                                    : 'hover:bg-gray-200'
-                                    }`}
-                            >
-                                <HiSpeakerWave />
-                                {channel.name}
-                            </button>
-                        </li>
-                    ))}
+
+                    {isPending ? (
+                        <>
+                            {[...Array(3)].map((_, i) => (
+                                <li key={i} className="animate-pulse">
+                                    <div className="h-8 w-full rounded-xl bg-gray-200"></div>
+                                </li>
+                            ))}
+                        </>
+                    ) : (
+                        <>
+                                {server?.channels.filter(ch => ch.channelType == "Audio").map((channel) => (
+                                    <li key={channel.id}>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setActiveChannel(channel);
+                                            }}
+                                            className={`w-full flex gap-2 flex-row items-center text-left rounded-xl px-3 py-1.5 transition-colors ${activeChannel === channel
+                                                ? 'bg-gray-300 text-white'
+                                                : 'hover:bg-gray-200'
+                                                }`}
+                                        >
+                                            <HiSpeakerWave />
+                                            {channel.name}
+                                        </button>
+                                    </li>))}
+                        </>
+                    )}
                 </ul>
             </nav>
-            <div className="flex flex-row">
-                <div className="flex flex-grow flex-col">
-                    <section className="flex-1 space-y-4 overflow-y-auto bg-white p-4 dark:bg-gray-900">
-                        {messages.map((msg) => (
-                            <div key={msg.id} className="flex items-start space-x-2">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-sm font-medium text-white">
-                                    {msg.user.charAt(0)}
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center space-x-2">
-                                        <span className="font-medium text-gray-800 dark:text-slate-200">{msg.user}</span>
-                                        <span className="text-xs text-gray-500 dark:text-gray-400">{msg.timestamp}</span>
-                                    </div>
-                                    <p className="mt-1 text-gray-700 dark:text-slate-200">{msg.text}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </section>
-                    <main className="bg-white p-5">
-                        <form onSubmit={handleSendMessage}
-                            className="flex flex-grow flex-row items-center gap-2 rounded-xl border border-gray-200 bg-white p-2 shadow-2xl dark:border-gray-600 dark:bg-gray-800">
-                            <RiAttachment2 className="scale-150" />
-                            <textarea
-                                onInput={adjustHeight}
-                                rows={1}
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                placeholder={`Message #${activeChannel}`}
-                                className=" flex-1  dark:bg-gray-700 px-4 py-2 outline-none resize-none"
-                            />
-                            <button
-                                type="submit"
-                                className="w-8"
-                            >
-                                <IoSend className="scale-150" />
-                            </button>
-                        </form>
-                    </main>
-                </div>
-                {isShowMembers ? (<div className="w-60 border-l-1 border-gray-200 bg-white">
-                </div>) : (<></>)}
-                
-            </div>
-        </>
+            <Outlet />
+         </ServerContext.Provider>
     );
 }
 

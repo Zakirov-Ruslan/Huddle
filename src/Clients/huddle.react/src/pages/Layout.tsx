@@ -1,7 +1,7 @@
 ﻿import { Link, Outlet } from "react-router";
 import { GoHomeFill } from "react-icons/go";
 import { useAuth } from "react-oidc-context";
-import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
+import { FaMicrophone } from "react-icons/fa";
 import { TbHeadphonesOff } from "react-icons/tb";
 import { useMyServers } from "../api/servers/serverApiHooks";
 import { FaCirclePlus } from "react-icons/fa6";
@@ -47,9 +47,8 @@ function Layout() {
                             <div className="my-1 w-13 border-b border-slate-300"></div>
                         {
                             servers?.map(server =>
-                                <>
+                                <div key = { server.id }>
                                     <Link
-                                        key={server.id}
                                         to={`s/${server.id}`}
                                         className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200"
                                         data-tooltip-id={`server-item-tooltip-${server.id}`}
@@ -59,7 +58,8 @@ function Layout() {
                                     </Link>
                                     <Tooltip
                                         id={`server-item-tooltip-${server.id}`} data-tooltip-content="Hello to you too!"
-                                        style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding:"5px 10px 8px 10px" }}
+                                        style={{
+                                            backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding: "5px 10px 8px 10px", boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)" }}
                                         opacity={1}
                                         border= "1px solid #e8e8e8"
                                         place="right"
@@ -67,7 +67,7 @@ function Layout() {
                                         
                                         {server.name}
                                     </Tooltip>
-                                </>
+                                </div>
                             )}
                         <button
                             type="button"
@@ -89,7 +89,7 @@ function Layout() {
                             </div>
                         </div>
                     <div className="flex flex-row pt-4">
-                        <div className="grid flex-grow-1 grid-cols-[300px_1fr] grid-rows-[50px_1fr] overflow-hidden rounded-tl-2xl border-1 border-gray-300 bg-gray-100">
+                        <div className="grid h-full flex-grow-1 grid-cols-[300px_1fr] grid-rows-[50px_1fr] overflow-hidden rounded-tl-2xl border-1 border-gray-300 bg-gray-100">
                             <Outlet />
                         </div>
                     </div>

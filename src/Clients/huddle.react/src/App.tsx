@@ -4,10 +4,10 @@ import { BrowserRouter, Route, Routes } from "react-router"
 import Layout from './pages/Layout'
 import Server from './pages/Server'
 import Home from './pages/Home'
-import Channel from './components/Channel'
 import { Navigate } from 'react-router'
 import { AuthProvider } from "react-oidc-context";
 import type { User } from 'oidc-client-ts'
+import { Channel } from './components/Channel'
 
 const queryClient = new QueryClient()
 
@@ -40,7 +40,7 @@ function App() {
                                 <Route index element={<Navigate to="/h" replace />} />
                                 <Route path='h' element={<Home />} />
                                 <Route path="s/:serverId" element={<Server />} >
-                                    <Route path="ch" element={<Channel />} />
+                                    <Route path="ch/:channelId" element={<Channel />} />
                                 </Route>
                             </Route>
                         </Routes>
