@@ -29,11 +29,11 @@ namespace Huddle.Channel.Infrastructure.Repositories
 
         public async Task<IEnumerable<Message>> GetOlderAsync(Guid chatId, int pageSize, Guid beforeThan)
         {
-            var highterMessage = await _context.Messages.FirstAsync(m => m.Id == beforeThan);
+            var higherMessage = await _context.Messages.FirstAsync(m => m.Id == beforeThan);
 
             var messages = await _context.Messages
                 .AsNoTracking()
-                .Where(m => m.ChannelId == chatId && m.SentAt < highterMessage.SentAt)
+                .Where(m => m.ChannelId == chatId && m.SentAt < higherMessage.SentAt)
                 .Take(pageSize)
                 .ToListAsync();
 

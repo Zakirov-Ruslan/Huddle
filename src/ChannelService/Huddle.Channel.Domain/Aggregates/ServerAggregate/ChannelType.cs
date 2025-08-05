@@ -6,6 +6,6 @@ namespace Huddle.Channel.Domain.Aggregates.ServerAggregate
     public enum ChannelType 
     {
         Text,
-        Audio
+        Voice
     }
 }

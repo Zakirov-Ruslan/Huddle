@@ -54,7 +54,7 @@ export interface MessageDto {
   channelId: string;
   authorId: string;
   text: string;
-  sentAt: string; // ISO 8601 date-time string
+  sentAt: Date; // ISO 8601 date-time string
   isEdited: boolean;
 }
 

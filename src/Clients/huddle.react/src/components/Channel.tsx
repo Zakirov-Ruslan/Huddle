@@ -19,7 +19,7 @@ export const Channel = () => {
 
             {channel.channelType.toLowerCase() === "text" ? (
                 <TextChannel {...channel} />
-            ) : channel.channelType.toLowerCase() === "audio" ? (
+            ) : channel.channelType.toLowerCase() === "voice" ? (
                 <VoiceChannel {...channel} />
             ) : (
                 <div>Unsupported channel type</div>

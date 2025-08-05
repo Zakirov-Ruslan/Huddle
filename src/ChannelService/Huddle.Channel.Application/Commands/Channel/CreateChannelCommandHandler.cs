@@ -27,7 +27,7 @@ namespace Huddle.Channel.Application.Commands.Channel
             var channelType = request.ChannelType.ToLower() switch
             {
                 "text" => ChannelType.Text,
-                "audio" => ChannelType.Audio,
+                "voice" => ChannelType.Voice,
                 _ => throw new ArgumentException(nameof(request.ChannelType))
             };
 

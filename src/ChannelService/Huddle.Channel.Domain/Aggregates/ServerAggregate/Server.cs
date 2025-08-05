@@ -27,7 +27,7 @@ namespace Huddle.Channel.Domain.Aggregates.ServerAggregate
             IsPrivate = isPrivate;
 
             AddChannel(ChannelType.Text, "Main");
-            AddChannel(ChannelType.Audio, "Main");
+            AddChannel(ChannelType.Voice, "Main");
 
             ServerCreatedDomainEvent @event = new(Id, Name, OwnerIdentityId);
             AddDomainEvent(@event);
