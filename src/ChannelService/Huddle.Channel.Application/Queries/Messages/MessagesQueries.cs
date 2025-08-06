@@ -19,26 +19,21 @@ namespace Huddle.Channel.Application.Queries.Messages
             _accessService = accessService;
         }
 
-        public async Task<IEnumerable<MessageDto>> GetOlderAsync(Guid channelId, int pageSize, Guid beforeThan, Guid userIdentity)
+        public async Task<PaginatedItems<MessageDto>> GetMessages(Guid userIdentity, Guid channelId, Guid? cursor = null, int limit = 50)
         {
             var hasAccess = await _accessService.CanUserAccessChannelAsync(channelId, userIdentity);
             if (!hasAccess)
                 throw new ForbiddenAccessException("User dont have access to this channel");
 
-            var messages = await _messageRepository.GetOlderAsync(channelId, pageSize, beforeThan);
+            var paginatedMessages = await _messageRepository.GetMessagesAsync(cursor, limit);
 
-            return messages.Select(_mapper.Map<MessageDto>);
-        }
+            var messagesDto = paginatedMessages.Items.Select(_mapper.Map<MessageDto>);
 
-        public async Task<IEnumerable<MessageDto>> GetRecentAsync(Guid channelId, int pageSize, Guid userIdentity)
-        {
-            var hasAccess = await _accessService.CanUserAccessChannelAsync(channelId, userIdentity);
-            if (!hasAccess)
-                throw new ForbiddenAccessException("User dont have access to this channel");
-
-            var messages = await _messageRepository.GetRecentAsync(channelId, pageSize);
-
-            return messages.Select(_mapper.Map<MessageDto>);
+            return new PaginatedItems<MessageDto>(
+                messagesDto, 
+                paginatedMessages.HasMore, 
+                paginatedMessages.NextCursor
+            );
         }
     }
 }

@@ -1,38 +1,61 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createMessage, deleteMessage, getChannelMessages, getOlderMessages, updateMessage } from "./messagesApi";
-import type { CreateMessageRequest, MessageDto, UpdateMessageRequest } from "../dtos";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type InfiniteData } from "@tanstack/react-query";
+import { createMessage, deleteMessage, getMessages, updateMessage } from "./messagesApi";
+import type { CreateMessageRequest, MessageDto, PaginatedItems, UpdateMessageRequest } from "../dtos";
 
-// TODO: useInfiniteQuery 
-
-// Получить последние сообщения канала
-export const useChannelMessages = (channelId: string, pageSize: number = 50) => {
-    return useQuery<MessageDto[], Error>({
-        queryKey: ["channelMessages", channelId],
-        queryFn: () => getChannelMessages(channelId, pageSize),
-        enabled: !!channelId,
+export const useInfiniteMessages = (channelId: string) => {
+    return useInfiniteQuery({
+        queryKey: ['messages', channelId],
+        queryFn: ({ pageParam }: { pageParam: string | null }) =>
+            getMessages({
+                channelId,
+                cursor: pageParam
+            }),
+        getNextPageParam: (lastPage) => {
+            return lastPage.hasMore ? lastPage.nextCursor : undefined;
+        },
+        initialPageParam: null,
+        staleTime: 5 * 60 * 1000, //5 minutes
+        refetchOnWindowFocus: false,
     });
 };
 
-// Получить более старые сообщения (бесконечный скролл вверх)
-export const useGetOlderMessages = (channelId: string, beforeMessageId?: string, pageSize: number = 50) => {
-    return useQuery<MessageDto[], Error>({
-        queryKey: ["olderMessages", channelId, beforeMessageId],
-        queryFn: () => getOlderMessages(channelId, beforeMessageId, pageSize),
-        enabled: !!channelId,
-    });
-};
-
-// Отправить сообщение
 export const useSendMessage = () => {
     const queryClient = useQueryClient();
+
     return useMutation<MessageDto, Error, { channelId: string; data: CreateMessageRequest }>({
         mutationFn: ({ channelId, data }) => createMessage(channelId, data),
         onSuccess: (newMessage, variables) => {
             const { channelId } = variables;
-            // Обновляем кэш текущего канала
-            queryClient.setQueryData<MessageDto[]>(
-                ["channelMessages", channelId],
-                (oldMessages = []) => [newMessage, ...oldMessages]
+
+            // Правильное обновление для infinite query
+            queryClient.setQueryData<InfiniteData<PaginatedItems<MessageDto>>>(
+                ['messages', channelId],
+                (oldData) => {
+                    if (!oldData) {
+                        return {
+                            pages: [{
+                                items: [newMessage],
+                                hasMore: true,
+                                nextCursor: null
+                            }],
+                            pageParams: [null]
+                        };
+                    }
+
+                    // Обновляем первую страницу, добавляя новое сообщение
+                    const updatedPages = [...oldData.pages];
+                    if (updatedPages.length > 0) {
+                        updatedPages[0] = {
+                            ...updatedPages[0],
+                            items: [newMessage, ...updatedPages[0].items]
+                        };
+                    }
+
+                    return {
+                        ...oldData,
+                        pages: updatedPages
+                    };
+                }
             );
         },
     });
@@ -46,8 +69,7 @@ export const useUpdateMessage = () => {
         onSuccess: (_, variables) => {
             const { channelId } = variables;
             // Инвалидируем кэш сообщений, чтобы подтянулись обновлённые данные
-            queryClient.invalidateQueries({ queryKey: ["channelMessages", channelId] });
-            queryClient.invalidateQueries({ queryKey: ["olderMessages", channelId] });
+            queryClient.invalidateQueries({ queryKey: ["messages", channelId] });
         },
     });
 };
@@ -61,12 +83,7 @@ export const useDeleteMessage = () => {
             const { channelId } = variables;
             // Удаляем сообщение из кэша
             queryClient.setQueryData<MessageDto[]>(
-                ["channelMessages", channelId],
-                (oldMessages = []) =>
-                    oldMessages.filter((msg) => msg.id !== variables.messageId)
-            );
-            queryClient.setQueryData<MessageDto[]>(
-                ["olderMessages", channelId],
+                ["messages", channelId],
                 (oldMessages = []) =>
                     oldMessages.filter((msg) => msg.id !== variables.messageId)
             );

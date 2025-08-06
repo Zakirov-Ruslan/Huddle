@@ -49,6 +49,13 @@ export interface UpdateMemberRequest {
   description: string;
 }
 
+export interface MessageParams
+{
+    channelId: string;
+    cursor?: string | null;
+    limit?: number;
+}
+
 export interface MessageDto {
   id: string;
   channelId: string;
@@ -56,6 +63,11 @@ export interface MessageDto {
   text: string;
   sentAt: Date; // ISO 8601 date-time string
   isEdited: boolean;
+}
+export interface PaginatedItems<T> {
+    items: T[];
+    hasMore: boolean;
+    nextCursor: string | null;
 }
 
 export interface ServerDto {

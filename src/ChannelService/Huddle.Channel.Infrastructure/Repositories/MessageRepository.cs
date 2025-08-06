@@ -15,29 +15,31 @@ namespace Huddle.Channel.Infrastructure.Repositories
 
         public IUnitOfWork UnitOfWork => _context;
 
-        public async Task<IEnumerable<Message>> GetRecentAsync(Guid chatId, int pageSize)
+        public async Task<PaginatedItems<Message>> GetMessagesAsync(Guid? cursor = null, int limit = 50)
         {
-            var messages = await _context.Messages
-                .AsNoTracking()
-                .Where(m => m.ChannelId == chatId)
-                .OrderByDescending(m => m.SentAt)
-                .Take(pageSize)
-                .ToListAsync();
+            var query = _context.Messages
+                .OrderByDescending(m => m.SentAt);
 
-            return messages;
-        }
+            if (cursor.HasValue)
+            {
+                var cursorMessage = await _context.Messages.FindAsync(cursor.Value);
+                if (cursorMessage != null)
+                {
+                    query = _context.Messages
+                        .Where(m => m.SentAt < cursorMessage.SentAt ||
+                                    (m.SentAt == cursorMessage.SentAt && m.Id < cursorMessage.Id))
+                        .OrderByDescending(m => m.SentAt)
+                        .ThenByDescending(m => m.Id);
+                }
+            }
 
-        public async Task<IEnumerable<Message>> GetOlderAsync(Guid chatId, int pageSize, Guid beforeThan)
-        {
-            var higherMessage = await _context.Messages.FirstAsync(m => m.Id == beforeThan);
+            var messages = await query.Take(limit + 1).ToListAsync();
 
-            var messages = await _context.Messages
-                .AsNoTracking()
-                .Where(m => m.ChannelId == chatId && m.SentAt < higherMessage.SentAt)
-                .Take(pageSize)
-                .ToListAsync();
+            var hasMore = messages.Count > limit;
+            var result = hasMore ? messages.Take(limit).ToList() : messages;
+            var nextCursor = result.Any() ? result.Last().Id : (Guid?)null;
 
-            return messages;
+            return new PaginatedItems<Message>(result, hasMore, nextCursor);
         }
 
         public async Task<Message?> GetAsync(Guid id)

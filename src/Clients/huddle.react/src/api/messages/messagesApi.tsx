@@ -1,36 +1,30 @@
 import { CHANNEL_SERVICE_URL } from "../api";
 import { authenticatedFetch } from "../authenticatedFetch";
-import type { MessageDto, CreateMessageRequest, UpdateMessageRequest } from "../dtos";
+import type { MessageDto, CreateMessageRequest, UpdateMessageRequest, PaginatedItems, MessageParams } from "../dtos";
 
 // Получить сообщения канала (новые)
-export const getChannelMessages = async (
-    channelId: string,
-    pageSize: number = 50
-): Promise<MessageDto[]> => {
-    const response = await authenticatedFetch(
-        `${CHANNEL_SERVICE_URL}/api/channels/${channelId}/Messages?pageSize=${pageSize}`,
+export const getMessages = async ({
+    channelId,
+    cursor = null,
+    limit = 50
+}: MessageParams): Promise<PaginatedItems<MessageDto>> => {
+    const params = new URLSearchParams();
+    if (cursor) params.append('cursor', cursor);
+    params.append('limit', limit.toString());
+
+    const response = await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/channels/${channelId}/Messages?${params.toString()}`,
         {
             method: 'GET',
         }
     );
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch messages');
+    }
+
     return response.json();
 };
 
-// Получить более старые сообщения
-export const getOlderMessages = async (
-    channelId: string,
-    beforeMessageId?: string,
-    pageSize: number = 50
-): Promise<MessageDto[]> => {
-    let url = `${CHANNEL_SERVICE_URL}/api/channels/${channelId}/Messages/older?pageSize=${pageSize}`;
-    if (beforeMessageId) {
-        url += `&beforeMessageId=${beforeMessageId}`;
-    }
-    const response = await authenticatedFetch(url, {
-        method: 'GET',
-    });
-    return response.json();
-};
 
 // Создать сообщение
 export const createMessage = async (

@@ -2,6 +2,7 @@
 using Huddle.Channel.Application.Dto;
 using Huddle.Channel.Application.Exceptions;
 using Huddle.Channel.Application.Queries.Messages;
+using Huddle.Channel.Domain.Aggregates.MessageAggregate;
 using Huddle.Channel.WebApi.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -20,9 +21,8 @@ namespace Huddle.Channel.WebApi.Controllers
             _messageQueries = messageQueries;
         }
 
-        // GET: api/<MessagesController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MessageDto>>> GetRecent(Guid channelId, [FromQuery] int pageSize = 50)
+        public async Task<ActionResult<PaginatedItems<MessageDto>>> Get(Guid channelId, [FromQuery] Guid? cursor = null, [FromQuery] int limit = 20)
         {
             var identityId = User.GetCurrentUserIdentityId();
             if (identityId == null)
@@ -30,39 +30,11 @@ namespace Huddle.Channel.WebApi.Controllers
 
             try
             {
-                var messages = await _messageQueries.GetRecentAsync(channelId, pageSize, identityId.Value);
+                var messages = await _messageQueries.GetMessages(identityId.Value, channelId, cursor, limit);
 
                 return Ok(messages);
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (ForbiddenAccessException ex)
-            {
-                return Forbid();
-            }
-        }
-
-        // GET api/<MessagesController>/5
-        [HttpGet("older")]
-        public async Task<ActionResult<IEnumerable<MessageDto>>> GetOlder(Guid channelId, [FromQuery] Guid beforeMessageId, [FromQuery] int pageSize = 50)
-        {
-            var identityId = User.GetCurrentUserIdentityId();
-            if (identityId == null)
-                return Unauthorized();
-
-            try
-            {
-                var messages = await _messageQueries.GetOlderAsync(channelId, pageSize, beforeMessageId, identityId.Value);
-
-                return Ok(messages);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (ForbiddenAccessException ex)
+            catch (ForbiddenAccessException)
             {
                 return Forbid();
             }

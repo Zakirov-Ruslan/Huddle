@@ -4,11 +4,24 @@ namespace Huddle.Channel.Domain.Aggregates.MessageAggregate
 {
     public interface IMessageRepository : IRepository<Message>
     {
-        Task<IEnumerable<Message>> GetRecentAsync(Guid chatId, int pageSize);
-        Task<IEnumerable<Message>> GetOlderAsync(Guid chatId, int pageSize, Guid beforeThan);
+        Task<PaginatedItems<Message>> GetMessagesAsync(Guid? cursor = null, int limit = 50);
         Task<Message?> GetAsync(Guid id);
         Message Add(Message message);
         void Update(Message message);
         Task Delete(Guid id);
+    }
+
+    public class PaginatedItems<T>
+    {
+        public IEnumerable<T> Items { get; set; }
+        public bool HasMore { get; set; }
+        public Guid? NextCursor { get; set; }
+
+        public PaginatedItems(IEnumerable<T> items, bool hasMore, Guid? nextCursor)
+        {
+            Items = items;
+            HasMore = hasMore;
+            NextCursor = nextCursor;
+        }
     }
 }

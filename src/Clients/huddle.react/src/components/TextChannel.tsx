@@ -2,46 +2,74 @@
 import { IoSend } from "react-icons/io5";
 import { RiAttachment2 } from "react-icons/ri";
 import type { ChannelDto } from "../api/dtos";
-import { useChannelMessages, useSendMessage } from "../api/messages/messagesApiHooks";
+import { useInfiniteMessages, useSendMessage } from "../api/messages/messagesApiHooks";
 import { adjustHeight } from "../utils/domHelpers";
+import { useInView } from 'react-intersection-observer';
 
 import "../styles/scrollbar.css";
+import React from "react";
 
 const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) => {
 
-    const { data: messages, error, isPending } = useChannelMessages(id);
+    const {
+        data,
+        isFetching,
+        isFetchingNextPage,
+        hasNextPage,
+        fetchNextPage,
+    } = useInfiniteMessages(id);
+
     const sendMessage = useSendMessage();
 
     const [message, setMessage] = useState('');
-    const messagesEndRef: RefObject<HTMLDivElement | null> = useRef(null);
+
+    const listRef = useRef<HTMLDivElement>(null);
+    const [loaderRef, inView] = useInView();
 
     useEffect(() => {
-        messagesEndRef?.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-    }, [messages]);
+        if (inView && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+        }
+    }, [inView, hasNextPage, fetchNextPage, isFetchingNextPage]);
+
+    useEffect(() => {
+        if (!isFetching && listRef.current && data?.pages?.[0]?.items?.length) {
+            listRef.current?.scrollTo({
+                top: listRef.current.scrollHeight,
+                behavior: 'instant'
+            });
+        }
+    }, [isFetching, data?.pages]);
 
     return (
         <div className="flex flex-grow flex-row">
             <div className="flex flex-grow flex-col">
-                <section ref={messagesEndRef} className="custom-scrollbar flex flex-1 flex-col gap-4 overflow-y-scroll bg-white p-6 dark:bg-gray-900">
-                    {messages
-                        ?.sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime())
+                <section ref={listRef} className="custom-scrollbar flex flex-1 flex-col gap-4 overflow-y-scroll bg-white p-6 dark:bg-gray-900">
+                    <div ref={loaderRef} />
+                    {isFetchingNextPage && (
+                        <div className="loading-indicator">Loading older messages...</div>
+                    )}
+                    {data?.pages.flatMap(page => page.items)
+                        .sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime())
                         .map((msg) => (
-                        <div key={msg.id} className="m-t-auto flex items-start space-x-2 first:mt-auto">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-sm font-medium text-white">
-                                {'U'}
-                            </div>
-                            <div className="flex-1">
-                                <div className="flex items-center space-x-2">
-                                    <span className="font-medium text-gray-800 dark:text-slate-200">{msg.authorId}</span>
-                                    <span className="text-xs text-gray-500 dark:text-gray-400">{msg.sentAt.toString()}</span>
+                            <div key={msg.id} className="m-t-auto flex items-start space-x-2 first:mt-auto">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-sm font-medium text-white">
+                                    {'U'}
                                 </div>
-                                <p className="mt-1 text-left text-gray-700 dark:text-slate-200">{msg.text}</p>
+                                <div className="flex-1">
+                                    <div className="flex items-center space-x-2">
+                                        <span className="font-medium text-gray-800 dark:text-slate-200">{msg.authorId}</span>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400">{msg.sentAt.toString()}</span>
+                                    </div>
+                                    <p className="mt-1 text-left text-gray-700 dark:text-slate-200">{msg.text}</p>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+
+                        ))}
+
                 </section>
                 <main className="bg-white px-5 pb-5">
-                    <form 
+                    <form
                         onSubmit={(e) => {
                             e.preventDefault();
                             sendMessage.mutate(
@@ -71,7 +99,7 @@ const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) 
             </div>
         </div>
     );
-    
+
 }
 
 export default TextChannel;
