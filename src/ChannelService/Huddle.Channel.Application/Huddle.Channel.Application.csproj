@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DomainEventHandlers\Message\" />
     <Folder Include="DomainEventHandlers\Member\" />
     <Folder Include="IntegrationEvents\EventHandling\" />
   </ItemGroup>

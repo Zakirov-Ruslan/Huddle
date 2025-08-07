@@ -1,5 +1,5 @@
 ﻿using Huddle.Channel.Application.IntegrationEvents;
-using Huddle.Channel.Application.IntegrationEvents.Events;
+using Huddle.Channel.Application.IntegrationEvents.Events.Channels;
 using Huddle.Channel.Domain.Aggregates.Events;
 using MediatR;
 

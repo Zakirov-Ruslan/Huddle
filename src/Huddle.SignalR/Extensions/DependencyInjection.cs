@@ -1,5 +1,5 @@
-﻿using Huddle.SignalR.IntegrationEvents.EventHandlers;
-using Huddle.SignalR.IntegrationEvents.Events;
+﻿using Huddle.SignalR.IntegrationEvents.EventHandlers.Channels;
+using Huddle.SignalR.IntegrationEvents.Events.Channels;
 
 namespace Huddle.SignalR.Extensions
 {

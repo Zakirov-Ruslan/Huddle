@@ -1,6 +1,6 @@
 ﻿using Huddle.EventBus.Events;
 
-namespace Huddle.SignalR.IntegrationEvents.Events
+namespace Huddle.Channel.Application.IntegrationEvents.Events.Channels
 {
     public record ChannelDeletedIntegrationEvent : IntegrationEvent
     {

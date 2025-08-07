@@ -9,6 +9,7 @@ namespace Huddle.Channel.Infrastructure.EntityConfigurations
         public void Configure(EntityTypeBuilder<Message> messageConfiguration)
         {
             messageConfiguration.HasKey(x => x.Id);
+            messageConfiguration.Property(e => e.Id).ValueGeneratedNever();
 
             messageConfiguration.Ignore(s => s.DomainEvents);
 

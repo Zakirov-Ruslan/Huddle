@@ -1,11 +1,11 @@
 ﻿using Huddle.Channel.Application.Dto;
 using Huddle.EventBus.Abstractions;
-using Huddle.SignalR.IntegrationEvents.Events;
+using Huddle.SignalR.IntegrationEvents.Events.Channels;
 using Microsoft.AspNetCore.SignalR;
 using Ordering.SignalrHub;
 using System.Reflection;
 
-namespace Huddle.SignalR.IntegrationEvents.EventHandlers
+namespace Huddle.SignalR.IntegrationEvents.EventHandlers.Channels
 {
     public class ChannelCreatedIntegrationEventHandler : IIntegrationEventHandler<ChannelCreatedIntegrationEvent>
     {

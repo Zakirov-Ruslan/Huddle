@@ -14,6 +14,7 @@ namespace Huddle.Channel.Domain.Aggregates.MessageAggregate
         private Message() { }
         public Message(Guid authorId, Guid channelId, string text)
         {
+            Id = Guid.NewGuid();
             AuthorId = authorId;
             ChannelId = channelId;
             Text = text;
