@@ -13,6 +13,8 @@ namespace Huddle.Channel.Infrastructure.EntityConfigurations
 
             messageConfiguration.Ignore(s => s.DomainEvents);
 
+            messageConfiguration.HasIndex(m => m.SentAt);
+
             messageConfiguration
                 .HasOne<Domain.Aggregates.ServerAggregate.Channel>()
                 .WithMany()

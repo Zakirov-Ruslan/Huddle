@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState, type RefObject } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { IoSend } from "react-icons/io5";
 import { RiAttachment2 } from "react-icons/ri";
 import type { ChannelDto } from "../api/dtos";

@@ -11,6 +11,13 @@ import { GoPlus } from "react-icons/go";
 import { Tooltip } from "react-tooltip";
 import ReactModal from "react-modal";
 import CreateChannelDialog from "../dialogs/CreateChannelDialog";
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import { BsPersonFillAdd } from "react-icons/bs";
+import { IoIosSettings } from "react-icons/io";
+import { FaPlusCircle } from "react-icons/fa";
+import { RiArrowDownSLine } from "react-icons/ri";
+import { MdClose } from "react-icons/md";
+
 export interface ServerContextType {
     server: ServerDto | undefined;
     isShowMembers: boolean;
@@ -58,15 +65,45 @@ function Server() {
     return (
         <>
             <ServerContext.Provider value={{ server: server, isShowMembers: isShowMembers }}>
-                <div className="flex items-center justify-center border-b border-gray-300 text-lg font-semibold">
-                    {server == null ? (
-                        <div className="h-6 w-32 animate-pulse rounded-xl bg-gray-200"></div>
-                    ) : (
-                        <span>{server.name}</span>
-                    )}
-                </div>
+                <Menu>
+                    <MenuButton type="button" className="justify-left flex items-center border-b border-gray-300 px-5 text-lg font-semibold text-gray-700 transition-colors duration-150 hover:bg-gray-200 focus:not-data-focus:outline-none">
+                        {({ active }) => (
+                            <>
+                                {server == null ? (
+                                    <span className="h-6 w-32 animate-pulse rounded-xl bg-gray-200"></span>
+                                ) : (
+                                    <span className="flex-grow text-left">{server.name}</span>
+                                )}
+                                {active ? <MdClose /> : <RiArrowDownSLine />}
+                            </>
+                        )}
+                    </MenuButton>
+                    <MenuItems
+                        anchor="bottom"
+                        className="flex w-56 origin-top-right flex-col rounded-md border-1 border-gray-200 bg-white p-2 shadow-md transition duration-100 ease-out focus:outline-none [--anchor-gap:--spacing(1)]"
+                    >
+                        <MenuItem>
+                            <button type="button" className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100">
+                                <span className="flex-grow">Server settings</span>
+                                <IoIosSettings />
+                            </button>
+                        </MenuItem>
+                        <MenuItem>
+                            <button type="button" className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100">
+                                <span className="flex-grow">Invite friends</span>
+                                <BsPersonFillAdd />
+                            </button>
+                        </MenuItem>
+                        <MenuItem>
+                            <button type="button" className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100">
+                                <span className="flex-grow">Create channel</span>
+                                <FaPlusCircle />
+                            </button>
+                        </MenuItem>
+                    </MenuItems>
+                </Menu>
                 <header className="flex items-center justify-between border-b-1 border-gray-300 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
-                    <h2 className="flex flex-row items-center gap-1 font-semibold text-gray-800 dark:text-slate-200">
+                    <h2 className="flex flex-row items-center gap-1 font-semibold text-gray-700 dark:text-slate-200">
                         <FaHashtag />
                         {activeChannel?.name}
                     </h2>

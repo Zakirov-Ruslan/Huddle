@@ -89,7 +89,7 @@ function Layout() {
                             </div>
                         </div>
                     <div className="flex flex-row pt-4"> 
-                        <div className="grid h-full flex-grow-1 grid-cols-[300px_1fr] grid-rows-[50px_calc(100vh_-_70px)] overflow-hidden rounded-tl-2xl border-1 border-gray-300 bg-gray-100">
+                        <div className="grid h-full flex-grow-1 grid-cols-[300px_1fr] grid-rows-[50px_calc(100vh_-_calc(50px_+_1.25rem))] overflow-hidden rounded-tl-2xl border-1 border-gray-300 bg-gray-100">
                             <Outlet />
                         </div>
                     </div>

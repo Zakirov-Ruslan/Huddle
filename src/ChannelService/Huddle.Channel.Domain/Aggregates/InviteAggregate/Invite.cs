@@ -9,12 +9,15 @@ namespace Huddle.Channel.Domain.Aggregates.InviteAggregate
         public Guid ServerId { get; private set; }
         public Guid UserId { get; private set; }
         public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
-
+        
+        //public string Code { get; private set; }
         private Invite() { }
         public Invite(Guid serverId, Guid userId)
         {
             ServerId = serverId;
             UserId = userId;
+
+            
 
             InviteCreatedDomainEvent @event = new(ServerId, userId);
             AddDomainEvent(@event);
