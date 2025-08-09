@@ -7,7 +7,6 @@ namespace Huddle.Channel.Domain.Aggregates.MessageAggregate
         Task<PaginatedItems<Message>> GetMessagesAsync(Guid? cursor = null, int limit = 50);
         Task<Message?> GetAsync(Guid id);
         Message Add(Message message);
-        void Update(Message message);
         Task Delete(Guid id);
     }
 

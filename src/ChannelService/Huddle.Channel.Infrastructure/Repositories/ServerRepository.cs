@@ -39,11 +39,6 @@ namespace Huddle.Channel.Infrastructure.Repositories
             return server;
         }
 
-        public void Update(Server server)
-        {
-            _context.Update(server);
-        }
-
         public async Task Delete(Guid id)
         {
             var server = await _context.Servers.FindAsync(id)

@@ -54,11 +54,6 @@ namespace Huddle.Channel.Infrastructure.Repositories
             return message;
         }
 
-        public void Update(Message message)
-        {
-            _context.Update(message);
-        }
-
         public async Task Delete(Guid id)
         {
             var message = await _context.Messages.SingleOrDefaultAsync(m => m.Id == id)  ??
