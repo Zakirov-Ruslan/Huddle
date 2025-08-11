@@ -1,6 +1,6 @@
 import { CHANNEL_SERVICE_URL } from "../api";
 import { authenticatedFetch } from "../authenticatedFetch";
-import type { MemberDto, UpdateMemberRequest } from "../dtos";
+import type { MemberDto, MembersParams, MessageDto, PaginatedItems, UpdateMemberRequest } from "../dtos";
 
 // Получить конкретного участника
 export const getMember = async (serverId: string, memberId: string): Promise<MemberDto> => {
@@ -14,10 +14,22 @@ export const getMember = async (serverId: string, memberId: string): Promise<Mem
 };
 
 // Получить список участников сервера
-export const getServerMembers = async (serverId: string): Promise<MemberDto[]> => {
-    const response = await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/servers/${serverId}/Members`, {
-        method: 'GET',
-    });
+export const getServerMembers = async ({ serverId, cursor = null, limit = 50 }: MembersParams): Promise<PaginatedItems<MemberDto>> => {
+
+    const params = new URLSearchParams();
+    if (cursor) params.append('cursor', cursor);
+    params.append('limit', limit.toString());
+
+    const response = await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/servers/${serverId}/Members?${params.toString()}`,
+        {
+            method: 'GET',
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch server members');
+    }
+
     return response.json();
 };
 

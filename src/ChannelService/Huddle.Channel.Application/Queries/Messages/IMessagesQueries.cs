@@ -1,5 +1,5 @@
 ﻿using Huddle.Channel.Application.Dto;
-using Huddle.Channel.Domain.Aggregates.MessageAggregate;
+using Huddle.Channel.Domain;
 
 namespace Huddle.Channel.Application.Queries.Messages
 {

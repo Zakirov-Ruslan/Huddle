@@ -2,7 +2,7 @@
 using Huddle.Channel.Application.Dto;
 using Huddle.Channel.Application.Exceptions;
 using Huddle.Channel.Application.Queries.Messages;
-using Huddle.Channel.Domain.Aggregates.MessageAggregate;
+using Huddle.Channel.Domain;
 using Huddle.Channel.WebApi.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

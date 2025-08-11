@@ -4,9 +4,9 @@ namespace Huddle.Channel.Domain.Aggregates.MemberAggregate
 {
     public interface IMemberRepository : IRepository<Member>
     {
-        Task<IEnumerable<Member>> GetByServerIdAsync(Guid serverId); //need pagination here
+        Task<PaginatedItems<Member>> GetByServerIdAsync(Guid serverId, Guid? cursor = null, int limit = 50);
         Task<Member?> GetAsync(Guid memberId);
-        Member Add(Member mebmer);
+        Member Add(Member member);
         Task Delete(Guid memberId);
         Task<Member?> GetByServerAndIdentityIdAsync(Guid serverId, Guid identityId);
     }

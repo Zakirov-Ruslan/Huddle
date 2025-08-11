@@ -2,7 +2,7 @@
 import { IoSend } from "react-icons/io5";
 import { RiAttachment2 } from "react-icons/ri";
 import type { ChannelDto } from "../api/dtos";
-import { useInfiniteMessages, useSendMessage } from "../api/messages/messagesApiHooks";
+import { useInfiniteMessages, useSendMessage } from "../hooks/messagesApiHooks";
 import { adjustHeight } from "../utils/domHelpers";
 import { useInView } from 'react-intersection-observer';
 

@@ -3,6 +3,7 @@ using System;
 using Huddle.Channel.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Huddle.Channel.Infrastructure.Migrations
 {
     [DbContext(typeof(ChannelContext))]
-    partial class ChannelContextModelSnapshot : ModelSnapshot
+    [Migration("20250811170431_Added_CreatedAt_Member")]
+    partial class Added_CreatedAt_Member
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

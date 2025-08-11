@@ -56,6 +56,12 @@ export interface MessageParams
     limit?: number;
 }
 
+export interface MembersParams {
+    serverId: string;
+    cursor?: string | null;
+    limit?: number;
+}
+
 export interface MessageDto {
   id: string;
   channelId: string;

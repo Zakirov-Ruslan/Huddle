@@ -1,5 +1,5 @@
 ﻿import { useEffect, useState } from "react";
-import { useServer } from "../api/servers/serverApiHooks";
+import { useServer } from "../hooks/serverApiHooks";
 import { FaHashtag } from "react-icons/fa6";
 import { useNavigate, useParams } from "react-router";
 import type { ChannelDto, ServerDto } from "../api/dtos";
@@ -33,7 +33,7 @@ type ChannelType = 'text' | 'voice';
 
 function Server() {
 
-    const { serverId } = useParams();
+    const { serverId, channelId } = useParams();
     if (!serverId) {
         return <div>Invalid server ID</div>;
     }
@@ -51,7 +51,6 @@ function Server() {
     }, [serverId]);
 
     useEffect(() => {
-
         if (server && !activeChannel) {
             const textChannel = server.channels.find(ch => ch.channelType.toLowerCase() == "text");
 

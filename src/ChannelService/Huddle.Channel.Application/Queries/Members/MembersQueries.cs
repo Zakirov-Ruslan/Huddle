@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Huddle.Channel.Application.Dto;
+using Huddle.Channel.Domain;
 using Huddle.Channel.Domain.Aggregates.MemberAggregate;
 
 namespace Huddle.Channel.Application.Queries.Members
@@ -21,11 +22,17 @@ namespace Huddle.Channel.Application.Queries.Members
             return _mapper.Map<MemberDto>(member);
         }
 
-        public async Task<IEnumerable<MemberDto>> GetByServerId(Guid serverId)
+        public async Task<PaginatedItems<MemberDto>> GetByServerId(Guid serverId, Guid? cursor = null, int limit = 50)
         {
-            var members = await _memberRepository.GetByServerIdAsync(serverId);
+            var paginatedMembers = await _memberRepository.GetByServerIdAsync(serverId, cursor, limit);
 
-            return members.Select(_mapper.Map<MemberDto>);
+            var membersDto = paginatedMembers.Items.Select(_mapper.Map<MemberDto>).ToList();
+
+            return new PaginatedItems<MemberDto>(
+                membersDto,
+                paginatedMembers.HasMore,
+                paginatedMembers.NextCursor
+            );
         }
     }
 }

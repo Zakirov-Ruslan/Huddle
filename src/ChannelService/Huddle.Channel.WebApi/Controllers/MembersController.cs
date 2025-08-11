@@ -1,6 +1,7 @@
 ﻿using Huddle.Channel.Application.Commands.Member;
 using Huddle.Channel.Application.Dto;
 using Huddle.Channel.Application.Queries.Members;
+using Huddle.Channel.Domain;
 using Huddle.Channel.WebApi.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -29,9 +30,9 @@ namespace Huddle.Channel.WebApi.Controllers
         }
 
         [HttpGet()]
-        public async Task<ActionResult<IEnumerable<MemberDto>>> GetByServerId(Guid serverId)
+        public async Task<ActionResult<PaginatedItems<MemberDto>>> GetByServerId(Guid serverId, [FromQuery] Guid? cursor = null, [FromQuery] int limit = 50)
         {
-            var members = await _membersQueries.GetByServerId(serverId);
+            var members = await _membersQueries.GetByServerId(serverId, cursor, limit);
 
             return Ok(members);
         }
