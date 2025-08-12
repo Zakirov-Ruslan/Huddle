@@ -3,7 +3,7 @@ import { GoHomeFill } from "react-icons/go";
 import { useAuth } from "react-oidc-context";
 import { FaMicrophone } from "react-icons/fa";
 import { TbHeadphonesOff } from "react-icons/tb";
-import { useMyServers } from "../api/servers/serverApiHooks";
+import { useMyServers } from "../hooks/serverApiHooks";
 import { FaCirclePlus } from "react-icons/fa6";
 import ReactModal from 'react-modal';
 import CreateServerDialog from "../dialogs/CreateServerDialog";

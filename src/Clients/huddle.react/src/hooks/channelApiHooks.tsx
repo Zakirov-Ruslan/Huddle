@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { ChannelDto, CreateChannelRequest, ServerDto } from "../dtos";
-import { createChannel } from "./channelsApi";
+import { createChannel } from "../api/channels/channelsApi";
+import type { ChannelDto, CreateChannelRequest, ServerDto } from "../api/dtos";
+
 
 // Создать сервер
 export const useCreateChannel = (serverId: string) => {

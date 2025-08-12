@@ -1,6 +1,6 @@
 ﻿import { useState } from "react";
 import type { ChannelDto } from "../api/dtos";
-import { useCreateChannel } from "../api/channels/channelApiHooks";
+import { useCreateChannel } from "../hooks/channelApiHooks";
 
 interface CreateServerDialogProps {
     onCreateChannel: (createdChannel: ChannelDto) => void;

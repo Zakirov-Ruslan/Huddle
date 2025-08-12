@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useCreateServer } from "../api/servers/serverApiHooks";
 import type { ServerDto } from "../api/dtos";
+import { useCreateServer } from "../hooks/serverApiHooks";
 
 interface CreateServerDialogProps {
     onCreateServer: (createdServer: ServerDto) => void;
