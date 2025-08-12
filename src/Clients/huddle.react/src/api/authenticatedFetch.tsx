@@ -14,7 +14,6 @@ function getUser(): User {
 
 export const authenticatedFetch = async (url: string, options: RequestInit = {}) => {
     const user = getUser();
-
     const token = user?.access_token;
 
     if (!token)
@@ -26,7 +25,6 @@ export const authenticatedFetch = async (url: string, options: RequestInit = {})
 
     defaultHeaders['Authorization'] = `Bearer ${token}`;
 
-
     const config: RequestInit = {
         ...options,
         headers: {
@@ -37,11 +35,8 @@ export const authenticatedFetch = async (url: string, options: RequestInit = {})
 
     const response = await fetch(url, config);
 
-    if (!response.ok) {
-        // Обработка ошибок
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-    }
+    if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}, message: ${await response.text() }`);
 
     return response;
 };

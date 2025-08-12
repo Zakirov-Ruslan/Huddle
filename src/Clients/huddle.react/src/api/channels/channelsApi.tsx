@@ -2,7 +2,6 @@ import { CHANNEL_SERVICE_URL } from "../api";
 import { authenticatedFetch } from "../authenticatedFetch";
 import type { ChannelDto, CreateChannelRequest, UpdatedChannelRequest } from "../dtos";
 
-// Создать канал
 export const createChannel = async (serverId: string, data: CreateChannelRequest): Promise<ChannelDto> => {
     const response = await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/servers/${serverId}/Channels`, {
         method: 'POST',
@@ -12,7 +11,6 @@ export const createChannel = async (serverId: string, data: CreateChannelRequest
     return response.json();
 };
 
-// Обновить канал
 export const updateChannel = async (
     serverId: string,
     id: string,
@@ -24,7 +22,6 @@ export const updateChannel = async (
     });
 };
 
-// Удалить канал
 export const deleteChannel = async (serverId: string, id: string): Promise<void> => {
     await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/servers/${serverId}/Channels/${id}`, {
         method: 'DELETE',
