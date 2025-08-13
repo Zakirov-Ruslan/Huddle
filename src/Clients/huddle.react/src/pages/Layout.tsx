@@ -18,30 +18,13 @@ function Layout() {
     const auth = useAuth();
 
     const { data: servers, error, isPending } = useMyServers();
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
-
-    switch (auth.activeNavigator) {
-        case "signinSilent":
-            return <div>Signing you in...</div>;
-        case "signoutRedirect":
-            return <div>Signing you out...</div>;
-    }
-
-    if (auth.isLoading) {
-        return <div>Loading...</div>;
-    }
-
-    if (auth.error) {
-        return <div>Oops... {auth.error.name} caused {auth.error.message}</div>;
-    }
-
-    if (auth.isAuthenticated) {
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
         return (
             <>
                 <div className="grid h-full grid-cols-[auto_1fr] bg-gray-100">
-                        <div className="flex flex-col items-center gap-3 p-4">
-                            <Link to="/h" className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200">
+                    <div className="no-scrollbar flex flex-col items-center gap-3 overflow-y-auto p-4">
+                        <Link to="/h" className="align-center flex h-15 w-15 flex-shrink-0 items-center justify-center rounded-xl bg-gray-200">
                                 <GoHomeFill className="h-8 w-8 text-black" />
                             </Link>
                             <div className="my-1 w-13 border-b border-slate-300"></div>
@@ -50,11 +33,10 @@ function Layout() {
                                 <div key = { server.id }>
                                     <Link
                                         to={`s/${server.id}`}
-                                        className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200"
+                                        className="align-center flex h-15 w-15 flex-shrink-0 items-center justify-center rounded-xl bg-gray-200"
                                         data-tooltip-id={`server-item-tooltip-${server.id}`}
                                     >
                                         {server.name[0]}
-                                        {/*Here should be an image or first letter of server*/}
                                     </Link>
                                     <Tooltip
                                         id={`server-item-tooltip-${server.id}`} data-tooltip-content="Hello to you too!"
@@ -73,7 +55,7 @@ function Layout() {
                             type="button"
                             title="new-server"
                             onClick={() => setIsModalOpen(true) }
-                            className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200">
+                            className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200 flex-shrink-0">
                                 <FaCirclePlus className="scale-150" />
                         </button>
                             <div className="absolute bottom-4 left-4 z-10 flex h-17 w-90 flex-row gap-2 rounded-xl border-1 border-gray-200 bg-white p-2 shadow-2xl">
@@ -110,9 +92,6 @@ function Layout() {
         );
     }
 
-    auth.signinRedirect();
-
-}
 
 export default Layout;
 

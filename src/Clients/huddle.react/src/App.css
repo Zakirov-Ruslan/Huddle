@@ -4,3 +4,14 @@
     overflow: auto;
     text-align: center;
 }
+
+@layer utilities {
+    .no-scrollbar::-webkit-scrollbar {
+        display: none; /* For Chrome, Safari, Edge, Opera */
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none; /* For IE and Edge */
+        scrollbar-width: none; /* For Firefox */
+    }
+}

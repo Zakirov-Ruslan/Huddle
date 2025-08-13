@@ -75,5 +75,17 @@ export interface PaginatedItems<T> {
 export interface ServerDto {
   id: string;
   name: string;
-  channels: ChannelDto[];
+    channels: ChannelDto[];
 }
+
+export interface InviteDto {
+  id: string;
+  serverId: string;
+  createdAt: Date;
+  code: string;
+}
+
+export interface AcceptInviteResponse {
+  serverId: string;
+}
+

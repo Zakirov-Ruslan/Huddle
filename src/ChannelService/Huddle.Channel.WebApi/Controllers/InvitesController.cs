@@ -38,13 +38,13 @@ namespace Huddle.Channel.WebApi.Controllers
 
             var command = new CreateInviteCommand(serverId, identityId.Value);
 
-            var result = await _mediator.Send(command);
+            var invite = await _mediator.Send(command);
 
-            return Created();
+            return Ok(invite);
         }
 
-        // POST api/invites/{inviteId}/accept
-        [HttpPost("{inviteId}/accept")]
+        // POST api/invites/{code}/accept
+        [HttpPost("{code}/accept")]
         public async Task<IActionResult> AcceptInvite(string code)
         {
             var identityId = User.GetCurrentUserIdentityId();
@@ -52,9 +52,9 @@ namespace Huddle.Channel.WebApi.Controllers
                 return Unauthorized();
 
             var command = new AcceptInviteCommand(code, identityId.Value);
-            await _mediator.Send(command);
+            var serverId = await _mediator.Send(command);
 
-            return NoContent();
+            return Ok(new { ServerId = serverId });
         }
 
         // DELETE api/invites/{inviteId}

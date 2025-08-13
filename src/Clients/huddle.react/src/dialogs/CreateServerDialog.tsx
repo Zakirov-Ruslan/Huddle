@@ -16,6 +16,8 @@ const CreateServerDialog: React.FC<CreateServerDialogProps> = ({ onCreateServer 
             className="space-y-4 px-2 pb-2 md:space-y-6"
             onSubmit={(e) => {
                 e.preventDefault();
+                if (createServer.isPending)
+                    return;
                 createServer.mutate(
                     { name: serverName },
                     {

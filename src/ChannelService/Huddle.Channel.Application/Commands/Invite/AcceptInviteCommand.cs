@@ -2,7 +2,7 @@
 
 namespace Huddle.Channel.Application.Commands.Invite
 {
-    public class AcceptInviteCommand : IRequest<bool>
+    public class AcceptInviteCommand : IRequest<Guid>
     {
         public string InviteCode { get; private set; }
         public Guid IdentityId { get; private set; }

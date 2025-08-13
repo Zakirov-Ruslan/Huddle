@@ -2,7 +2,9 @@
 {
     public record InviteDto
     (
+        Guid Id,
         Guid ServerId,
-        Guid UserId
+        DateTime CreatedAt,
+        string Code
     );
 }

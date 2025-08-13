@@ -17,6 +17,7 @@ import { IoIosSettings } from "react-icons/io";
 import { FaPlusCircle } from "react-icons/fa";
 import { RiArrowDownSLine } from "react-icons/ri";
 import { MdClose } from "react-icons/md";
+import InviteFriendsDialog from "../dialogs/InviteFriendsDialog";
 
 export interface ServerContextType {
     server: ServerDto | undefined;
@@ -40,7 +41,8 @@ function Server() {
 
     const [isShowMembers, setIsShowMembers] = useState(false);
     const [activeChannel, setActiveChannel] = useState<ChannelDto | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isCreateChannelModalOpen, setIsCreateChannelModalOpen] = useState(false)
+    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
 
     const navigate = useNavigate();
 
@@ -88,13 +90,21 @@ function Server() {
                             </button>
                         </MenuItem>
                         <MenuItem>
-                            <button type="button" className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100">
+                            <button
+                                type="button"
+                                className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100"
+                                onClick={() => setIsInviteModalOpen(true)}
+                            >
                                 <span className="flex-grow">Invite friends</span>
                                 <BsPersonFillAdd />
                             </button>
                         </MenuItem>
                         <MenuItem>
-                            <button type="button" className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100">
+                            <button
+                                type="button"
+                                className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100"
+                                onClick={() => setIsCreateChannelModalOpen(true)}
+                            >
                                 <span className="flex-grow">Create channel</span>
                                 <FaPlusCircle />
                             </button>
@@ -123,7 +133,7 @@ function Server() {
                     <div className="mb-2 flex flex-row px-3 text-left text-sm font-semibold text-gray-500 hover:text-gray-600">
                         <span className="flex-grow">Text channels</span>
                         <button
-                            onClick={() => setIsModalOpen(true)}
+                            onClick={() => setIsCreateChannelModalOpen(true)}
                             data-tooltip-id='create-text-channel-tooltip'
                             type="button">
                             <GoPlus />
@@ -173,7 +183,7 @@ function Server() {
                     <div className="mb-2 flex flex-row px-3 text-left text-sm font-semibold text-gray-500 hover:text-gray-600">
                         <span className="flex-grow">Voice channels</span>
                         <button
-                            onClick={() => setIsModalOpen(true)}
+                            onClick={() => setIsCreateChannelModalOpen(true)}
                             data-tooltip-id='create-voice-channel-tooltip'
                             type="button">
                             <GoPlus />
@@ -227,15 +237,27 @@ function Server() {
             </ServerContext.Provider>
 
             <ReactModal
-                isOpen={isModalOpen}
+                isOpen={isCreateChannelModalOpen}
                 className="modal"
                 overlayClassName="modal-overlay"
-                onRequestClose={() => setIsModalOpen(false)}
+                onRequestClose={() => setIsCreateChannelModalOpen(false)}
                 closeTimeoutMS={150}
                 shouldFocusAfterRender={false}
                 appElement={document.getElementById('root')!}
             >
-                <CreateChannelDialog serverId={serverId} onCreateChannel={(createdChannel: ChannelDto) => { setIsModalOpen(false); setActiveChannel(createdChannel); navigate(`ch/${createdChannel.id}`) }} />
+                <CreateChannelDialog serverId={serverId} onCreateChannel={(createdChannel: ChannelDto) => { setIsCreateChannelModalOpen(false); setActiveChannel(createdChannel); navigate(`ch/${createdChannel.id}`) }} />
+            </ReactModal>
+
+            <ReactModal
+                isOpen={isInviteModalOpen}
+                className="modal"
+                overlayClassName="modal-overlay"
+                onRequestClose={() => setIsInviteModalOpen(false)}
+                closeTimeoutMS={150}
+                shouldFocusAfterRender={false}
+                appElement={document.getElementById('root')!}
+            >
+                <InviteFriendsDialog serverId={serverId} />
             </ReactModal>
         </>
     );

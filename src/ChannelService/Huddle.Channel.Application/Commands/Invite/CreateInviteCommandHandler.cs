@@ -28,11 +28,11 @@ namespace Huddle.Channel.Application.Commands.Invite
             var server = await _serverRepository.GetAsync(request.ServerId)
                 ?? throw new KeyNotFoundException("Server not found");
             if (server.OwnerIdentityId != request.SenderId)
-                throw new ForbiddenAccessException("User doesnt have rights to create invites on this server");
+                throw new ForbiddenAccessException("User does not have rights to create invites on this server");
 
-            var existingInvite = await _inviteRepository.GetBySeverId(request.ServerId);
-            if (existingInvite is not null)
-                return _mapper.Map<InviteDto>(existingInvite);
+            var existingInvites = await _inviteRepository.GetBySeverId(request.ServerId);
+            if (existingInvites.Any())
+                return _mapper.Map<InviteDto>(existingInvites.First());
 
             bool isCodeUnique = false;
             string code = string.Empty;
