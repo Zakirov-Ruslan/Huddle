@@ -27,11 +27,10 @@ namespace Huddle.Channel.Infrastructure.Repositories
             return await _context.Invites.FirstOrDefaultAsync(i => i.Id == inviteId);
         }
 
-        public async Task<IEnumerable<Invite>> GetByUserId(Guid identityId)
+        public async Task<Invite?> GetByCode(string code)
         {
             return await _context.Invites
-                .Where(invite => invite.UserId == identityId)
-                .ToListAsync();
+                .SingleOrDefaultAsync(invite => invite.Code == code);
         }
 
         public Invite Add(Invite invite)

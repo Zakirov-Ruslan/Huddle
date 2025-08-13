@@ -17,13 +17,11 @@ namespace Huddle.Channel.Application.Commands.Invite
 
         public async Task<bool> Handle(AcceptInviteCommand request, CancellationToken cancellationToken)
         {
-            var invite = await _inviteRepository.GetAsync(request.InviteId)
+            var invite = await _inviteRepository.GetByCode(request.InviteCode)
                 ?? throw new KeyNotFoundException("Invite not found");
 
-            Domain.Aggregates.MemberAggregate.Member member = new(invite.ServerId, invite.UserId);
+            Domain.Aggregates.MemberAggregate.Member member = new(invite.ServerId, request.IdentityId);
             _memberRepository.Add(member);
-
-            await _inviteRepository.Delete(invite.Id);
 
             var result = await _memberRepository.UnitOfWork.SaveEntitiesAsync();
 

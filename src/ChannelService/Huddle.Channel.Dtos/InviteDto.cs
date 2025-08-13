@@ -5,9 +5,4 @@
         Guid ServerId,
         Guid UserId
     );
-
-    public record CreateInviteRequest
-    (
-        Guid UserId
-    );
 }

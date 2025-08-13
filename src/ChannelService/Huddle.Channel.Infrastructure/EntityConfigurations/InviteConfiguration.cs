@@ -18,7 +18,10 @@ namespace Huddle.Channel.Infrastructure.EntityConfigurations
                 .HasForeignKey(i => i.ServerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasIndex(i => new { i.ServerId, i.UserId})
+            builder.HasIndex(i => i.ServerId)
+                .IsUnique(false); 
+
+            builder.HasIndex(i => i.Code)
                 .IsUnique(true);
         }
     }

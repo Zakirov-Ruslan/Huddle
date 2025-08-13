@@ -4,11 +4,13 @@ namespace Huddle.Channel.Application.Commands.Invite
 {
     public class AcceptInviteCommand : IRequest<bool>
     {
-        public Guid InviteId { get; private set; }
+        public string InviteCode { get; private set; }
+        public Guid IdentityId { get; private set; }
 
-        public AcceptInviteCommand(Guid inviteId)
+        public AcceptInviteCommand(string inviteCode, Guid identityId)
         {
-            InviteId = inviteId;
+            InviteCode = inviteCode;
+            IdentityId = identityId;
         }
     }
 }

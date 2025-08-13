@@ -1,16 +1,18 @@
-﻿using MediatR;
+﻿using Huddle.Channel.Application.Dto;
+using MediatR;
 
 namespace Huddle.Channel.Application.Commands.Invite
 {
-    public class CreateInviteCommand : IRequest<bool>
+    public class CreateInviteCommand : IRequest<InviteDto>
     {
         public Guid ServerId { get; private set; }
-        public Guid UserId { get; private set; }
+        public Guid? ChannelId { get; private set; }
+        public Guid SenderId { get; private set; }
 
-        public CreateInviteCommand(Guid serverId, Guid userId)
+        public CreateInviteCommand(Guid serverId, Guid senderId)
         {
             ServerId = serverId;
-            UserId = userId;
+            SenderId = senderId;
         }
     }
 }

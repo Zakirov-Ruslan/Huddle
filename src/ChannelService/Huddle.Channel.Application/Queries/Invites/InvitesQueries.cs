@@ -20,11 +20,5 @@ namespace Huddle.Channel.Application.Queries.Invites
             var invites = await _invitesRepository.GetBySeverId(serverId);
             return invites.Select(_mapper.Map<InviteDto>);
         }
-
-        public async Task<IEnumerable<InviteDto>> GetInvitesByUserId(Guid identityId)
-        {
-            var invites = await _invitesRepository.GetByUserId(identityId);
-            return invites.Select(_mapper.Map<InviteDto>);
-        }
     }
 }

@@ -55,6 +55,7 @@ namespace Huddle.Channel.Infrastructure.Extensions
             services.AddScoped<IMemberRepository, MemberRepository>();
             services.AddScoped<IInviteRepository, InviteRepository>();
             services.AddScoped<IAccessService, AccessService>();
+            services.AddScoped<IShortIdService, NanoIdService>();
 
             services.AddScoped<IMessagesQueries, MessagesQueries>();
             services.AddScoped<IServersQueries, ServersQueries>();

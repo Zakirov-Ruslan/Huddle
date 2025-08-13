@@ -21,31 +21,22 @@ namespace Huddle.Channel.WebApi.Controllers
 
         // GET api/servers/{serverId}/invites
         [HttpGet("~/api/servers/{serverId}/invites")]
-        public async Task<IActionResult> GetInvites(Guid serverId)
+        public async Task<ActionResult<IEnumerable<InviteDto>>> GetInvites(Guid serverId)
         {
             var invites = await _invitesQuesries.GetInvitesByServerId(serverId);
 
             return Ok(invites);
         }
 
-        // GET api/invites/
-        [HttpGet("pending")]
-        public async Task<IActionResult> GetUserInvites()
+        // POST api/servers/{serverId}/invites
+        [HttpPost("~/api/servers/{serverId}/invites")]
+        public async Task<IActionResult> CreateInvite(Guid serverId)
         {
             var identityId = User.GetCurrentUserIdentityId();
             if (identityId == null)
                 return Unauthorized();
 
-            var invites = await _invitesQuesries.GetInvitesByUserId(identityId.Value);
-
-            return Ok(invites);
-        }
-
-        // POST api/servers/{serverId}/invites
-        [HttpPost("~/api/servers/{serverId}/invites")]
-        public async Task<IActionResult> CreateInvite(Guid serverId, [FromBody] CreateInviteRequest request)
-        {
-            var command = new CreateInviteCommand(serverId, request.UserId);
+            var command = new CreateInviteCommand(serverId, identityId.Value);
 
             var result = await _mediator.Send(command);
 
@@ -54,24 +45,19 @@ namespace Huddle.Channel.WebApi.Controllers
 
         // POST api/invites/{inviteId}/accept
         [HttpPost("{inviteId}/accept")]
-        public async Task<IActionResult> AcceptInvite(Guid inviteId)
+        public async Task<IActionResult> AcceptInvite(string code)
         {
-            var command = new AcceptInviteCommand(inviteId);
+            var identityId = User.GetCurrentUserIdentityId();
+            if (identityId == null)
+                return Unauthorized();
+
+            var command = new AcceptInviteCommand(code, identityId.Value);
             await _mediator.Send(command);
 
             return NoContent();
         }
 
-        // POST api/invites/{inviteId}/decline
-        [HttpPost("{inviteId}/decline")]
-        public async Task<IActionResult> DeclineInvite(Guid inviteId)
-        {
-            var command = new DeclineInviteCommand(inviteId);
-            await _mediator.Send(command);
-            return NoContent();
-        }
-
-        // DELETE api/invites/{code}
+        // DELETE api/invites/{inviteId}
         [HttpDelete("{inviteId}")]
         public async Task<IActionResult> DeleteInvite(Guid inviteId)
         {
