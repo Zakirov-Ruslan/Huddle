@@ -15,10 +15,6 @@ export interface UpdatedChannelRequest {
   channelType: string;
 }
 
-export interface CreateInviteRequest {
-  userId: string;
-}
-
 export interface CreateMessageRequest {
   text: string;
 }
