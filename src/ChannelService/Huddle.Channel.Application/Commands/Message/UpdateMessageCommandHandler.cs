@@ -22,7 +22,7 @@ namespace Huddle.Channel.Application.Commands.Message
 
             message.EditText(request.Text);
 
-            return await _messageRepository.UnitOfWork.SaveEntitiesAsync();
+            return await _messageRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         }
     }
 }

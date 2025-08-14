@@ -27,7 +27,7 @@ namespace Huddle.Channel.Application.Commands.Invite
             Domain.Aggregates.MemberAggregate.Member member = new(invite.ServerId, request.IdentityId);
             _memberRepository.Add(member);
 
-            var result = await _memberRepository.UnitOfWork.SaveEntitiesAsync();
+            var result = await _memberRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
 
             return invite.ServerId;
         }

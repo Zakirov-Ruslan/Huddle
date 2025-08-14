@@ -15,7 +15,8 @@ namespace Huddle.Channel.Application.Commands.Member
 
         public async Task<bool> Handle(UpdateMemberCommand request, CancellationToken cancellationToken)
         {
-            var member = await _memberRepository.GetAsync(request.MemberId);
+            var member = await _memberRepository.GetAsync(request.MemberId)
+                ?? throw new KeyNotFoundException("Member not found");
 
             // check admin rights also
             if (request.CommandSenderId != member.Id)
@@ -23,7 +24,7 @@ namespace Huddle.Channel.Application.Commands.Member
 
             member.Profile.ChangeServerUsername(request.ServerUsername);
 
-            return await _memberRepository.UnitOfWork.SaveEntitiesAsync();
+            return await _memberRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         }
     }
 }

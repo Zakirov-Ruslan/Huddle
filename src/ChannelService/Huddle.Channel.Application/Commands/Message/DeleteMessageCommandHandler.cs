@@ -23,7 +23,7 @@ namespace Huddle.Channel.Application.Commands.Message
             // Add admin/sever owner checks
 
             await _messageRepository.Delete(request.MessageId);
-            return await _messageRepository.UnitOfWork.SaveEntitiesAsync();
+            return await _messageRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         }
     }
 }

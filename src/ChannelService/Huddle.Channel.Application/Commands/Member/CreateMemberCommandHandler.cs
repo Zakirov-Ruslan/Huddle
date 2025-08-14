@@ -26,7 +26,7 @@ namespace Huddle.Channel.Application.Commands.Member
 
             _memberRepository.Add(member);
 
-            return await _memberRepository.UnitOfWork.SaveEntitiesAsync();
+            return await _memberRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         }
     }
 }

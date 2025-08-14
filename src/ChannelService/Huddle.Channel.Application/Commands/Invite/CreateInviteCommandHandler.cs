@@ -53,7 +53,7 @@ namespace Huddle.Channel.Application.Commands.Invite
 
             _inviteRepository.Add(invite);
 
-            await _inviteRepository.UnitOfWork.SaveEntitiesAsync();
+            await _inviteRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
 
             return _mapper.Map<InviteDto>(invite);
         }
