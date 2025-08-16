@@ -24,6 +24,7 @@
     "react-modal": "^3.16.3",
     "react-oidc-context": "^3.3.0",
     "react-router": "^7.7.0",
+    "react-signalr": "^0.2.24",
     "react-tooltip": "^5.29.1",
     "tailwindcss": "^4.1.11"
   },

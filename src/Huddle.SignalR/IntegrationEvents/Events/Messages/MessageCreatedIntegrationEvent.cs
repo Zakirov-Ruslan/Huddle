@@ -1,6 +1,6 @@
 ﻿using Huddle.EventBus.Events;
 
-namespace Huddle.Channel.Application.IntegrationEvents.Events.Messages
+namespace Huddle.SignalR.IntegrationEvents.Events.Messages
 {
     public record MessageCreatedIntegrationEvent : IntegrationEvent
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Ordering.SignalrHub
+namespace Huddle.SignalR
 {
     [Authorize]
     public class NotificationsHub : Hub
@@ -15,9 +15,11 @@ namespace Ordering.SignalrHub
 
         public override async Task OnDisconnectedAsync(Exception ex)
         {
-            var userId = Context.UserIdentifier;
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"user:{userId}");
-            await base.OnDisconnectedAsync(ex);
+            // No need to clear user groups - signalR GroupManager makes it automatically
+            //var userId = Context.UserIdentifier;
+            //await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"user:{userId}");
+
+            //await base.OnDisconnectedAsync(ex);
         }
 
         public async Task JoinServer(string serverId)

@@ -1,7 +1,6 @@
 ﻿using Huddle.EventBus.Abstractions;
 using Huddle.SignalR.IntegrationEvents.Events.Channels;
 using Microsoft.AspNetCore.SignalR;
-using Ordering.SignalrHub;
 using System.Reflection;
 
 namespace Huddle.SignalR.IntegrationEvents.EventHandlers.Channels

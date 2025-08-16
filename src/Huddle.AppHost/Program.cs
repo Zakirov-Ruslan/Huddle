@@ -31,9 +31,10 @@ internal class Program
             .WithReference(channelDb).WaitFor(channelDb)
             .WithReference(rabbitMq).WaitFor(rabbitMq);
 
-        builder.AddProject<Projects.Huddle_SignalR>("signalR")
+        var signalRService = builder.AddProject<Projects.Huddle_SignalR>("signalR")
             .WithReference(rabbitMq).WaitFor(rabbitMq)
-            .WithReference(redis).WaitFor(redis);
+            .WithReference(redis).WaitFor(redis)
+            .WithEnvironment("IDENTITY_URL", identity.GetEndpoint("https"));
 
         builder.AddProject<Projects.Huddle_Voice_WebApi>("voice")
             .WithReference(redis).WaitFor(redis);
@@ -49,6 +50,7 @@ internal class Program
         identity.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"));
         channelService.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"))
             .WithEnvironment("IDENTITY_URL", identity.GetEndpoint("https"));
+        signalRService.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"));
 
         builder.Build().Run();
     }

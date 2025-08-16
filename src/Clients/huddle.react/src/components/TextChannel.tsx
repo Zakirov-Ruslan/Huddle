@@ -1,13 +1,15 @@
 ﻿import { useEffect, useRef, useState } from "react";
 import { IoSend } from "react-icons/io5";
 import { RiAttachment2 } from "react-icons/ri";
-import type { ChannelDto } from "../api/dtos";
+import type { ChannelDto, MessageDto, PaginatedItems } from "../api/dtos";
 import { useInfiniteMessages, useSendMessage } from "../hooks/messagesApiHooks";
 import { adjustHeight } from "../utils/domHelpers";
 import { useInView } from 'react-intersection-observer';
-
-import "../styles/scrollbar.css";
 import React from "react";
+import "../styles/scrollbar.css";
+import { SignalRContext } from "../pages/Root";
+import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
+import { useAuth } from "react-oidc-context";
 
 const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) => {
 
@@ -25,6 +27,65 @@ const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) 
 
     const listRef = useRef<HTMLDivElement>(null);
     const [loaderRef, inView] = useInView();
+
+    useEffect(() => {
+        if (!id || SignalRContext.connection?.state != 'Connected')
+            return;
+        SignalRContext.invoke("JoinChannel", id);
+        console.log('joined to', id);
+    }, [id, SignalRContext.connection?.state])
+
+    const queryClient = useQueryClient();
+    const auth = useAuth();
+    SignalRContext.useSignalREffect(
+        "CreateMessage",
+        (newMessage: MessageDto) => {
+            console.log('message received', newMessage); // Правильное логирование объекта
+            if (newMessage.authorId == auth.user?.profile.sub)
+                return;
+            // Проверяем, что сообщение относится к текущему каналу
+            if (newMessage.channelId === id) {
+                queryClient.setQueryData<InfiniteData<PaginatedItems<MessageDto>>>(
+                    ['messages', id],
+                    (oldData) => {
+                        if (!oldData) {
+                            return {
+                                pages: [{
+                                    items: [newMessage],
+                                    hasMore: true,
+                                    nextCursor: null
+                                }],
+                                pageParams: [null]
+                            };
+                        }
+
+                        // Обновляем первую страницу, добавляя новое сообщение в конец
+                        const updatedPages = [...oldData.pages];
+                        if (updatedPages.length > 0) {
+                            updatedPages[0] = {
+                                ...updatedPages[0],
+                                items: [...updatedPages[0].items, newMessage] // Добавляем в конец для новых сообщений
+                            };
+                        }
+
+                        return {
+                            ...oldData,
+                            pages: updatedPages
+                        };
+                    }
+                );
+
+                // Прокручиваем к новому сообщению
+                setTimeout(() => {
+                    listRef.current?.scrollTo({
+                        top: listRef.current.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }, 100);
+            }
+        },
+        [id]
+    );
 
     useEffect(() => {
         if (inView && hasNextPage && !isFetchingNextPage) {

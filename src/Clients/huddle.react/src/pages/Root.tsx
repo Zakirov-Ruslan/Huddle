@@ -2,7 +2,10 @@ import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 import { Outlet } from "react-router";
 import { useNavigate } from "react-router";
+import { createSignalRContext } from "react-signalr";
+import { GATEWAY_URL } from "../api/api";
 
+export const SignalRContext = createSignalRContext();
 function Root() {
     const auth = useAuth();
     const navigate = useNavigate();
@@ -21,6 +24,7 @@ function Root() {
                 sessionStorage.removeItem('preAuthPath');
                 navigate(preAuthPath);
             }
+            //SignalRContext.
         }
     }, [auth.isAuthenticated, navigate]);
 
@@ -40,7 +44,16 @@ function Root() {
     }
 
     if (auth.isAuthenticated) {
-        return <Outlet />;
+        return (
+            <SignalRContext.Provider
+                connectEnabled={!!auth.user?.access_token}
+                accessTokenFactory={() => auth.user!.access_token}
+                dependencies={[auth.user?.access_token]} //remove previous connection and create a new connection if changed
+                url={`${GATEWAY_URL}/notifications/hub`}
+            >
+                < Outlet />
+            </SignalRContext.Provider >
+        )
     }
 
     return <div>Redirecting to login...</div>;

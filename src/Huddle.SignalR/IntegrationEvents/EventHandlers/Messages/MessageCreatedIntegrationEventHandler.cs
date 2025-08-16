@@ -1,8 +1,7 @@
 ﻿using Huddle.Channel.Application.Dto;
-using Huddle.Channel.Application.IntegrationEvents.Events.Messages;
 using Huddle.EventBus.Abstractions;
+using Huddle.SignalR.IntegrationEvents.Events.Messages;
 using Microsoft.AspNetCore.SignalR;
-using Ordering.SignalrHub;
 using System.Reflection;
 
 namespace Huddle.SignalR.IntegrationEvents.EventHandlers.Messages

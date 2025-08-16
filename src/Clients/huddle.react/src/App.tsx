@@ -6,10 +6,9 @@ import Server from './pages/Server'
 import Home from './pages/Home'
 import { Navigate } from 'react-router'
 import { AuthProvider } from "react-oidc-context";
-import type { User } from 'oidc-client-ts'
-import { Channel } from './components/Channel'
 import InviteRedirect from './pages/InviteRedirect'
 import Root from './pages/Root'
+import { Channel } from './components/Channel'
 
 const queryClient = new QueryClient()
 
