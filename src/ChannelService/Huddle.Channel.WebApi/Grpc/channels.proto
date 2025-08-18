@@ -1,9 +1,0 @@
-﻿﻿syntax = "proto3";
-
-option csharp_namespace = "Huddle.Channel.WebApi.Grpc";
-
-package ChannelsApi;
-
-service Channels {
-    // Check user rights to join signalR groups (server / channel) 
-}

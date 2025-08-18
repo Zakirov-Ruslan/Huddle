@@ -1,4 +1,6 @@
+using Huddle.Grpc;
 using Huddle.SignalR.Extensions;
+using Huddle.SignalR.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using StackExchange.Redis;
 
@@ -12,6 +14,8 @@ public class Program
 
         builder.AddRabbitMqEventBus("eventbus")
             .AddEventBusSubscriptions();
+
+        builder.Services.AddScoped<GrpcChannelAccessClient>();
 
         var identityUrl = Environment.GetEnvironmentVariable("IDENTITY_URL")
             ?? throw new ArgumentNullException("IDENTITY_URL environment variable not defined");
@@ -64,6 +68,14 @@ public class Program
         });
 
         builder.Services.AddCors();
+
+        // GRPC
+        // https://learn.microsoft.com/ru-ru/aspnet/core/grpc/loadbalancing?view=aspnetcore-9.0 - Load balancing
+        builder.Services.AddGrpcClient<ChannelAccess.ChannelAccessClient>(options =>
+        {
+            options.Address = new Uri(Environment.GetEnvironmentVariable("CHANNELS_URL") 
+                ?? throw new ArgumentNullException("CHANNELS_URL environment variable not defined"));
+        });
 
         var app = builder.Build();
 

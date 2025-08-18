@@ -1,5 +1,6 @@
 using Huddle.Channel.Infrastructure;
 using Huddle.Channel.Infrastructure.Extensions;
+using Huddle.Channel.WebApi.Grpc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Huddle.Channel.WebApi;
@@ -15,6 +16,11 @@ public class Program
         builder.Services.AddOpenApi();
 
         builder.Services.AddApplicationServices(builder.Configuration);
+
+        builder.Services.AddGrpc(options =>
+        {
+            options.EnableDetailedErrors = true;
+        });
 
         builder.AddRabbitMqEventBus("eventbus")
             .AddEventBusSubscriptions();
@@ -68,6 +74,8 @@ public class Program
         app.UseAuthorization();
 
         app.MapControllers().RequireAuthorization();
+
+        app.MapGrpcService<ChannelAccessGrpcService>();
 
         app.Run();
     }

@@ -1,0 +1,26 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "Huddle.Grpc";
+
+service ChannelAccess {
+  rpc CheckChannelAccess (ChannelAccessRequest) returns (ChannelAccessResponse);
+  rpc CheckServerAccess (ServerAccessRequest) returns (ServerAccessResponse);
+}
+
+message ChannelAccessRequest {
+  string channel_id = 1;
+  string identity_id = 2;
+}
+
+message ChannelAccessResponse {
+  bool has_access = 1;
+}
+
+message ServerAccessRequest {
+  string server_id = 1;
+  string identity_id = 2;
+}
+
+message ServerAccessResponse {
+  bool has_access = 1;
+}

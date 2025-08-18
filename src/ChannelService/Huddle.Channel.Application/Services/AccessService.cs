@@ -1,5 +1,4 @@
-﻿
-using Huddle.Channel.Domain.Aggregates.MemberAggregate;
+﻿using Huddle.Channel.Domain.Aggregates.MemberAggregate;
 using Huddle.Channel.Domain.Aggregates.ServerAggregate;
 
 namespace Huddle.Channel.Application.Services
@@ -22,14 +21,14 @@ namespace Huddle.Channel.Application.Services
 
             var member = await _memberRepository.GetByServerAndIdentityIdAsync(channel.ServerId, identityId);
 
-            return member != null;
+            return member is not null;
         }
 
         public async Task<bool> IsUserMemberOfServerAsync(Guid serverId, Guid identityId)
         {
             var member = await _memberRepository.GetByServerAndIdentityIdAsync(serverId, identityId);
 
-            return member != null;
+            return member is not null;
         }
     }
 }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -21,6 +21,11 @@
     <ProjectReference Include="..\..\Huddle.ServiceDefaults\Huddle.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Huddle.Channel.Application\Huddle.Channel.Application.csproj" />
     <ProjectReference Include="..\Huddle.Channel.Infrastructure\Huddle.Channel.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="..\..\Shared\Protos\channel_access.proto" GrpcServices="Server" Link="Protos/%(Filename)%(Extension)"/>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
   </ItemGroup>
 
 </Project>

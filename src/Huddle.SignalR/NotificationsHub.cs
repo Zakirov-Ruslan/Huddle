@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Huddle.SignalR.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Huddle.SignalR
@@ -6,6 +7,13 @@ namespace Huddle.SignalR
     [Authorize]
     public class NotificationsHub : Hub
     {
+        private readonly GrpcChannelAccessClient _grpcChannelAccessClient;
+
+        public NotificationsHub(GrpcChannelAccessClient grpcChannelAccessClient)
+        {
+            _grpcChannelAccessClient = grpcChannelAccessClient;
+        }
+
         public override async Task OnConnectedAsync()
         {
             var userId = Context.UserIdentifier;
@@ -24,7 +32,10 @@ namespace Huddle.SignalR
 
         public async Task JoinServer(string serverId)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"server:{serverId}");
+            var isAccessible = await _grpcChannelAccessClient.CheckServerAccessAsync(Guid.Parse(serverId), Guid.Parse(Context.UserIdentifier));
+
+            if (isAccessible)
+                await Groups.AddToGroupAsync(Context.ConnectionId, $"server:{serverId}");
         }
 
         public async Task LeaveServer(string serverId)
@@ -34,7 +45,10 @@ namespace Huddle.SignalR
 
         public async Task JoinChannel(string channelId)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"channel:{channelId}");
+            var isAccessible = await _grpcChannelAccessClient.CheckChannelAccessAsync(Guid.Parse(channelId), Guid.Parse(Context.UserIdentifier));
+
+            if (isAccessible)
+                await Groups.AddToGroupAsync(Context.ConnectionId, $"channel:{channelId}");
         }
 
         public async Task LeaveChannel(string channelId)

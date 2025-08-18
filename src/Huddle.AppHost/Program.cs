@@ -50,7 +50,8 @@ internal class Program
         identity.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"));
         channelService.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"))
             .WithEnvironment("IDENTITY_URL", identity.GetEndpoint("https"));
-        signalRService.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"));
+        signalRService.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"))
+            .WithEnvironment("CHANNELS_URL", channelService.GetEndpoint("https"));
 
         builder.Build().Run();
     }
