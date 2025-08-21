@@ -1,4 +1,3 @@
-using Aspire.Hosting;
 using Projects;
 
 internal class Program
@@ -17,13 +16,22 @@ internal class Program
         var channelDb = postgres.AddDatabase("channeldb");
         var identityDb = postgres.AddDatabase("identitydb");
 
-
         var minio = builder.AddMinioContainer("minio");
         var fileServise = builder.AddProject<Huddle_FileService>("minio-client")
             .WithReference(minio).WaitFor(minio);
 
         var identity = builder.AddProject<Projects.Huddle_Identity>("identity")
             .WithReference(identityDb).WaitFor(identityDb);
+
+        var liveKit = builder.AddContainer("LiveKit", "livekit/livekit-server")
+            .WithHttpEndpoint(port: 7880, targetPort: 7880, name: "http")
+            .WithHttpEndpoint(port: 7881, targetPort: 7881, name: "websocket", isProxied: false)
+            .WithEnvironment("LIVEKIT_API_KEY", "your-livekit-api-key")
+            .WithEnvironment("LIVEKIT_API_SECRET", "your-livekit-api-secret")
+            //.WithEnvironment("REDIS_ADDRESS", () => redis.GetConnectionString()) // Подключение к Redis
+            .WaitFor(redis) // Ждём Redis
+            .WithEnvironment("PORT", "7880")
+            .WithEnvironment("WS_PORT", "7881");
 
         var identityEndpoint = identity.GetEndpoint("https");
 
