@@ -15,4 +15,5 @@ Target of this work:
 References:
 - https://github.com/dotnet/eShop
 - https://github.com/dotnet-architecture/eShopOnContainers/tree/dev
+- https://github.com/ardalis/CleanArchitecture
 - https://learn.microsoft.com/ru-ru/dotnet/architecture/microservices/
