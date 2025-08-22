@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <Protobuf Include="..\Shared\Protos\channel_access.proto" GrpcServices="Client" Link="Protos/%(Filename)%(Extension)" />
-    <PackageReference Include="Grpc.AspNetCore" Version="2.71.0"/>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
   </ItemGroup>
 
 </Project>

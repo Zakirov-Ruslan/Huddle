@@ -1,8 +1,11 @@
-﻿using Huddle.Grpc;
+﻿using Huddle.EventBus.Abstractions;
+using Huddle.Grpc;
+using Huddle.Voice.WebApi.IntegrationEvents;
 using Huddle.Voice.WebApi.Services;
 using Livekit.Server.Sdk.Dotnet;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.RegularExpressions;
 
 namespace Huddle.Voice.WebApi;
 
@@ -11,6 +14,8 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        builder.AddRabbitMqEventBus("eventbus");
 
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
@@ -78,7 +83,7 @@ public class Program
                 if (userId == null)
                     return Results.BadRequest("User ID not found");
 
-                logger.LogInformation("Запрос на токен от пользователя {userId} для комнаты {channelId}", userId, channelId);
+                logger.LogInformation("Token request by user: {userId} for channel: {channelId}", userId, channelId);
 
                 try
                 {
@@ -116,7 +121,7 @@ public class Program
         var webhookReceiver = new WebhookReceiver(LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
         app.MapPost(
             "/livekit/webhook",
-            async (HttpRequest request) =>
+            async (HttpRequest request, IEventBus eventBus, ILogger<Program> logger) =>
             {
                 var body = new StreamReader(request.Body);
                 string postData = await body.ReadToEndAsync();
@@ -126,27 +131,68 @@ public class Program
                 {
                     return Results.BadRequest("Authorization header is required");
                 }
+
                 WebhookEvent webhookEvent = webhookReceiver.Receive(postData, authHeader.First());
+                logger.LogInformation("Recieved webhookEvent: {@webhookEvent}", webhookEvent);
 
                 switch (webhookEvent.Event)
                 {
                     case "participant_joined": 
                         {
-                            //var @event = new VoiceParticipantJoined(
-                            //    ServerId: ExtractServerId(e.Room),
-                            //    ChannelId: ExtractChannelId(e.Room),
-                            //    UserId: e.Participant.Identity
-                            //);
-                            //await _eventBus.PublishAsync(@event);
+                            var matches = Regex.Match(webhookEvent.Room.Name, @"server-(.*)-channel-(.*)");
+                            if (!matches.Success)
+                                throw new Exception("Invalid room name");
+
+                            var serverId = Guid.Parse( matches.Groups[1].Value );
+                            var chanelId = Guid.Parse( matches.Groups[2].Value );
+                            var useId = Guid.Parse(webhookEvent.Participant.Identity);
+
+                            var @event = new VoiceParticipantJoined(
+                                serverId: serverId,
+                                channelId: chanelId,
+                                userId: useId
+                            );
+                            await eventBus.PublishAsync(@event);
                             return Results.Ok();
                         }
                     case "participant_left":
                         {
+                            var matches = Regex.Match(webhookEvent.Room.Name, @"server-(.*)-channel-(.*)");
+                            if (!matches.Success)
+                                throw new Exception("Invalid room name");
+
+                            var serverId = Guid.Parse(matches.Groups[1].Value);
+                            var chanelId = Guid.Parse(matches.Groups[2].Value);
+                            var useId = Guid.Parse(webhookEvent.Participant.Identity);
+
+                            var @event = new VoiceParticipantLeft(
+                                serverId: serverId,
+                                channelId: chanelId,
+                                userId: useId
+                            );
+                            await eventBus.PublishAsync(@event);
+                            return Results.Ok();
+                        }
+                    case "participant_connection_aborted":
+                        {
+                            var matches = Regex.Match(webhookEvent.Room.Name, @"server-(.*)-channel-(.*)");
+                            if (!matches.Success)
+                                throw new Exception("Invalid room name");
+
+                            var serverId = Guid.Parse(matches.Groups[1].Value);
+                            var chanelId = Guid.Parse(matches.Groups[2].Value);
+                            var useId = Guid.Parse(webhookEvent.Participant.Identity);
+
+                            var @event = new VoiceParticipantConnectionAborted(
+                                serverId: serverId,
+                                channelId: chanelId,
+                                userId: useId
+                            );
+                            await eventBus.PublishAsync(@event);
                             return Results.Ok();
                         }
                     case "room_started":
                     case "room_finished":
-                    case "participant_connection_aborted":
                     case "track_published":
                     case "track_unpublished":
                     case "egress_started":

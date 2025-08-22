@@ -1,7 +1,9 @@
 ﻿using Huddle.SignalR.IntegrationEvents.EventHandlers.Channels;
 using Huddle.SignalR.IntegrationEvents.EventHandlers.Messages;
+using Huddle.SignalR.IntegrationEvents.EventHandlers.Voice;
 using Huddle.SignalR.IntegrationEvents.Events.Channels;
 using Huddle.SignalR.IntegrationEvents.Events.Messages;
+using Huddle.SignalR.IntegrationEvents.Events.Voice;
 
 namespace Huddle.SignalR.Extensions
 {
@@ -14,6 +16,10 @@ namespace Huddle.SignalR.Extensions
 
             eventBus.AddSubscription<MessageCreatedIntegrationEvent, MessageCreatedIntegrationEventHandler>();
             eventBus.AddSubscription<MessageDeletedIntegrationEvent, MessageDeletedIntegrationEventHandler>();
+
+            eventBus.AddSubscription<VoiceParticipantJoined, VoiceParticipantJoinedIntegrationEventHandler>();
+            eventBus.AddSubscription<VoiceParticipantLeft, VoiceParticipantLeftIntegrationEventHandler>();
+            eventBus.AddSubscription<VoiceParticipantConnectionAborted, VoiceParticipantConnectionAbortedIntegrationEventHandler>();
         }
     }
 }
