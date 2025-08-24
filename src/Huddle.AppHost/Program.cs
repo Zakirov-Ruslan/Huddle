@@ -1,7 +1,11 @@
+using Aspire.Hosting;
 using Projects;
 
 internal class Program
 {
+    private const string LIVEKIT_API_KEY = "api";
+    private const string LIVEKIT_API_SECRET = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+
     private static void Main(string[] args)
     {
         var builder = DistributedApplication.CreateBuilder(args);
@@ -23,15 +27,13 @@ internal class Program
         var identity = builder.AddProject<Projects.Huddle_Identity>("identity")
             .WithReference(identityDb).WaitFor(identityDb);
 
-        var liveKit = builder.AddContainer("LiveKit", "livekit/livekit-server")
+        var liveKit = builder.AddContainer("livekit", "livekit/livekit-server")
             .WithHttpEndpoint(port: 7880, targetPort: 7880, name: "http")
             .WithHttpEndpoint(port: 7881, targetPort: 7881, name: "websocket", isProxied: false)
-            .WithEnvironment("LIVEKIT_API_KEY", "your-livekit-api-key")
-            .WithEnvironment("LIVEKIT_API_SECRET", "your-livekit-api-secret")
-            //.WithEnvironment("REDIS_ADDRESS", () => redis.GetConnectionString()) // Подключение к Redis
-            .WaitFor(redis) // Ждём Redis
-            .WithEnvironment("PORT", "7880")
-            .WithEnvironment("WS_PORT", "7881");
+            .WithEnvironment("REDIS_HOST", () => $"redis:6379")
+            .WithEnvironment("REDIS_PASSWORD", () => redis.Resource.PasswordParameter.Value) 
+            .WithEnvironment("LIVEKIT_KEYS", $"{LIVEKIT_API_KEY}: {LIVEKIT_API_SECRET}") 
+                .WaitFor(redis);
 
         var identityEndpoint = identity.GetEndpoint("https");
 
@@ -44,8 +46,12 @@ internal class Program
             .WithReference(redis).WaitFor(redis)
             .WithEnvironment("IDENTITY_URL", identity.GetEndpoint("https"));
 
-        builder.AddProject<Projects.Huddle_Voice_WebApi>("voice")
-            .WithReference(redis).WaitFor(redis);
+        var voiceService = builder.AddProject<Projects.Huddle_Voice_WebApi>("voice")
+            .WithReference(redis).WaitFor(redis)
+            .WithReference(rabbitMq).WaitFor(rabbitMq)
+            .WithEnvironment("LIVEKIT_API_KEY", LIVEKIT_API_KEY)
+            .WithEnvironment("LIVEKIT_API_SECRET", LIVEKIT_API_SECRET)
+            .WithEnvironment("LIVEKIT_URL", liveKit.GetEndpoint("http"));
 
         var gateway = builder.AddProject<Projects.Huddle_ApiGateway>("gateway");
 
@@ -60,6 +66,7 @@ internal class Program
             .WithEnvironment("IDENTITY_URL", identity.GetEndpoint("https"));
         signalRService.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"))
             .WithEnvironment("CHANNELS_URL", channelService.GetEndpoint("https"));
+        voiceService.WithEnvironment("IDENTITY_URL", identity.GetEndpoint("https"));
 
         builder.Build().Run();
     }
