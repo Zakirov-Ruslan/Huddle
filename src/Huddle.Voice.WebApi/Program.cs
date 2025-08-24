@@ -44,6 +44,7 @@ public class Program
             options.TokenValidationParameters.ValidIssuer = identityUrl;
             options.TokenValidationParameters.ClockSkew = TimeSpan.FromMinutes(2);
         });
+        builder.Services.AddAuthorization();
 
         // GRPC
         // https://learn.microsoft.com/ru-ru/aspnet/core/grpc/loadbalancing?view=aspnetcore-9.0 - Load balancing
@@ -52,6 +53,7 @@ public class Program
             options.Address = new Uri(Environment.GetEnvironmentVariable("CHANNELS_URL")
                 ?? throw new ArgumentNullException("CHANNELS_URL environment variable not defined"));
         });
+        builder.Services.AddScoped<GrpcChannelAccessClient>();
 
         var app = builder.Build();
 
@@ -68,7 +70,7 @@ public class Program
 
         // Access Token generator
         app.MapGet(
-            "/livekit/token",
+            "api/livekit/token",
             async ([FromQuery] string serverId,
                    [FromQuery] string channelId,
                    HttpContext context,
@@ -106,7 +108,7 @@ public class Program
                     .WithIdentity(userId)
                     .WithName(displayName)
                     .WithGrants(new VideoGrants { RoomJoin = true, Room = roomName })
-                    .WithAttributes(new Dictionary<string, string> { { "mykey", "myvalue" } })
+                    //.WithAttributes(new Dictionary<string, string> { { "mykey", "myvalue" } })
                     .WithTtl(TimeSpan.FromHours(1));
 
                 logger.LogInformation("Token successfuly generated for user {userId} and channel {channelId}", userId, channelId);
@@ -120,7 +122,7 @@ public class Program
         // https://docs.livekit.io/home/server/webhooks/
         var webhookReceiver = new WebhookReceiver(LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
         app.MapPost(
-            "/livekit/webhook",
+            "api/livekit/webhook",
             async (HttpRequest request, IEventBus eventBus, ILogger<Program> logger) =>
             {
                 var body = new StreamReader(request.Body);

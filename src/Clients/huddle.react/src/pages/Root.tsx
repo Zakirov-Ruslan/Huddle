@@ -1,14 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "react-oidc-context";
 import { Outlet } from "react-router";
 import { useNavigate } from "react-router";
 import { createSignalRContext } from "react-signalr";
 import { GATEWAY_URL } from "../api/api";
+import { RoomContext } from "@livekit/components-react";
+import { Room } from "livekit-client";
 
 export const SignalRContext = createSignalRContext();
 function Root() {
     const auth = useAuth();
     const navigate = useNavigate();
+    const [room] = useState(() => new Room({}));      
 
     useEffect(() => {
         if (!auth.isLoading && !auth.isAuthenticated && !auth.error) {
@@ -44,6 +47,7 @@ function Root() {
     }
 
     if (auth.isAuthenticated) {
+
         return (
             <SignalRContext.Provider
                 connectEnabled={!!auth.user?.access_token}
@@ -51,7 +55,10 @@ function Root() {
                 dependencies={[auth.user?.access_token]} //remove previous connection and create a new connection if changed
                 url={`${GATEWAY_URL}/notifications/hub`}
             >
-                < Outlet />
+                < RoomContext.Provider value={room} > 
+                    < Outlet />
+                </ RoomContext.Provider >
+
             </SignalRContext.Provider >
         )
     }

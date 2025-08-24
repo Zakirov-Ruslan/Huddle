@@ -28,7 +28,6 @@ export const useSendMessage = () => {
         onSuccess: (newMessage, variables) => {
             const { channelId } = variables;
 
-            // Правильное обновление для infinite query
             queryClient.setQueryData<InfiniteData<PaginatedItems<MessageDto>>>(
                 ['messages', channelId],
                 (oldData) => {
@@ -43,7 +42,6 @@ export const useSendMessage = () => {
                         };
                     }
 
-                    // Обновляем первую страницу, добавляя новое сообщение
                     const updatedPages = [...oldData.pages];
                     if (updatedPages.length > 0) {
                         updatedPages[0] = {
@@ -62,27 +60,23 @@ export const useSendMessage = () => {
     });
 };
 
-// Обновить сообщение
 export const useUpdateMessage = () => {
     const queryClient = useQueryClient();
     return useMutation<void, Error, { channelId: string; messageId: string; data: UpdateMessageRequest }>({
         mutationFn: ({ channelId, messageId, data }) => updateMessage(channelId, messageId, data),
         onSuccess: (_, variables) => {
             const { channelId } = variables;
-            // Инвалидируем кэш сообщений, чтобы подтянулись обновлённые данные
             queryClient.invalidateQueries({ queryKey: ["messages", channelId] });
         },
     });
 };
 
-// Удалить сообщение
 export const useDeleteMessage = () => {
     const queryClient = useQueryClient();
     return useMutation<void, Error, { channelId: string; messageId: string }>({
         mutationFn: ({ channelId, messageId }) => deleteMessage(channelId, messageId),
         onSuccess: (_, variables) => {
             const { channelId } = variables;
-            // Удаляем сообщение из кэша
             queryClient.setQueryData<MessageDto[]>(
                 ["messages", channelId],
                 (oldMessages = []) =>
