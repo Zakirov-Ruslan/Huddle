@@ -18,6 +18,17 @@ public class Program
 
         app.MapReverseProxy();
 
+        app.UseCors(options =>
+        {
+            var spaUrl = Environment.GetEnvironmentVariable("SPA_URL")
+                ?? throw new ArgumentNullException("SPA_URL environment variable not defined");
+
+            options.WithOrigins(spaUrl)
+                   .AllowAnyMethod()
+                   .AllowAnyHeader()
+                   .AllowCredentials();
+        });
+
         app.Run();
     }
 }

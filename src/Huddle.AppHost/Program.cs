@@ -61,12 +61,14 @@ internal class Program
             .WithEnvironment("VITE_IDENTITY_URL", identityEndpoint)
             .WithEnvironment("VITE_GATEWAY_URL", gateway.GetEndpoint("https"));
 
+        gateway.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"));
         identity.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"));
         channelService.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"))
             .WithEnvironment("IDENTITY_URL", identity.GetEndpoint("https"));
         signalRService.WithEnvironment("SPA_URL", reactApp.GetEndpoint("http"))
             .WithEnvironment("CHANNELS_URL", channelService.GetEndpoint("https"));
-        voiceService.WithEnvironment("IDENTITY_URL", identity.GetEndpoint("https"));
+        voiceService.WithEnvironment("IDENTITY_URL", identity.GetEndpoint("https"))
+            .WithEnvironment("CHANNELS_URL", channelService.GetEndpoint("https"));
 
         builder.Build().Run();
     }
