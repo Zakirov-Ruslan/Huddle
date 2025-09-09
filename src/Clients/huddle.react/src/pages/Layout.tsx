@@ -12,6 +12,7 @@ import { useNavigate } from "react-router";
 import type { ServerDto } from "../api/dtos";
 import { Tooltip } from 'react-tooltip'
 import { useMyProfile } from "../hooks/usersApiHooks";
+import face from "../img/huddle-mascot/face.png";
 
 function Layout() {
 
@@ -25,10 +26,10 @@ function Layout() {
 
         return (
             <>
-                <div className="grid h-full grid-cols-[auto_1fr] bg-gray-100">
+                <div className="grid h-full grid-cols-[6rem_1fr] bg-gray-100">
                     <div className="no-scrollbar flex flex-col items-center gap-3 overflow-y-auto p-4">
                         <Link to="/h" className="align-center flex h-15 w-15 flex-shrink-0 items-center justify-center rounded-xl bg-gray-200">
-                                <GoHomeFill className="h-8 w-8 text-black" />
+                            <img src={face} alt="logo" className="h-12 w-12 -scale-x-100" />
                             </Link>
                             <div className="my-1 w-13 border-b border-slate-300"></div>
                         {
@@ -36,7 +37,7 @@ function Layout() {
                                 <div key = { server.id }>
                                     <Link
                                         to={`s/${server.id}`}
-                                        className="align-center flex h-15 w-15 flex-shrink-0 items-center justify-center rounded-xl bg-gray-200"
+                                        className="align-center flex h-15 w-15 flex-shrink-0 items-center justify-center rounded-xl bg-gray-200 text-xl font-medium text-gray-600 hover:text-gray-700"
                                         data-tooltip-id={`server-item-tooltip-${server.id}`}
                                     >
                                         {server.name[0]}
@@ -63,7 +64,7 @@ function Layout() {
                         </button>
                         <div className="absolute bottom-4 left-4 z-10 flex flex h-17 w-90 flex-row items-center gap-1 rounded-xl border-1 border-gray-200 bg-white p-3 shadow-2xl select-none">
                             <div className="rounded-l-4xl flex flex-grow-1 items-center gap-2 rounded-r-lg transition-colors duration-150 hover:bg-gray-100">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 text-sm font-medium text-white">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#5D6D7B] text-sm font-medium text-white">
                                     {profile?.userName[0]}
                                 </div>
                                 <span className="font-medium">{ profile?.userName }</span>
@@ -93,7 +94,11 @@ function Layout() {
                     shouldFocusAfterRender={false}
                     appElement={document.getElementById('root')!}
                 >
-                    <CreateServerDialog onCreateServer={(createdServer: ServerDto) => { setIsModalOpen(false); navigate(`/s/${createdServer.id}`) } } />
+                    <CreateServerDialog onCreateServer={(createdServer: ServerDto | null) => {
+                        setIsModalOpen(false);
+                        if (createdServer)
+                            navigate(`/s/${createdServer.id}`)
+                    }} />
                 </ReactModal>
             </>
         );

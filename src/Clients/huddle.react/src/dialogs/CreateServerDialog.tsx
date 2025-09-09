@@ -1,9 +1,11 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import type { ServerDto } from "../api/dtos";
 import { useCreateServer } from "../hooks/serverApiHooks";
+import { FaPlus } from "react-icons/fa6";
+import { RxCross2 } from "react-icons/rx";
 
 interface CreateServerDialogProps {
-    onCreateServer: (createdServer: ServerDto) => void;
+    onCreateServer: (createdServer: ServerDto | null) => void;
 }
 
 const CreateServerDialog: React.FC<CreateServerDialogProps> = ({ onCreateServer }) => {
@@ -13,7 +15,7 @@ const CreateServerDialog: React.FC<CreateServerDialogProps> = ({ onCreateServer 
 
     return (
         <form
-            className="space-y-4 px-2 pb-2 md:space-y-6"
+            className="w-80 space-y-4 px-2 pb-2 md:space-y-3"
             onSubmit={(e) => {
                 e.preventDefault();
                 if (createServer.isPending)
@@ -28,11 +30,28 @@ const CreateServerDialog: React.FC<CreateServerDialogProps> = ({ onCreateServer 
                 )
             }}
         >
-            <div className="flex flex-col items-center">
-                <span className="font-medium">Create new server</span>
+            <div className="items-left flex flex-col">
+                <div className="flex flex-row items-center">
+                    <h3 className="flex-grow text-2xl font-bold text-gray-700">Create new server</h3>
+                    <button type="button" onClick={() => onCreateServer(null)}>
+                        <RxCross2 />
+                    </button>
+                </div>
             </div>
+            <div className="text-center">
+                <span>Personalize your server by choosing a name and image. You can change them later.</span>
+            </div>
+            <div className="flex flex-row items-center justify-center select-none">
+                <div className="rounded-4xl flex h-25 w-25 flex-row items-center justify-center border-1 border-dashed">
+                    <div className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-3xl bg-gray-600 text-white">
+                        <FaPlus className="h-8 w-8" />
+                        <span className="text-sm font-medium">Upload</span>
+                    </div>
+                </div>
+            </div>
+
             <div>
-                <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Server name</label>
+                <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Server name</label>
                 <input
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => setServerName(event.target.value)}
                     autoFocus={true}
@@ -42,12 +61,15 @@ const CreateServerDialog: React.FC<CreateServerDialogProps> = ({ onCreateServer 
                     required
                 />
             </div>
-            <button
-                type="submit"
-                className="w-full rounded-md bg-blue-700 p-2 font-medium text-white"
-            >
-                Create
-            </button>
+            <div className="flex w-full flex-row justify-end">
+                <button
+                    type="submit"
+                    className="mt-1 w-25 rounded-md bg-indigo-500 p-2 font-medium text-white transition-colors duration-150 hover:bg-indigo-600"
+                >
+                    Create
+                </button>
+            </div>
+
         </form>
     );
     

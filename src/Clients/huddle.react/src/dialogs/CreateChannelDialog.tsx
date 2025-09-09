@@ -1,9 +1,12 @@
 ﻿import { useState } from "react";
 import type { ChannelDto } from "../api/dtos";
 import { useCreateChannel } from "../hooks/channelApiHooks";
+import { FaHashtag } from "react-icons/fa6";
+import { HiSpeakerWave } from "react-icons/hi2";
+import { RxCross2 } from "react-icons/rx";
 
 interface CreateServerDialogProps {
-    onCreateChannel: (createdChannel: ChannelDto) => void;
+    onCreateChannel: (createdChannel: ChannelDto | null) => void;
     serverId: string;
 }
 
@@ -34,13 +37,15 @@ const CreateChannelDialog: React.FC<CreateServerDialogProps> = ({ onCreateChanne
     };
 
     return (
-            <div className="w-full max-w-md bg-white p-8">
-                <div className="mb-8 text-center">
-                    <h1 className="mb-2 text-2xl font-bold text-gray-800">Create channel</h1>
-                    {/*<p className="text-sm text-gray-600"></p>*/}
+            <div className="w-90 max-w-md bg-white px-2 pb-2">
+                <div className="mb-2 flex flex-row items-center text-left">
+                    <h3 className="mb-2 flex-grow text-2xl font-bold text-gray-700">Create channel</h3>
+                    <button type="button" onClick={() => onCreateChannel(null)}>
+                        <RxCross2 />
+                    </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-2">
                     {/* Channel Name Input */}
                     <div>
                         <label htmlFor="channelName" className="mb-2 block text-sm font-medium text-gray-700">
@@ -51,8 +56,8 @@ const CreateChannelDialog: React.FC<CreateServerDialogProps> = ({ onCreateChanne
                             id="channelName"
                             value={channelName}
                             onChange={handleNameChange}
-                            placeholder=""
-                            className="placeholder-gray-400 w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+                            placeholder="new-channel"
+                            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:placeholder-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500"
                             required
                         />
                     </div>
@@ -63,7 +68,7 @@ const CreateChannelDialog: React.FC<CreateServerDialogProps> = ({ onCreateChanne
                             Channel type
                         </label>
                         <div className="space-y-3">
-                            <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-50 ${channelType === 'text'
+                        <label className={`flex gap-2 text-gray-700 items-center p-3 border rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-50 ${channelType === 'text'
                                     ? 'border-indigo-500 bg-indigo-50 ring-1 ring-indigo-500'
                                     : 'border-gray-300 hover:border-gray-400'
                                 }`}>
@@ -74,8 +79,9 @@ const CreateChannelDialog: React.FC<CreateServerDialogProps> = ({ onCreateChanne
                                     checked={channelType === 'text'}
                                     onChange={handleTypeChange}
                                     className="sr-only"
+                                    required
                                 />
-                                <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${channelType === 'text'
+                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${channelType === 'text'
                                         ? 'border-indigo-500 bg-indigo-500'
                                         : 'border-gray-400'
                                     }`}>
@@ -83,10 +89,14 @@ const CreateChannelDialog: React.FC<CreateServerDialogProps> = ({ onCreateChanne
                                         <div className="h-2.5 w-2.5 rounded-full bg-white"></div>
                                     )}
                                 </div>
+                            <FaHashtag />
+                            <div className="flex flex-col items-start">
                                 <span className="font-medium text-gray-700">Text</span>
+                                <span className="text-sm text-gray-700">Send messages, images, gifs or emojis</span>
+                            </div>
                             </label>
 
-                            <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-50 ${channelType === 'voice'
+                            <label className={`flex gap-2 text-gray-700 items-center p-3 border rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-50 ${channelType === 'voice'
                                     ? 'border-indigo-500 bg-indigo-50 ring-1 ring-indigo-500'
                                     : 'border-gray-300 hover:border-gray-400'
                                 }`}>
@@ -98,7 +108,7 @@ const CreateChannelDialog: React.FC<CreateServerDialogProps> = ({ onCreateChanne
                                     onChange={handleTypeChange}
                                     className="sr-only"
                                 />
-                                <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${channelType === 'voice'
+                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${channelType === 'voice'
                                         ? 'border-indigo-500 bg-indigo-500'
                                         : 'border-gray-400'
                                     }`}>
@@ -106,21 +116,26 @@ const CreateChannelDialog: React.FC<CreateServerDialogProps> = ({ onCreateChanne
                                         <div className="h-2.5 w-2.5 rounded-full bg-white"></div>
                                     )}
                                 </div>
-                                <span className="font-medium text-gray-700">Voice</span>
+                                <HiSpeakerWave />
+                                <div className="flex flex-col items-start">
+                                    <span className="font-medium text-gray-700">Voice</span>
+                                    <span className="text-sm text-gray-700">Communication by voice or video chat</span>
+                                </div>
+                                
                             </label>
                         </div>
                     </div>
 
-                    {/* Submit Button */}
+                <div className="flex w-full flex-row items-center justify-end">
                     <button
                         type="submit"
-                        disabled={!channelName.trim()}
-                        className="w-full transform rounded-lg bg-indigo-600 px-4 py-3 font-medium text-white shadow-md transition-all duration-200 hover:scale-[1.02] hover:bg-indigo-700 hover:shadow-lg active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-gray-300"
+                        className="mt-1 w-25 rounded-md bg-indigo-500 p-2 font-medium text-white transition-colors duration-150 hover:bg-indigo-600"
                     >
                         Create
                     </button>
-                </form>
-            </div>
+                </div>
+            </form>
+        </div>
     );
 }
 

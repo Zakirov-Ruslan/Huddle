@@ -13,7 +13,6 @@ import ReactModal from "react-modal";
 import CreateChannelDialog from "../dialogs/CreateChannelDialog";
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { BsPersonFillAdd } from "react-icons/bs";
-import { IoIosSettings } from "react-icons/io";
 import { FaPlusCircle } from "react-icons/fa";
 import { RiArrowDownSLine } from "react-icons/ri";
 import { MdClose } from "react-icons/md";

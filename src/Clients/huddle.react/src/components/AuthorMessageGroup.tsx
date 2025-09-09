@@ -21,7 +21,7 @@ const AuthorMessageGroup = ({ authorId, messageGroup }: AuthorMessageGroupProps)
                 >
                     {msgIndex === 0 ? (
                         <>
-                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-500 text-sm font-medium text-white">
+                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#5D6D7B] text-sm font-medium text-white">
                                 {profile?.userName.charAt(0).toUpperCase()}
                             </div>
                             <div className="flex-1">
