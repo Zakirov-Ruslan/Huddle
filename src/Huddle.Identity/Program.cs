@@ -2,6 +2,7 @@ using Duende.IdentityServer.Models;
 using Huddle.Identity.Configs;
 using Huddle.Identity.Data;
 using Huddle.Identity.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -53,14 +54,15 @@ public class Program
         .AddDeveloperSigningCredential();
 
         // JWT
-        var url = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(";").First();
-        builder.Services.AddAuthentication()
-            .AddJwtBearer(options =>
+        //var url = Environment.GetEnvironmentVariable("ASPNETCORE_URLS")?.Split(";").First(); // doesn't work if hosted from aspire
+        var url = "https://localhost:7285";
+        builder.Services.AddAuthentication("Bearer")
+            .AddJwtBearer("Bearer", options =>
             {
                 options.Authority = url;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateAudience = false,
+                    ValidateAudience = false
                 };
             });
 
@@ -80,11 +82,14 @@ public class Program
 
         app.UseIdentityServer();
 
-        app.UseAuthorization();
         app.UseAuthentication();
+        app.UseAuthorization();
         
         app.MapRazorPages()
             .RequireAuthorization();
+
+        app.MapControllers()
+            .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "Bearer" });
 
         app.Run();
     }

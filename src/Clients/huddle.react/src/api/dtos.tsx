@@ -89,3 +89,7 @@ export interface AcceptInviteResponse {
   serverId: string;
 }
 
+export interface UserProfileDto {
+    userId: string;
+    userName: string;
+}

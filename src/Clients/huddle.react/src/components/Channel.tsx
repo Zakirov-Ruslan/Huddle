@@ -5,6 +5,7 @@ import { useServerContext } from "../pages/Server";
 import { useInfiniteMembers } from "../hooks/memberApiHooks";
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
+import ServerMemberItem from "./ServerMemberItem";
 
 export const Channel = () => {
     const { channelId } = useParams<{ channelId: string }>();
@@ -45,11 +46,11 @@ export const Channel = () => {
             )}
 
 
-            {serverContext.isShowMembers && (
+            {serverContext.isShowMembers && channel.channelType.toLowerCase() === "text" && (
                 (
-                    <div className="w-60 border-l-1 border-gray-200 bg-white">
+                    <div className="flex w-60 flex-col gap-1 border-l-1 border-gray-200 bg-white p-1.5">
                         {data?.pages.flatMap(page => page.items).map(member => (
-                            <div key={member.id}>{member.identityId}</div>
+                            <ServerMemberItem userId={member.identityId} />
                         ))}
                         <div ref={loaderRef} />
                     </div>

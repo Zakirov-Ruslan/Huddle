@@ -5,6 +5,7 @@ using Huddle.Voice.WebApi.Services;
 using Livekit.Server.Sdk.Dotnet;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 
 namespace Huddle.Voice.WebApi;
@@ -81,7 +82,7 @@ public class Program
                 if (user.Identity?.IsAuthenticated != true)
                     return Results.Unauthorized();
 
-                var userId = user.FindFirst("sub")?.Value;
+                var userId = user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
                     return Results.BadRequest("User ID not found");
 

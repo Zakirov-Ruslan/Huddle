@@ -83,12 +83,12 @@ function Server() {
                         anchor="bottom"
                         className="flex w-56 origin-top-right flex-col rounded-md border-1 border-gray-200 bg-white p-2 shadow-md transition duration-100 ease-out focus:outline-none [--anchor-gap:--spacing(1)]"
                     >
-                        <MenuItem>
-                            <button type="button" className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100">
-                                <span className="flex-grow">Server settings</span>
-                                <IoIosSettings />
-                            </button>
-                        </MenuItem>
+                        {/*<MenuItem>*/}
+                        {/*    <button type="button" className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100">*/}
+                        {/*        <span className="flex-grow">Server settings</span>*/}
+                        {/*        <IoIosSettings />*/}
+                        {/*    </button>*/}
+                        {/*</MenuItem>*/}
                         <MenuItem>
                             <button
                                 type="button"
@@ -117,11 +117,11 @@ function Server() {
                         {activeChannel?.name}
                     </h2>
                     <div className="flex space-x-2">
-                        <button className="rounded p-1 hover:bg-gray-200 dark:hover:bg-gray-700">
-                            <svg className="h-5 w-5 text-gray-600 dark:text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
-                        </button>
+                        {/*<button className="rounded p-1 hover:bg-gray-200 dark:hover:bg-gray-700">*/}
+                        {/*    <svg className="h-5 w-5 text-gray-600 dark:text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">*/}
+                        {/*        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />*/}
+                        {/*    </svg>*/}
+                        {/*</button>*/}
                         <button
                             onClick={() => setIsShowMembers(!isShowMembers)}
                             className="rounded p-1 hover:bg-gray-200 dark:hover:bg-gray-700">

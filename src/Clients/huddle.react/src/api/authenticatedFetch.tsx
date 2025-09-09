@@ -1,4 +1,4 @@
-import getUser from "../utils/AuthHelpers";
+import getUser from "../utils/authHelpers";
 
 export const authenticatedFetch = async (url: string, options: RequestInit = {}) => {
     const user = getUser();

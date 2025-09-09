@@ -1,4 +1,4 @@
-import { CHANNEL_SERVICE_URL } from "../api";
+import { LIVEKIT_SERVICE_URL } from "../api";
 import { authenticatedFetch } from "../authenticatedFetch";
 
 export const getLiveKitToken = async (serverId : string, channelId: string): Promise<string> => {
@@ -8,7 +8,7 @@ export const getLiveKitToken = async (serverId : string, channelId: string): Pro
     params.append('channelId', channelId.toString());
 
     const response = await authenticatedFetch(
-        `${CHANNEL_SERVICE_URL}/api/livekit/token?${params.toString()}`, {
+        `${LIVEKIT_SERVICE_URL}/api/livekit/token?${params.toString()}`, {
         method: 'GET',
     });
 

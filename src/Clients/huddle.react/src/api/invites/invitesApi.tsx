@@ -3,9 +3,11 @@ import { authenticatedFetch } from "../authenticatedFetch";
 import type { AcceptInviteResponse, InviteDto } from "../dtos";
 
 export const getServerInvites = async (serverId: string): Promise<void> => {
-    await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/servers/${serverId}/invites`, {
+    const response = await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/servers/${serverId}/invites`, {
         method: 'GET',
     });
+
+    return response.json();
 };
 
 export const createInvite = async (serverId: string): Promise<InviteDto> => {

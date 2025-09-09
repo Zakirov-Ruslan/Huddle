@@ -11,14 +11,17 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import type { ServerDto } from "../api/dtos";
 import { Tooltip } from 'react-tooltip'
+import { useMyProfile } from "../hooks/usersApiHooks";
 
 function Layout() {
 
     const navigate = useNavigate();
     const auth = useAuth();
 
-    const { data: servers, error, isPending } = useMyServers();
+    const { data: servers, error: serversError, isPending: isServersPending } = useMyServers();
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+    const { data: profile, isLoading: isProfileLoading, error: profileError } = useMyProfile();
 
         return (
             <>
@@ -58,20 +61,24 @@ function Layout() {
                             className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200 flex-shrink-0">
                                 <FaCirclePlus className="scale-150" />
                         </button>
-                            <div className="absolute bottom-4 left-4 z-10 flex h-17 w-90 flex-row gap-2 rounded-xl border-1 border-gray-200 bg-white p-2 shadow-2xl">
-                                <div className="flex-grow-1">
-                                    {auth.user?.profile.name ?? 'username must be here'}
+                        <div className="absolute bottom-4 left-4 z-10 flex flex h-17 w-90 flex-row items-center gap-1 rounded-xl border-1 border-gray-200 bg-white p-3 shadow-2xl select-none">
+                            <div className="rounded-l-4xl flex flex-grow-1 items-center gap-2 rounded-r-lg transition-colors duration-150 hover:bg-gray-100">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 text-sm font-medium text-white">
+                                    {profile?.userName[0]}
                                 </div>
-                                <button className="">
-                                    <FaMicrophone />
-                                </button>
-                                <button className="">
-                                    <TbHeadphonesOff />
-                                </button>
+                                <span className="font-medium">{ profile?.userName }</span>
+                            </div>
+
+                            <button className="flex h-8 w-8 items-center justify-center rounded-md transition-colors duration-150 hover:bg-gray-100">
+                                <FaMicrophone />
+                            </button>
+                            <button className="flex h-8 w-8 items-center justify-center rounded-md transition-colors duration-150 hover:bg-gray-100">
+                                <TbHeadphonesOff />
+                            </button>
                             </div>
                         </div>
                     <div className="flex flex-row pt-4"> 
-                        <div className="grid h-full flex-grow-1 grid-cols-[300px_1fr] grid-rows-[50px_calc(100vh_-_calc(50px_+_1.25rem))] overflow-hidden rounded-tl-2xl border-1 border-gray-300 bg-gray-100">
+                        <div className="grid h-full flex-grow-1 grid-cols-[300px_1fr] grid-rows-[50px_calc(100vh_-_calc(48px_+_1.25rem))] overflow-hidden rounded-tl-2xl border-1 border-gray-300 bg-gray-100">
                             <Outlet />
                         </div>
                     </div>

@@ -4,14 +4,26 @@ import { Outlet } from "react-router";
 import { useNavigate } from "react-router";
 import { createSignalRContext } from "react-signalr";
 import { GATEWAY_URL } from "../api/api";
-import { RoomContext } from "@livekit/components-react";
+import { LiveKitRoom, RoomContext } from "@livekit/components-react";
 import { Room } from "livekit-client";
 
 export const SignalRContext = createSignalRContext();
 function Root() {
     const auth = useAuth();
     const navigate = useNavigate();
-    const [room] = useState(() => new Room({}));      
+
+    //live kit
+    const [room] = useState(() => new Room({}));
+
+    // You can manage room connection lifecycle here
+    useEffect(() => {
+        //room.connect('your-server-url', 'your-token');
+        //return () => {
+        //    room.disconnect();
+        //};
+        console.log(room);
+    }, [room]);
+    //const [token, setToken] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         if (!auth.isLoading && !auth.isAuthenticated && !auth.error) {
@@ -55,9 +67,11 @@ function Root() {
                 dependencies={[auth.user?.access_token]} //remove previous connection and create a new connection if changed
                 url={`${GATEWAY_URL}/notifications/hub`}
             >
-                < RoomContext.Provider value={room} > 
+                <RoomContext.Provider
+                    value={ room }
+                >
                     < Outlet />
-                </ RoomContext.Provider >
+                </RoomContext.Provider>
 
             </SignalRContext.Provider >
         )

@@ -1,10 +1,11 @@
 using Aspire.Hosting;
 using Projects;
+using System.Net.Sockets;
 
 internal class Program
 {
-    private const string LIVEKIT_API_KEY = "api";
-    private const string LIVEKIT_API_SECRET = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+    private const string LIVEKIT_API_KEY = "APILp6Aw52mbE6a";
+    private const string LIVEKIT_API_SECRET = "Jpg42EoVl5q0CwlmAvupAkRoepUcRiraNO0b0tY8LbP";
 
     private static void Main(string[] args)
     {
@@ -27,13 +28,21 @@ internal class Program
         var identity = builder.AddProject<Projects.Huddle_Identity>("identity")
             .WithReference(identityDb).WaitFor(identityDb);
 
+        //https://livekit.io/connection-test - for tests
         var liveKit = builder.AddContainer("livekit", "livekit/livekit-server")
             .WithHttpEndpoint(port: 7880, targetPort: 7880, name: "http")
-            .WithHttpEndpoint(port: 7881, targetPort: 7881, name: "websocket", isProxied: false)
-            .WithEnvironment("REDIS_HOST", () => $"redis:6379")
-            .WithEnvironment("REDIS_PASSWORD", () => redis.Resource.PasswordParameter.Value) 
-            .WithEnvironment("LIVEKIT_KEYS", $"{LIVEKIT_API_KEY}: {LIVEKIT_API_SECRET}") 
-                .WaitFor(redis);
+            .WithEndpoint(port: 7881, targetPort: 7881, name: "ice-tcp", protocol: ProtocolType.Tcp)
+            .WithBindMount(@"./configs/livekit.yaml", @"/etc/livekit.yaml")
+            .WithArgs("--config", @"/etc/livekit.yaml")
+            .WithEnvironment(context =>
+            {
+                context.EnvironmentVariables["REDIS_PASSWORD"] = redis.Resource.PasswordParameter?.Value;
+                context.EnvironmentVariables["REDIS_HOST"] = redis.Resource.PrimaryEndpoint.Property(EndpointProperty.HostAndPort);
+            })
+            .WithEnvironment("LIVEKIT_KEYS", $"{LIVEKIT_API_KEY}: {LIVEKIT_API_SECRET}")
+                .WaitFor(redis)
+            .WithContainerRuntimeArgs("--network", "host")
+            .WithArgs("--dev");
 
         var identityEndpoint = identity.GetEndpoint("https");
 

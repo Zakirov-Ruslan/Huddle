@@ -40,4 +40,8 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Shared\ClaimsPrincipalExtensions.cs" Link="Extensions\ClaimsPrincipalExtensions.cs" />
+  </ItemGroup>
+
 </Project>

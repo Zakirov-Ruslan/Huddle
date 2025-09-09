@@ -1,4 +1,4 @@
-export function adjustHeight(event: React.FormEvent<HTMLTextAreaElement>): void {
-    event.currentTarget.style.height = "inherit";
-    event.currentTarget.style.height = `${event.currentTarget.scrollHeight}px`;
+export function adjustHeight(element: HTMLTextAreaElement): void {
+    element.style.height = 'inherit'; 
+    element.style.height = `${element.scrollHeight}px`;
 }

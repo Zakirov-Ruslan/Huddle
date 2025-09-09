@@ -24,8 +24,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="..\..\Shared\Protos\channel_access.proto" GrpcServices="Server" Link="Protos/%(Filename)%(Extension)"/>
+    <Protobuf Include="..\..\Shared\Protos\channel_access.proto" GrpcServices="Server" Link="Protos/%(Filename)%(Extension)" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Shared\ClaimsPrincipalExtensions.cs" Link="Extensions\ClaimsPrincipalExtensions.cs" />
   </ItemGroup>
 
 </Project>

@@ -17,8 +17,6 @@ public class Program
 
         var app = builder.Build();
 
-        app.MapGet("/", () => "Hello World!");
-
         app.MapPost("/upload", async (IFormFile file, [FromServices] IMinioClient minioClient) =>
         {
             var objectName = Guid.NewGuid().ToString();
