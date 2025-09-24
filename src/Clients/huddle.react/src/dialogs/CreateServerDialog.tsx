@@ -42,8 +42,8 @@ const CreateServerDialog: React.FC<CreateServerDialogProps> = ({ onCreateServer 
                 <span>Personalize your server by choosing a name and image. You can change them later.</span>
             </div>
             <div className="flex flex-row items-center justify-center select-none">
-                <div className="rounded-4xl flex h-25 w-25 flex-row items-center justify-center border-1 border-dashed">
-                    <div className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-3xl bg-gray-600 text-white">
+                <div className="flex h-25 w-25 flex-row items-center justify-center rounded-3xl border-1 border-dashed">
+                    <div className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-2xl bg-gray-600 text-white">
                         <FaPlus className="h-8 w-8" />
                         <span className="text-sm font-medium">Upload</span>
                     </div>

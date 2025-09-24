@@ -55,10 +55,10 @@ const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) 
     SignalRContext.useSignalREffect(
         "CreateMessage",
         (newMessage: MessageDto) => {
-            console.log('message received', newMessage); // Правильное логирование объекта
+            console.log('message received', newMessage);
             if (newMessage.authorId == auth.user?.profile.sub)
                 return;
-            // Проверяем, что сообщение относится к текущему каналу
+
             if (newMessage.channelId === id) {
                 queryClient.setQueryData<InfiniteData<PaginatedItems<MessageDto>>>(
                     ['messages', id],
@@ -74,12 +74,11 @@ const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) 
                             };
                         }
 
-                        // Обновляем первую страницу, добавляя новое сообщение в конец
                         const updatedPages = [...oldData.pages];
                         if (updatedPages.length > 0) {
                             updatedPages[0] = {
                                 ...updatedPages[0],
-                                items: [...updatedPages[0].items, newMessage] // Добавляем в конец для новых сообщений
+                                items: [...updatedPages[0].items, newMessage]
                             };
                         }
 
@@ -90,7 +89,6 @@ const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) 
                     }
                 );
 
-                // Прокручиваем к новому сообщению
                 setTimeout(() => {
                     listRef.current?.scrollTo({
                         top: listRef.current.scrollHeight,

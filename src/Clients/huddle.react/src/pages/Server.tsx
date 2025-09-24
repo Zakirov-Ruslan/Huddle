@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { useServer } from "../hooks/serverApiHooks";
 import { FaHashtag } from "react-icons/fa6";
 import { useNavigate, useParams } from "react-router";
@@ -25,7 +25,6 @@ export interface ServerContextType {
 export const ServerContext = createContext<ServerContextType | null>(null);
 export const useServerContext = () => {
     const context = useContext(ServerContext);
-    //if (!context) throw new Error("useServerContext must be used within Server");
     return context;
 };
 
@@ -39,7 +38,6 @@ function Server() {
     }
 
     const [isShowMembers, setIsShowMembers] = useState(false);
-    const [activeChannel, setActiveChannel] = useState<ChannelDto | null>(null);
     const [isCreateChannelModalOpen, setIsCreateChannelModalOpen] = useState(false)
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
 
@@ -47,20 +45,10 @@ function Server() {
 
     const { data: server, error, isPending } = useServer(serverId);
 
-    useEffect(() => {
-        setActiveChannel(null);
-    }, [serverId]);
-
-    useEffect(() => {
-        if (server && !activeChannel) {
-            const textChannel = server.channels.find(ch => ch.channelType.toLowerCase() == "text");
-
-            if (textChannel) {
-                setActiveChannel(textChannel);
-                navigate(`ch/${textChannel.id}`);
-            }
-        }
-    }, [server, activeChannel, navigate]);
+    const activeChannel = useMemo(() => {
+        if (!server || !channelId) return null;
+        return server.channels.find(ch => ch.id === channelId) ?? null;
+    }, [server, channelId]);
 
     return (
         <>
@@ -164,7 +152,6 @@ function Server() {
                                         <button
                                             type="button"
                                             onClick={() => {
-                                                setActiveChannel(channel);
                                                 navigate(`ch/${channel.id}`)
                                             }}
                                             className={`w-full flex gap-2 flex-row items-center text-left rounded-xl px-3 py-1.5 transition-colors ${activeChannel === channel
@@ -216,7 +203,6 @@ function Server() {
                                         <button
                                             type="button"
                                             onClick={() => {
-                                                setActiveChannel(channel);
                                                 navigate(`ch/${channel.id}`)
                                             }}
                                             className={`w-full flex gap-2 flex-row items-center text-left rounded-xl px-3 py-1.5 transition-colors ${activeChannel === channel
@@ -232,7 +218,7 @@ function Server() {
                         )}
                     </ul>
                 </nav>
-                <Outlet />
+                <Outlet key={channelId} />
             </ServerContext.Provider>
 
             <ReactModal
@@ -244,7 +230,7 @@ function Server() {
                 shouldFocusAfterRender={false}
                 appElement={document.getElementById('root')!}
             >
-                <CreateChannelDialog serverId={serverId} onCreateChannel={(createdChannel: ChannelDto) => { setIsCreateChannelModalOpen(false); setActiveChannel(createdChannel); navigate(`ch/${createdChannel.id}`) }} />
+                <CreateChannelDialog serverId={serverId} onCreateChannel={(createdChannel: ChannelDto) => { setIsCreateChannelModalOpen(false); navigate(`ch/${createdChannel.id}`) }} />
             </ReactModal>
 
             <ReactModal

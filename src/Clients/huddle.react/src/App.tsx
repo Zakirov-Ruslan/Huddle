@@ -7,8 +7,11 @@ import Home from './pages/Home'
 import { Navigate } from 'react-router'
 import { AuthProvider } from "react-oidc-context";
 import InviteRedirect from './pages/InviteRedirect'
-import Root from './pages/Root'
+import SignalRProvider from './providers/SignalRProvider'
+import LiveKitProvider from './providers/LiveKitProvider'
 import { Channel } from './components/Channel'
+import DefaultChannelRedirect from './pages/DefaultChannelRedirect'
+import RequireAuth from './pages/RequireAuth'
 
 const queryClient = new QueryClient()
 
@@ -39,12 +42,17 @@ function App() {
                 <QueryClientProvider client={queryClient}>
                     <BrowserRouter>
                         <Routes>
-                            <Route element={<Root />} >
-                                <Route path="/" element={<Layout />}>
-                                    <Route index element={<Navigate to="/h" replace />} />
-                                    <Route path='h' element={<Home />} />
-                                    <Route path="s/:serverId" element={<Server />} >
-                                        <Route path="ch/:channelId" element={<Channel />} />
+                            <Route element={<RequireAuth />} >
+                                <Route element={<SignalRProvider/>}>
+                                    <Route element={<LiveKitProvider/>}>
+                                        <Route path="/" element={<Layout />}>
+                                            <Route index element={<Navigate to="/h" replace />} />
+                                            <Route path='h' element={<Home />} />
+                                            <Route path="s/:serverId" element={<Server />} >
+                                                <Route index element={<DefaultChannelRedirect />} />
+                                                <Route path="ch/:channelId" element={<Channel />} />
+                                            </Route>
+                                        </Route>
                                     </Route>
                                 </Route>
                                 <Route path="invite/:inviteCode" element={<InviteRedirect />} />
