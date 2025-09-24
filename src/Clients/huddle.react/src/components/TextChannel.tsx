@@ -7,11 +7,11 @@ import { adjustHeight } from "../utils/domHelpers";
 import { useInView } from 'react-intersection-observer';
 import React from "react";
 import "../styles/scrollbar.css";
-import { SignalRContext } from "../pages/Root";
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { useAuth } from "react-oidc-context";
 import { groupMessagesByDayAndAuthor } from "../utils/groupMessages";
 import AuthorMessageGroup from "./AuthorMessageGroup";
+import { SignalRContext } from "../providers/SignalRProvider";
 
 const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) => {
 

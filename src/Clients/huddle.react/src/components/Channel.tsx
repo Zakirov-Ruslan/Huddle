@@ -10,10 +10,7 @@ import ServerMemberItem from "./ServerMemberItem";
 export const Channel = () => {
     const { channelId } = useParams<{ channelId: string }>();
 
-
     const serverContext = useServerContext();
-    if (!serverContext || !serverContext.server)
-        return <div>Loading...</div>;
 
     const {
         data,
@@ -21,7 +18,7 @@ export const Channel = () => {
         isFetchingNextPage,
         hasNextPage,
         fetchNextPage,
-    } = useInfiniteMembers(serverContext.server.id);
+    } = useInfiniteMembers(serverContext?.server?.id, Boolean(serverContext && serverContext.server));
     const [loaderRef, inView] = useInView();
 
     useEffect(() => {
@@ -29,6 +26,9 @@ export const Channel = () => {
             fetchNextPage();
         }
     }, [inView, hasNextPage, fetchNextPage, isFetchingNextPage]);
+
+    if (!serverContext || !serverContext.server)
+        return <div>Loading...</div>;
 
     const channel = serverContext.server.channels.find(ch => ch.id === channelId);
     if (!channel)
@@ -50,7 +50,7 @@ export const Channel = () => {
                 (
                     <div className="flex w-60 flex-col gap-1 border-l-1 border-gray-200 bg-white p-1.5">
                         {data?.pages.flatMap(page => page.items).map(member => (
-                            <ServerMemberItem userId={member.identityId} />
+                            <ServerMemberItem key={member.identityId} userId={member.identityId} />
                         ))}
                         <div ref={loaderRef} />
                     </div>
