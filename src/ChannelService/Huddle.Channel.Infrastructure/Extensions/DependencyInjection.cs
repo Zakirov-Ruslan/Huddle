@@ -1,4 +1,7 @@
-﻿using Huddle.Channel.Application.Commands.Server;
+﻿using FluentValidation;
+using Huddle.Channel.Application.Commands.Invite;
+using Huddle.Channel.Application.Commands.Message;
+using Huddle.Channel.Application.Commands.Server;
 using Huddle.Channel.Application.Dto;
 using Huddle.Channel.Application.IntegrationEvents;
 using Huddle.Channel.Application.Queries.Invites;
@@ -6,6 +9,7 @@ using Huddle.Channel.Application.Queries.Members;
 using Huddle.Channel.Application.Queries.Messages;
 using Huddle.Channel.Application.Queries.Servers;
 using Huddle.Channel.Application.Services;
+using Huddle.Channel.Application.Validations;
 using Huddle.Channel.Domain.Aggregates.InviteAggregate;
 using Huddle.Channel.Domain.Aggregates.MemberAggregate;
 using Huddle.Channel.Domain.Aggregates.MessageAggregate;
@@ -46,8 +50,9 @@ namespace Huddle.Channel.Infrastructure.Extensions
                 cfg.RegisterServicesFromAssembly(Assembly.GetAssembly(typeof(CreateServerCommand)));
                 cfg.RegisterServicesFromAssembly(typeof(LoggingBehavior<,>).Assembly);
 
-                cfg.AddOpenBehavior(typeof(TransactionBehavior<,>));
                 cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
+                cfg.AddOpenBehavior(typeof(ValidatorBehavior<,>));
+                cfg.AddOpenBehavior(typeof(TransactionBehavior<,>));
             });
 
             services.AddScoped<IServerRepository, ServerRepository>();
@@ -61,6 +66,10 @@ namespace Huddle.Channel.Infrastructure.Extensions
             services.AddScoped<IServersQueries, ServersQueries>();
             services.AddScoped<IInvitesQueries, InvitesQueries>();
             services.AddScoped<IMembersQueries, MembersQueries>();
+
+            // Validators
+            services.AddSingleton<IValidator<CreateMessageCommand>, CreateMessageCommandValidator>();
+            services.AddSingleton<IValidator<AcceptInviteCommand>, AcceptInviteCommandValidator>();
 
             return services;
         }

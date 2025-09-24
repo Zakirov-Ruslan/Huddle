@@ -1,7 +1,5 @@
 ﻿using Huddle.Channel.Domain;
 using Huddle.Channel.Domain.Aggregates.MemberAggregate;
-using Huddle.Channel.Domain.Aggregates.MessageAggregate;
-using Huddle.Channel.Domain.Aggregates.ServerAggregate;
 using Huddle.Channel.Domain.SeedWork;
 using Microsoft.EntityFrameworkCore;
 
