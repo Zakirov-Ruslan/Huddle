@@ -27,6 +27,9 @@ const CreateChannelDialog: React.FC<CreateServerDialogProps> = ({ onCreateChanne
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (createChannel.isPending || createChannel.isSuccess)
+            return;
+
         createChannel.mutate(
             { name: channelName, channelType: channelType },
             {
@@ -130,8 +133,9 @@ const CreateChannelDialog: React.FC<CreateServerDialogProps> = ({ onCreateChanne
                     <button
                         type="submit"
                         className="mt-1 w-25 rounded-md bg-indigo-500 p-2 font-medium text-white transition-colors duration-150 hover:bg-indigo-600"
+                        disabled={createChannel.isPending }
                     >
-                        Create
+                        { createChannel.isPending? 'Creating...' : 'Create'}
                     </button>
                 </div>
             </form>

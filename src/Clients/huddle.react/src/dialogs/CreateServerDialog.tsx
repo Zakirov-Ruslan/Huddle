@@ -18,7 +18,7 @@ const CreateServerDialog: React.FC<CreateServerDialogProps> = ({ onCreateServer 
             className="w-80 space-y-4 px-2 pb-2 md:space-y-3"
             onSubmit={(e) => {
                 e.preventDefault();
-                if (createServer.isPending)
+                if (createServer.isPending || createServer.isSuccess)
                     return;
                 createServer.mutate(
                     { name: serverName },
@@ -65,8 +65,10 @@ const CreateServerDialog: React.FC<CreateServerDialogProps> = ({ onCreateServer 
                 <button
                     type="submit"
                     className="mt-1 w-25 rounded-md bg-indigo-500 p-2 font-medium text-white transition-colors duration-150 hover:bg-indigo-600"
+                    disabled={createServer.isPending }
+                    
                 >
-                    Create
+                    {createServer.isPending ? 'Creating...': 'Create'}
                 </button>
             </div>
 

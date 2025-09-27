@@ -1,6 +1,4 @@
 ﻿import { Link, Outlet, useParams } from "react-router";
-import { GoHomeFill } from "react-icons/go";
-import { useAuth } from "react-oidc-context";
 import { FaMicrophone } from "react-icons/fa";
 import { TbHeadphonesOff } from "react-icons/tb";
 import { useMyServers } from "../hooks/serverApiHooks";
@@ -67,7 +65,7 @@ function Layout() {
                             className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200 flex-shrink-0">
                                 <FaCirclePlus className="scale-150" />
                         </button>
-                        <div className="absolute bottom-4 left-4 flex flex h-17 w-90 flex-row items-center gap-1 rounded-xl border-1 border-gray-200 bg-white p-3 shadow-2xl select-none">
+                        <div className="absolute bottom-4 left-4 flex h-17 w-90 flex-row items-center gap-1 rounded-xl border-1 border-gray-200 bg-white p-3 shadow-2xl select-none">
                             <div className="rounded-l-4xl flex flex-grow-1 items-center gap-2 rounded-r-lg transition-colors duration-150 hover:bg-gray-100">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#5D6D7B] text-sm font-medium text-white">
                                     {profile?.userName[0]}

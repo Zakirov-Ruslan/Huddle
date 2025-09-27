@@ -1,7 +1,7 @@
 ﻿import { useEffect, useMemo, useState } from "react";
 import { useServer } from "../hooks/serverApiHooks";
 import { FaHashtag } from "react-icons/fa6";
-import { useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import type { ChannelDto, ServerDto } from "../api/dtos";
 import { HiSpeakerWave } from "react-icons/hi2";
 import { FaUsers } from "react-icons/fa";
@@ -17,6 +17,7 @@ import { FaPlusCircle } from "react-icons/fa";
 import { RiArrowDownSLine } from "react-icons/ri";
 import { MdClose } from "react-icons/md";
 import InviteFriendsDialog from "../dialogs/InviteFriendsDialog";
+import { IoIosSettings } from "react-icons/io";
 
 export interface ServerContextType {
     server: ServerDto | undefined;
@@ -33,9 +34,8 @@ type ChannelType = 'text' | 'voice';
 function Server() {
 
     const { serverId, channelId } = useParams();
-    if (!serverId) {
+    if (!serverId)
         return <div>Invalid server ID</div>;
-    }
 
     const [isShowMembers, setIsShowMembers] = useState(false);
     const [isCreateChannelModalOpen, setIsCreateChannelModalOpen] = useState(false)
@@ -70,12 +70,12 @@ function Server() {
                         anchor="bottom"
                         className="flex w-56 origin-top-right flex-col rounded-md border-1 border-gray-200 bg-white p-2 shadow-md transition duration-100 ease-out focus:outline-none [--anchor-gap:--spacing(1)]"
                     >
-                        {/*<MenuItem>*/}
-                        {/*    <button type="button" className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100">*/}
-                        {/*        <span className="flex-grow">Server settings</span>*/}
-                        {/*        <IoIosSettings />*/}
-                        {/*    </button>*/}
-                        {/*</MenuItem>*/}
+                        <MenuItem>
+                            <Link to={`/server-settings/${serverId}`}  className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100">
+                                <span className="flex-grow">Server settings</span>
+                                <IoIosSettings />
+                            </Link>
+                        </MenuItem>
                         <MenuItem>
                             <button
                                 type="button"
@@ -149,19 +149,14 @@ function Server() {
                             <>
                                 {server?.channels.filter(ch => ch.channelType == "Text").map((channel) => (
                                     <li key={channel.id}>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                navigate(`ch/${channel.id}`)
-                                            }}
+                                        <Link
+                                            to={`ch/${channel.id}`}
                                             className={`w-full flex gap-2 flex-row items-center text-left rounded-xl px-3 py-1.5 transition-colors ${activeChannel === channel
-                                                ? 'bg-gray-300 text-white'
-                                                : 'hover:bg-gray-200'
-                                                }`}
+                                                ? 'bg-gray-300' : 'hover:bg-gray-200' }`}
                                         >
                                             <FaHashtag />
                                             {channel.name}
-                                        </button>
+                                        </Link>
                                     </li>))}
                             </>
                         )}
@@ -200,19 +195,16 @@ function Server() {
                             <>
                                 {server?.channels.filter(ch => ch.channelType == "Voice").map((channel) => (
                                     <li key={channel.id}>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                navigate(`ch/${channel.id}`)
-                                            }}
+                                        <Link
+                                            to={`ch/${channel.id}`}
                                             className={`w-full flex gap-2 flex-row items-center text-left rounded-xl px-3 py-1.5 transition-colors ${activeChannel === channel
-                                                ? 'bg-gray-300 text-white'
+                                                ? 'bg-gray-300'
                                                 : 'hover:bg-gray-200'
                                                 }`}
                                         >
                                             <HiSpeakerWave />
                                             {channel.name}
-                                        </button>
+                                        </Link>
                                     </li>))}
                             </>
                         )}

@@ -10,18 +10,19 @@ function InviteRedirect() {
   const invokedRef = useRef(false);
 
   useEffect(() => {
-    if (!inviteCode) return;
-    if (invokedRef.current) return;
-    invokedRef.current = true;
+      if (!inviteCode) return;
 
-    acceptInvite.mutate(inviteCode, {
-      onSuccess: (response) => {
-        navigate(`/s/${response.serverId}`, { replace: true });
-      },
-       onError: (error) => {
-           console.log(error);
-       },
-    });
+      acceptInvite.mutate(inviteCode, {
+          onSuccess: (response) => {
+              navigate(`/s/${response.serverId}`, { replace: true });
+          },
+          onError: (error) => {
+              console.log(error);
+          },
+      });
+
+      if (invokedRef.current) return;
+      invokedRef.current = true;
   }, [inviteCode]);
 
   return null;

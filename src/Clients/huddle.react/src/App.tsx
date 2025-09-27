@@ -12,6 +12,10 @@ import LiveKitProvider from './providers/LiveKitProvider'
 import { Channel } from './components/Channel'
 import DefaultChannelRedirect from './pages/DefaultChannelRedirect'
 import RequireAuth from './pages/RequireAuth'
+import ChannelSettings from './pages/ChannelSettings'
+import UserSettings from './pages/UserSettings'
+import ServerProfile from './pages/ServerSettings/ServerProfile'
+import ServerSettings from './pages/ServerSettings/ServerSettings'
 
 const queryClient = new QueryClient()
 
@@ -53,6 +57,12 @@ function App() {
                                                 <Route path="ch/:channelId" element={<Channel />} />
                                             </Route>
                                         </Route>
+                                        <Route path='server-settings/:serverId' element={<ServerSettings />}>
+                                            <Route index element={<Navigate to="server-profile" replace />} />
+                                            <Route path='server-profile' element={<ServerProfile/>} />
+                                        </Route>
+                                        <Route path='channel-settings/:channelId' element={<ChannelSettings />} />
+                                        <Route path='user-settings/:userId' element={<UserSettings />} />
                                     </Route>
                                 </Route>
                                 <Route path="invite/:inviteCode" element={<InviteRedirect />} />
