@@ -4,6 +4,7 @@
     (
         Guid Id,
         string Name,
+        Guid OwnerIdentityId,
         List<ChannelDto> Channels
     );
 

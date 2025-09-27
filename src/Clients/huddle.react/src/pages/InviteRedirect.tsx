@@ -7,10 +7,14 @@ function InviteRedirect() {
   const navigate = useNavigate();
   const acceptInvite = useAcceptInvite();
 
-  const invokedRef = useRef(false);
+  //const invokedRef = useRef(false);
+  const isProcessingRef = useRef(false);
 
   useEffect(() => {
       if (!inviteCode) return;
+      if  (isProcessingRef.current || acceptInvite.isPending) return;
+      
+      isProcessingRef.current = true;
 
       acceptInvite.mutate(inviteCode, {
           onSuccess: (response) => {
@@ -18,12 +22,15 @@ function InviteRedirect() {
           },
           onError: (error) => {
               console.log(error);
+              // Сбрасываем флаги при ошибке, чтобы можно было повторить попытку
+              isProcessingRef.current = false;
           },
+          onSettled: () => {
+              // Сбрасываем флаг обработки после завершения запроса
+              isProcessingRef.current = false;
+          }
       });
-
-      if (invokedRef.current) return;
-      invokedRef.current = true;
-  }, [inviteCode]);
+  }, [inviteCode, acceptInvite, navigate]);
 
   return null;
 }

@@ -18,6 +18,8 @@ import { RiArrowDownSLine } from "react-icons/ri";
 import { MdClose } from "react-icons/md";
 import InviteFriendsDialog from "../dialogs/InviteFriendsDialog";
 import { IoIosSettings } from "react-icons/io";
+import { useAuth } from "react-oidc-context";
+import { ImExit } from "react-icons/im";
 
 export interface ServerContextType {
     server: ServerDto | undefined;
@@ -44,11 +46,14 @@ function Server() {
     const navigate = useNavigate();
 
     const { data: server, error, isPending } = useServer(serverId);
+    const auth = useAuth();
 
     const activeChannel = useMemo(() => {
         if (!server || !channelId) return null;
         return server.channels.find(ch => ch.id === channelId) ?? null;
     }, [server, channelId]);
+
+    const isServerOwner = server && auth.user && server.ownerIdentityId == auth.user.profile.sub;
 
     return (
         <>
@@ -70,32 +75,45 @@ function Server() {
                         anchor="bottom"
                         className="flex w-56 origin-top-right flex-col rounded-md border-1 border-gray-200 bg-white p-2 shadow-md transition duration-100 ease-out focus:outline-none [--anchor-gap:--spacing(1)]"
                     >
-                        <MenuItem>
-                            <Link to={`/server-settings/${serverId}`}  className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100">
-                                <span className="flex-grow">Server settings</span>
-                                <IoIosSettings />
-                            </Link>
-                        </MenuItem>
-                        <MenuItem>
-                            <button
-                                type="button"
-                                className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100"
-                                onClick={() => setIsInviteModalOpen(true)}
-                            >
-                                <span className="flex-grow">Invite friends</span>
-                                <BsPersonFillAdd />
-                            </button>
-                        </MenuItem>
-                        <MenuItem>
-                            <button
-                                type="button"
-                                className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100"
-                                onClick={() => setIsCreateChannelModalOpen(true)}
-                            >
-                                <span className="flex-grow">Create channel</span>
-                                <FaPlusCircle />
-                            </button>
-                        </MenuItem>
+                        {isServerOwner ? (
+                            <>
+                                <MenuItem>
+                                    <Link to={`/server-settings/${serverId}`} className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100">
+                                        <span className="flex-grow">Server settings</span>
+                                        <IoIosSettings />
+                                    </Link>
+                                </MenuItem>
+                                <MenuItem>
+                                    <button
+                                        type="button"
+                                        className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100"
+                                        onClick={() => setIsInviteModalOpen(true)}
+                                    >
+                                        <span className="flex-grow">Invite friends</span>
+                                        <BsPersonFillAdd />
+                                    </button>
+                                </MenuItem>
+                                <MenuItem>
+                                    <button
+                                        type="button"
+                                        className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100"
+                                        onClick={() => setIsCreateChannelModalOpen(true)}
+                                    >
+                                        <span className="flex-grow">Create channel</span>
+                                        <FaPlusCircle />
+                                    </button>
+                                </MenuItem>
+                            </>)
+                            : (<MenuItem>
+                                <button
+                                    type="button"
+                                    className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-red-500 hover:bg-gray-100"
+                                    onClick={() => { } }
+                                >
+                                    <span className="flex-grow">Leave channel</span>
+                                    <ImExit />
+                                </button>
+                            </MenuItem>)}
                     </MenuItems>
                 </Menu>
                 <header className="flex items-center justify-between border-b-1 border-gray-300 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">

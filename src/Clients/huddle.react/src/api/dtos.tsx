@@ -1,48 +1,48 @@
 export interface ChannelDto {
-  id: string;
-  serverId: string;
-  name: string;
-  channelType: string;
+    id: string;
+    serverId: string;
+    name: string;
+    channelType: string;
 }
 
 export interface CreateChannelRequest {
-  name: string;
-  channelType: string;
+    name: string;
+    channelType: string;
 }
 
 export interface UpdatedChannelRequest {
-  name: string;
-  channelType: string;
+    name: string;
+    channelType: string;
 }
 
 export interface CreateMessageRequest {
-  text: string;
+    text: string;
 }
 
 export interface UpdateMessageRequest {
-  text: string;
+    text: string;
 }
 
 export interface CreateServerRequest {
-  name: string;
-  isPrivate?: boolean;
+    name: string;
+    isPrivate?: boolean;
 }
 
 export interface UpdateServerRequest {
-  name: string;
+    name: string;
 }
 
 export interface MemberDto {
-  id: string;
-  serverId: string;
-  identityId: string;
-  serverUsername: string;
-  description: string;
+    id: string;
+    serverId: string;
+    identityId: string;
+    serverUsername: string;
+    description: string;
 }
 
 export interface UpdateMemberRequest {
-  serverUsername: string;
-  description: string;
+    serverUsername: string;
+    description: string;
 }
 
 export interface MessageParams
@@ -59,12 +59,12 @@ export interface MembersParams {
 }
 
 export interface MessageDto {
-  id: string;
-  channelId: string;
-  authorId: string;
-  text: string;
-  sentAt: Date; // ISO 8601 date-time string
-  isEdited: boolean;
+    id: string;
+    channelId: string;
+    authorId: string;
+    text: string;
+    sentAt: Date; // ISO 8601 date-time string
+    isEdited: boolean;
 }
 export interface PaginatedItems<T> {
     items: T[];
@@ -73,20 +73,21 @@ export interface PaginatedItems<T> {
 }
 
 export interface ServerDto {
-  id: string;
-  name: string;
+    id: string;
+    name: string;
+    ownerIdentityId: string;
     channels: ChannelDto[];
 }
 
 export interface InviteDto {
-  id: string;
-  serverId: string;
-  createdAt: Date;
-  code: string;
+    id: string;
+    serverId: string;
+    createdAt: Date;
+    code: string;
 }
 
 export interface AcceptInviteResponse {
-  serverId: string;
+    serverId: string;
 }
 
 export interface UserProfileDto {

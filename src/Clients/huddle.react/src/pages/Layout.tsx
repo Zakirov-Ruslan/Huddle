@@ -42,11 +42,12 @@ function Layout() {
                                             }
                                         }}
                                         className="align-center flex h-15 w-15 flex-shrink-0 items-center justify-center rounded-xl bg-gray-200 text-xl font-medium text-gray-600 hover:text-gray-700"
+                                        data-tooltip-id={`server-item-tooltip-${server.id}`}
                                     >
                                         {server.name[0]}
                                     </Link>
                                     <Tooltip
-                                        id={`server-item-tooltip-${server.id}`} data-tooltip-content="Hello to you too!"
+                                        id={`server-item-tooltip-${server.id}`} data-tooltip-content={server.name}
                                         style={{
                                             backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding: "5px 10px 8px 10px", boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)" }}
                                         opacity={1}
