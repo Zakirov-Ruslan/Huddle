@@ -10,6 +10,7 @@ using System.Data;
 using Huddle.IntegrationEventLogEF;
 using Huddle.Channel.Domain.Aggregates.MemberAggregate;
 using Huddle.Channel.Domain.Aggregates.InviteAggregate;
+using Huddle.Channel.Infrastructure.Idempotency;
 
 namespace Huddle.Channel.Infrastructure
 {
@@ -25,6 +26,7 @@ namespace Huddle.Channel.Infrastructure
         public DbSet<Message> Messages { get; set; }
         public DbSet<Member> Members { get; set; }
         public DbSet<Invite> Invites { get; set; }
+        public DbSet<ClientRequest> ClientRequests { get; set; }
 
         private readonly IMediator _mediator;
 
@@ -52,7 +54,7 @@ namespace Huddle.Channel.Infrastructure
         {
             await _mediator.DispatchDomainEventsAsync(this);
 
-            _ = await base.SaveChangesAsync(cancellationToken);
+          _ = await base.SaveChangesAsync(cancellationToken);
 
             return true;
         }

@@ -1,9 +1,11 @@
-﻿using Huddle.Channel.Application.Commands.Invite;
+﻿using Huddle.Channel.Application.Commands;
+using Huddle.Channel.Application.Commands.Invite;
 using Huddle.Channel.Application.Dto;
 using Huddle.Channel.Application.Queries.Invites;
 using Huddle.Channel.WebApi.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Huddle.Channel.WebApi.Controllers
 {
@@ -45,16 +47,26 @@ namespace Huddle.Channel.WebApi.Controllers
 
         // POST api/invites/{code}/accept
         [HttpPost("{code}/accept")]
-        public async Task<IActionResult> AcceptInvite(string code)
+        public async Task<IActionResult> AcceptInvite([FromHeader(Name = "x-requestid")] Guid requestId, string code)
         {
             var identityId = User.GetCurrentUserIdentityId();
             if (identityId == null)
                 return Unauthorized();
 
-            var command = new AcceptInviteCommand(code, identityId.Value);
-            var serverId = await _mediator.Send(command);
+            var acceptInviteCommand = new AcceptInviteCommand(code, identityId.Value);
+            var command = new IdentifiedCommand<AcceptInviteCommand, Guid>(acceptInviteCommand, requestId);
+            try
+            {
+                var serverId = await _mediator.Send(command);
 
-            return Ok(new { ServerId = serverId });
+                return Ok(new { ServerId = serverId });
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(409);
+                throw;
+            }
+
         }
 
         // DELETE api/invites/{inviteId}

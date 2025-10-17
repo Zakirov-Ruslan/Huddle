@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Huddle.Channel.Application.Commands;
 using Huddle.Channel.Application.Commands.Invite;
 using Huddle.Channel.Application.Commands.Message;
 using Huddle.Channel.Application.Commands.Server;
@@ -16,6 +17,7 @@ using Huddle.Channel.Domain.Aggregates.MessageAggregate;
 using Huddle.Channel.Domain.Aggregates.ServerAggregate;
 using Huddle.Channel.Domain.SeedWork;
 using Huddle.Channel.Infrastructure.Behaviors;
+using Huddle.Channel.Infrastructure.Idempotency;
 using Huddle.Channel.Infrastructure.Repositories;
 using Huddle.Channel.Infrastructure.Services;
 using Huddle.IntegrationEventLogEF.Services;
@@ -70,6 +72,8 @@ namespace Huddle.Channel.Infrastructure.Extensions
             // Validators
             services.AddSingleton<IValidator<CreateMessageCommand>, CreateMessageCommandValidator>();
             services.AddSingleton<IValidator<AcceptInviteCommand>, AcceptInviteCommandValidator>();
+
+            services.AddScoped<IRequestManager, RequestManager>();
 
             return services;
         }
