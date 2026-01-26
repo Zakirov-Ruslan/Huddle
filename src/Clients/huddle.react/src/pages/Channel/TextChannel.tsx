@@ -1,19 +1,19 @@
 ﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { IoSend } from "react-icons/io5";
 import { RiAttachment2 } from "react-icons/ri";
-import type { ChannelDto, MessageDto, PaginatedItems } from "../api/dtos";
-import { useInfiniteMessages, useSendMessage } from "../hooks/messagesApiHooks";
-import { adjustHeight } from "../utils/domHelpers";
-import { useInView } from 'react-intersection-observer';
-import React from "react";
-import "../styles/scrollbar.css";
-import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
 import { useAuth } from "react-oidc-context";
-import { groupMessagesByDayAndAuthor } from "../utils/groupMessages";
-import AuthorMessageGroup from "./AuthorMessageGroup";
-import { SignalRContext } from "../providers/SignalRProvider";
+import type { ChannelDto, MessageDto } from "../../api/dtos";
+import AuthorMessageGroup from "../../components/AuthorMessageGroup";
+import { useInfiniteMessages, useSendMessage } from "../../hooks/messagesApiHooks";
+import { SignalRContext } from "../../providers/SignalRProvider";
+import { adjustHeight } from "../../utils/domHelpers";
+import { groupMessagesByDayAndAuthor } from "../../utils/groupMessages";
+import "../../styles/scrollbar.css";
 
 const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) => {
+
+    const auth = useAuth();
 
     const {
         data: messages,
@@ -50,45 +50,14 @@ const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) 
         console.log('joined to', id);
     }, [id, SignalRContext.connection?.state])
 
-    const queryClient = useQueryClient();
-    const auth = useAuth();
     SignalRContext.useSignalREffect(
         "CreateMessage",
         (newMessage: MessageDto) => {
-            console.log('message received', newMessage);
+
             if (newMessage.authorId == auth.user?.profile.sub)
                 return;
 
             if (newMessage.channelId === id) {
-                queryClient.setQueryData<InfiniteData<PaginatedItems<MessageDto>>>(
-                    ['messages', id],
-                    (oldData) => {
-                        if (!oldData) {
-                            return {
-                                pages: [{
-                                    items: [newMessage],
-                                    hasMore: true,
-                                    nextCursor: null
-                                }],
-                                pageParams: [null]
-                            };
-                        }
-
-                        const updatedPages = [...oldData.pages];
-                        if (updatedPages.length > 0) {
-                            updatedPages[0] = {
-                                ...updatedPages[0],
-                                items: [...updatedPages[0].items, newMessage]
-                            };
-                        }
-
-                        return {
-                            ...oldData,
-                            pages: updatedPages
-                        };
-                    }
-                );
-
                 setTimeout(() => {
                     listRef.current?.scrollTo({
                         top: listRef.current.scrollHeight,
@@ -118,7 +87,7 @@ const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) 
     return (
         <div className="flex flex-grow flex-row">
             <div className="flex flex-grow flex-col">
-                <section ref={listRef} className="custom-scrollbar flex flex-1 flex-col gap-4 overflow-y-scroll bg-white p-6 dark:bg-gray-900">
+                <section ref={listRef} className="custom-scrollbar flex flex-1 flex-col gap-4 overflow-y-scroll p-6 dark:bg-gray-900">
                     <div ref={loaderRef} />
                     {isFetchingNextPage && (
                         <div className="loading-indicator">Loading older messages...</div> //TODO:Skeleton loading animation

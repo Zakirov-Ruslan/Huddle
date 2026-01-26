@@ -1,5 +1,5 @@
 import { Navigate, useParams } from "react-router";
-import { useServer } from "../hooks/serverApiHooks";
+import { useServer } from "../../hooks/serverApiHooks";
 
 export default function DefaultChannelRedirect() {
   const { serverId } = useParams();
@@ -7,7 +7,6 @@ export default function DefaultChannelRedirect() {
 
   const { data: server, isPending, error } = useServer(serverId);
 
-  if (isPending) return null; // maybe add skeleton here later
   if (error) return <div>Failed to load server</div>;
   if (!server) return null;
 

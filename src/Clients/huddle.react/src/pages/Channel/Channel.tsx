@@ -1,11 +1,12 @@
-﻿import TextChannel from "./TextChannel";
+﻿import { useEffect } from "react";
+import { useInView } from "react-intersection-observer";
+import ServerMemberItem from "../../components/ServerMemberItem";
+import { useInfiniteMembers } from "../../hooks/memberApiHooks";
+import { useServerContext } from "../Server";
+import TextChannel from "./TextChannel";
 import VoiceChannel from "./VoiceChannel";
 import { useParams } from 'react-router';
-import { useServerContext } from "../pages/Server";
-import { useInfiniteMembers } from "../hooks/memberApiHooks";
-import { useInView } from "react-intersection-observer";
-import { useEffect } from "react";
-import ServerMemberItem from "./ServerMemberItem";
+
 
 export const Channel = () => {
     const { channelId } = useParams<{ channelId: string }>();
@@ -35,7 +36,7 @@ export const Channel = () => {
         return <div>Nothing is here</div>;;
 
     return (
-        <div className="flex min-h-0 flex-row" >
+        <div className="flex min-h-0 flex-row bg-white" >
 
             {channel.channelType.toLowerCase() === "text" ? (
                 <TextChannel {...channel} />
