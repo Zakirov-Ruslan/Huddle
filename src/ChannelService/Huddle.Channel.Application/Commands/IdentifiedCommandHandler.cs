@@ -1,4 +1,5 @@
 ﻿using Huddle.Channel.Application.Commands.Invite;
+using Huddle.Channel.Application.Exceptions;
 using Huddle.EventBus.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -50,7 +51,15 @@ public abstract class IdentifiedCommandHandler<T, R> : IRequestHandler<Identifie
         }
         else
         {
-            await _requestManager.CreateRequestForCommandAsync<T>(message.Id);
+            try
+            {
+                await _requestManager.CreateRequestForCommandAsync<T>(message.Id);
+            }
+            catch (ParallelIdempotentRequestException)
+            {
+                return default;
+            }
+
             try
             {
                 var command = message.Command;

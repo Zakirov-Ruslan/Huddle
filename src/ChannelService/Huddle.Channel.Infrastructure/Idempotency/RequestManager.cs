@@ -1,4 +1,5 @@
 ﻿using Huddle.Channel.Application.Commands;
+using Huddle.Channel.Application.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -40,12 +41,14 @@ public class RequestManager : IRequestManager
         try
         {
             _context.ClientRequests.Add(request);
+
             await _context.SaveChangesAsync();
         }
         // Catching unique keys exception
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException exception && exception.SqlState == "23505")
         {
-            
+            _context.Entry(request).State = EntityState.Detached;
+            throw new ParallelIdempotentRequestException();
         }
     }
 }
