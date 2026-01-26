@@ -9,13 +9,13 @@ import { AuthProvider } from "react-oidc-context";
 import InviteRedirect from './pages/InviteRedirect'
 import SignalRProvider from './providers/SignalRProvider'
 import LiveKitProvider from './providers/LiveKitProvider'
-import { Channel } from './components/Channel'
-import DefaultChannelRedirect from './pages/DefaultChannelRedirect'
+import DefaultChannelRedirect from './pages/Channel/DefaultChannelRedirect'
 import RequireAuth from './pages/RequireAuth'
 import ChannelSettings from './pages/ChannelSettings'
 import UserSettings from './pages/UserSettings'
 import ServerProfile from './pages/ServerSettings/ServerProfile'
 import ServerSettings from './pages/ServerSettings/ServerSettings'
+import { Channel } from './pages/Channel/Channel'
 
 const queryClient = new QueryClient()
 

@@ -28,6 +28,11 @@ export const useSendMessage = () => {
         onSuccess: (newMessage, variables) => {
             const { channelId } = variables;
 
+            const currentData = queryClient.getQueryData<InfiniteData<PaginatedItems<MessageDto>>>(['messages', newMessage.channelId]);
+            const messageExists = currentData?.pages.some(page => page.items.some(msg => msg.id === newMessage.id));
+            if (messageExists)
+                return;
+
             queryClient.setQueryData<InfiniteData<PaginatedItems<MessageDto>>>(
                 ['messages', channelId],
                 (oldData) => {

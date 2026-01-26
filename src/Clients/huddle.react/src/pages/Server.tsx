@@ -63,7 +63,7 @@ function Server() {
                         {({ active }) => (
                             <>
                                 {server == null ? (
-                                    <span className="h-6 w-32 animate-pulse rounded-xl bg-gray-200"></span>
+                                    <span className="h-6 w-32 animate-pulse flex-grow rounded-xl bg-gray-200"></span>
                                 ) : (
                                     <span className="flex-grow text-left">{server.name}</span>
                                 )}
@@ -240,7 +240,7 @@ function Server() {
                 shouldFocusAfterRender={false}
                 appElement={document.getElementById('root')!}
             >
-                <CreateChannelDialog serverId={serverId} onCreateChannel={(createdChannel: ChannelDto) => { setIsCreateChannelModalOpen(false); navigate(`ch/${createdChannel.id}`) }} />
+                <CreateChannelDialog serverId={serverId} onCreateChannel={(createdChannel) => { if (createdChannel == null) return;  setIsCreateChannelModalOpen(false); navigate(`ch/${createdChannel.id}`) }} />
             </ReactModal>
 
             <ReactModal

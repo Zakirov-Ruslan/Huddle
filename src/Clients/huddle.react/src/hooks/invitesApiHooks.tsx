@@ -16,9 +16,9 @@ export const useCreateInvite = (serverId: string) => {
 
 export const useAcceptInvite = () => {
     const queryClient = useQueryClient();
-    return useMutation<AcceptInviteResponse, Error, string>({
+    return useMutation<AcceptInviteResponse, Error, { inviteCode: string; requestId: string }>({
         mutationKey: ['invite', 'accept'],
-        mutationFn: (inviteCode) => acceptInvite(inviteCode),
+        mutationFn: ({ inviteCode, requestId }) => acceptInvite(inviteCode, requestId),
         retry: false,
         onSuccess: (acceptedInvite, inviteCode) => {
             queryClient.setQueryData<AcceptInviteResponse>(['acceptedInvite', inviteCode], acceptedInvite);

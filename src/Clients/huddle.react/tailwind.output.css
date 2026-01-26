@@ -1,4 +1,4 @@
-/*! tailwindcss v4.1.13 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
 @layer properties;
 @layer theme, base, components, utilities;
 @layer theme {
@@ -228,6 +228,21 @@
   .relative {
     position: relative;
   }
+  .sticky {
+    position: sticky;
+  }
+  .sticky\! {
+    position: sticky !important;
+  }
+  .top-0 {
+    top: calc(var(--spacing) * 0);
+  }
+  .bottom-0 {
+    bottom: calc(var(--spacing) * 0);
+  }
+  .bottom-1 {
+    bottom: calc(var(--spacing) * 1);
+  }
   .bottom-4 {
     bottom: calc(var(--spacing) * 4);
   }
@@ -263,6 +278,9 @@
   }
   .ml-10 {
     margin-left: calc(var(--spacing) * 10);
+  }
+  .ml-12 {
+    margin-left: calc(var(--spacing) * 12);
   }
   .block {
     display: block;
@@ -379,7 +397,7 @@
     flex-grow: 1;
   }
   .origin-top-right {
-    transform-origin: top right;
+    transform-origin: 100% 0;
   }
   .scale-120 {
     --tw-scale-x: 120%;
@@ -429,6 +447,9 @@
   }
   .flex-col {
     flex-direction: column;
+  }
+  .flex-col-reverse {
+    flex-direction: column-reverse;
   }
   .flex-row {
     flex-direction: row;
