@@ -63,7 +63,7 @@ function Server() {
                         {({ active }) => (
                             <>
                                 {server == null ? (
-                                    <span className="h-6 w-32 animate-pulse flex-grow rounded-xl bg-gray-200"></span>
+                                    <span className="h-6 w-32 flex-grow animate-pulse rounded-xl bg-gray-200"></span>
                                 ) : (
                                     <span className="flex-grow text-left">{server.name}</span>
                                 )}
@@ -73,7 +73,8 @@ function Server() {
                     </MenuButton>
                     <MenuItems
                         anchor="bottom"
-                        className="flex w-56 origin-top-right flex-col rounded-md border-1 border-gray-200 bg-white p-2 shadow-md transition duration-100 ease-out focus:outline-none [--anchor-gap:--spacing(1)]"
+                        transition
+                        className="flex w-56 origin-top flex-col rounded-xl border-1 border-gray-200 bg-white p-2 shadow-md transition duration-200 ease-out focus:outline-none [--anchor-gap:--spacing(1)] data-closed:scale-95 data-closed:opacity-0"
                     >
                         {isServerOwner ? (
                             <>
