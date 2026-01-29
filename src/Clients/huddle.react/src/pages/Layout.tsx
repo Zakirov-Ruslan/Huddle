@@ -21,7 +21,7 @@ function Layout() {
     const { data: servers, error: serversError, isPending: isServersPending } = useMyServers();
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-    //useGlobalSignalRHandlers();
+    useGlobalSignalRHandlers();
 
     const { data: profile, isLoading: isProfileLoading, error: profileError } = useMyProfile();
 

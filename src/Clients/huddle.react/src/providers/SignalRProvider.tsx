@@ -9,7 +9,7 @@ export const SignalRContext = createSignalRContext();
 export default function SignalRProvider() {
     const auth = useAuth();
 
-    useGlobalSignalRHandlers();
+    //useGlobalSignalRHandlers();
 
     return (
         <SignalRContext.Provider
