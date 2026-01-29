@@ -1,4 +1,5 @@
-﻿import type { MessageDto } from "../api/dtos";
+﻿import { Tooltip } from "react-tooltip";
+import type { MessageDto } from "../api/dtos";
 import { useUserProfile } from "../hooks/usersApiHooks";
 
 interface AuthorMessageGroupProps {
@@ -13,10 +14,25 @@ const AuthorMessageGroup = ({ authorId, messageGroup }: AuthorMessageGroupProps)
     return (
         <div className="relative mb-4">
             <div className="absolute top-0 bottom-0 flex flex-col-reverse">
-                <div className="sticky! bottom-1">
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#5D6D7B] text-sm font-medium text-white">
+                <div className="sticky! bottom-1 select-none">
+                    <div
+                        className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#5D6D7B] text-sm font-medium text-white"
+                        data-tooltip-id={`message-avatart-item-tooltip-${messageGroup[0]?.id}`}
+                    >
                         {profile?.userName.charAt(0).toUpperCase()}
                     </div>
+
+                    <Tooltip
+                        id={`message-avatart-item-tooltip-${messageGroup[0]?.id}`} data-tooltip-content={profile?.userName}
+                        style={{
+                            backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding: "5px 10px 8px 10px", boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)"
+                        }}
+                        opacity={1}
+                        border="1px solid #e8e8e8"
+                        place="top"
+                    >
+                        {profile?.userName}
+                    </Tooltip>
                 </div>
             </div>
             <div className="ml-12 flex flex-col">
