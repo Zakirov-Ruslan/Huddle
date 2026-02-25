@@ -57,7 +57,7 @@ namespace Huddle.Channel.Domain.Aggregates.ServerAggregate
             var channel = new Channel(name, channelType, this);
             _channels.Add(channel);
 
-            AddDomainEvent(new ChannelCreatedDomainEvent(channel.Id, channel.Name, channel.Type, channel.ServerId));
+            AddDomainEvent(new ChannelCreatedDomainEvent(channel.Id, channel.Name, channel.Type, Id));
 
             return channel;
         }

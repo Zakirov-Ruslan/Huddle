@@ -45,10 +45,17 @@ namespace Huddle.SignalR
 
         public async Task JoinChannel(string channelId)
         {
-            var isAccessible = await _grpcChannelAccessClient.CheckChannelAccessAsync(Guid.Parse(channelId), Guid.Parse(Context.UserIdentifier));
+            try
+            {
+                var isAccessible = await _grpcChannelAccessClient.CheckChannelAccessAsync(Guid.Parse(channelId), Guid.Parse(Context.UserIdentifier));
 
-            if (isAccessible)
-                await Groups.AddToGroupAsync(Context.ConnectionId, $"channel:{channelId}");
+                if (isAccessible)
+                    await Groups.AddToGroupAsync(Context.ConnectionId, $"channel:{channelId}");
+            }
+            catch (OperationCanceledException)
+            {
+
+            }
         }
 
         public async Task LeaveChannel(string channelId)

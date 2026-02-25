@@ -2,14 +2,11 @@ import { createSignalRContext } from "react-signalr";
 import { useAuth } from "react-oidc-context";
 import { GATEWAY_URL } from "../api/api";
 import { Outlet } from "react-router";
-import { useGlobalSignalRHandlers } from "../hooks/useGlobalSignalRHandlers";
 
 export const SignalRContext = createSignalRContext();
 
 export default function SignalRProvider() {
     const auth = useAuth();
-
-    //useGlobalSignalRHandlers();
 
     return (
         <SignalRContext.Provider

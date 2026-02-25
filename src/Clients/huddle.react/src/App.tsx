@@ -16,6 +16,7 @@ import UserSettings from './pages/UserSettings'
 import ServerProfile from './pages/ServerSettings/ServerProfile'
 import ServerSettings from './pages/ServerSettings/ServerSettings'
 import { Channel } from './pages/Channel/Channel'
+import SignalRHandlersWrapper from './providers/SignalRHandlersWrapper'
 
 const queryClient = new QueryClient()
 
@@ -47,22 +48,24 @@ function App() {
                     <BrowserRouter>
                         <Routes>
                             <Route element={<RequireAuth />} >
-                                <Route element={<SignalRProvider/>}>
-                                    <Route element={<LiveKitProvider/>}>
-                                        <Route path="/" element={<Layout />}>
-                                            <Route index element={<Navigate to="/h" replace />} />
-                                            <Route path='h' element={<Home />} />
-                                            <Route path="s/:serverId" element={<Server />} >
-                                                <Route index element={<DefaultChannelRedirect />} />
-                                                <Route path="ch/:channelId" element={<Channel />} />
+                                <Route element={<SignalRProvider />}>
+                                    <Route element={<SignalRHandlersWrapper/>} >
+                                        <Route element={<LiveKitProvider/>}>
+                                            <Route path="/" element={<Layout />}>
+                                                <Route index element={<Navigate to="/h" replace />} />
+                                                <Route path='h' element={<Home />} />
+                                                <Route path="s/:serverId" element={<Server />} >
+                                                    <Route index element={<DefaultChannelRedirect />} />
+                                                    <Route path="ch/:channelId" element={<Channel />} />
+                                                </Route>
                                             </Route>
+                                            <Route path='server-settings/:serverId' element={<ServerSettings />}>
+                                                <Route index element={<Navigate to="server-profile" replace />} />
+                                                <Route path='server-profile' element={<ServerProfile/>} />
+                                            </Route>
+                                            <Route path='channel-settings/:channelId' element={<ChannelSettings />} />
+                                            <Route path='user-settings/:userId' element={<UserSettings />} />
                                         </Route>
-                                        <Route path='server-settings/:serverId' element={<ServerSettings />}>
-                                            <Route index element={<Navigate to="server-profile" replace />} />
-                                            <Route path='server-profile' element={<ServerProfile/>} />
-                                        </Route>
-                                        <Route path='channel-settings/:channelId' element={<ChannelSettings />} />
-                                        <Route path='user-settings/:userId' element={<UserSettings />} />
                                     </Route>
                                 </Route>
                                 <Route path="invite/:inviteCode" element={<InviteRedirect />} />

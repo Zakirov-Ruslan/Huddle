@@ -20,6 +20,7 @@ import InviteFriendsDialog from "../dialogs/InviteFriendsDialog";
 import { IoIosSettings } from "react-icons/io";
 import { useAuth } from "react-oidc-context";
 import { ImExit } from "react-icons/im";
+import { SignalRContext } from "../providers/SignalRProvider";
 
 export interface ServerContextType {
     server: ServerDto | undefined;
@@ -52,6 +53,13 @@ function Server() {
         if (!server || !channelId) return null;
         return server.channels.find(ch => ch.id === channelId) ?? null;
     }, [server, channelId]);
+
+    useEffect(() => {
+        if (!serverId || SignalRContext.connection?.state != 'Connected')
+            return;
+        SignalRContext.invoke("JoinServer", serverId);
+        console.log('joined to server notification group', serverId);
+    }, [serverId, SignalRContext.connection?.state])
 
     const isServerOwner = server && auth.user && server.ownerIdentityId == auth.user.profile.sub;
 
@@ -138,22 +146,26 @@ function Server() {
                 <nav className="flex-1 overflow-y-auto p-4">
                     <div className="mb-2 flex flex-row px-3 text-left text-sm font-semibold text-gray-500 hover:text-gray-600">
                         <span className="flex-grow">Text channels</span>
-                        <button
-                            onClick={() => setIsCreateChannelModalOpen(true)}
-                            data-tooltip-id='create-text-channel-tooltip'
-                            type="button">
-                            <GoPlus />
-                        </button>
+                        {isServerOwner && 
+                            <>
+                                <button
+                                    onClick={() => setIsCreateChannelModalOpen(true)}
+                                    data-tooltip-id='create-text-channel-tooltip'
+                                    type="button">
+                                    <GoPlus />
+                                </button>
 
-                        <Tooltip
-                            id='create-text-channel-tooltip' data-tooltip-content=""
-                            style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding: "5px 10px 8px 10px", boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)" }}
-                            opacity={1}
-                            border="1px solid #e8e8e8"
-                            place="top"
-                        >
-                            Create channel
-                        </Tooltip>
+                                <Tooltip
+                                    id='create-text-channel-tooltip' data-tooltip-content=""
+                                    style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding: "5px 10px 8px 10px", boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)" }}
+                                    opacity={1}
+                                    border="1px solid #e8e8e8"
+                                    place="top"
+                                >
+                                    Create channel
+                                </Tooltip>
+                            </>
+                        }
                     </div>
                     <ul className="mb-3 space-y-1">
                         {isPending ? (
@@ -182,23 +194,25 @@ function Server() {
                     </ul>
                     <div className="mb-2 flex flex-row px-3 text-left text-sm font-semibold text-gray-500 hover:text-gray-600">
                         <span className="flex-grow">Voice channels</span>
-                        <button
-                            onClick={() => setIsCreateChannelModalOpen(true)}
-                            data-tooltip-id='create-voice-channel-tooltip'
-                            type="button">
-                            <GoPlus />
-                        </button>
-
-                        <Tooltip
-                            id='create-voice-channel-tooltip' data-tooltip-content=""
-                            style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding: "5px 10px 8px 10px", boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)" }}
-                            opacity={1}
-                            border="1px solid #e8e8e8"
-                            place="top"
-                        >
-
-                            Create channel
-                        </Tooltip>
+                        {isServerOwner && 
+                            <>
+                                <button
+                                    onClick={() => setIsCreateChannelModalOpen(true)}
+                                    data-tooltip-id='create-voice-channel-tooltip'
+                                    type="button">
+                                    <GoPlus />
+                                </button>
+                                <Tooltip
+                                    id='create-voice-channel-tooltip' data-tooltip-content=""
+                                    style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding: "5px 10px 8px 10px", boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)" }}
+                                    opacity={1}
+                                    border="1px solid #e8e8e8"
+                                    place="top"
+                                >
+                                    Create channel
+                                </Tooltip>
+                            </>
+                        }
                     </div>
                     <ul className="space-y-1">
 
