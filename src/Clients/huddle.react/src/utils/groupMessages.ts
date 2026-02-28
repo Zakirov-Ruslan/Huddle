@@ -1,4 +1,4 @@
-import type { MessageDto } from "../api/dtos";
+import type { MessageDto } from "../api/types";
 
 const groupByDay = (messages: MessageDto[]) => {
     const groups: { day: string; messages: MessageDto[] }[] = [];

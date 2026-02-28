@@ -1,6 +1,6 @@
 import { CHANNEL_SERVICE_URL } from "../api";
 import { authenticatedFetch } from "../authenticatedFetch";
-import type { MemberDto, MembersParams, MessageDto, PaginatedItems, UpdateMemberRequest } from "../dtos";
+import type { MemberDto, MembersParams, PaginatedItems, UpdateMemberRequest } from "../types";
 
 export const getMember = async (serverId: string, memberId: string): Promise<MemberDto> => {
     const response = await authenticatedFetch(

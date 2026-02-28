@@ -1,4 +1,4 @@
-﻿import { useUserProfile } from "../hooks/usersApiHooks";
+﻿import { useUserProfile } from "../hooks/queries/users";
 
 const ServerMemberItem = ({ userId }: { userId: string }) => {
 

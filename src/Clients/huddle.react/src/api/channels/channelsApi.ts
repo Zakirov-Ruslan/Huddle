@@ -1,6 +1,6 @@
 import { CHANNEL_SERVICE_URL } from "../api";
 import { authenticatedFetch } from "../authenticatedFetch";
-import type { ChannelDto, CreateChannelRequest, UpdatedChannelRequest } from "../dtos";
+import type { ChannelDto, CreateChannelRequest, UpdatedChannelRequest } from "../types";
 
 export const createChannel = async (serverId: string, data: CreateChannelRequest): Promise<ChannelDto> => {
     const response = await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/servers/${serverId}/Channels`, {

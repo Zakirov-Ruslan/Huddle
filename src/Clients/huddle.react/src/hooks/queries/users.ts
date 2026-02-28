@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import type { UserProfileDto } from "../api/dtos";
-import { getUserProfile, getMyProfile } from "../api/users/usersApi";
+import { getUserProfile, getMyProfile } from "../../api/users/usersApi";
+import type { UserProfileDto } from "../../api/types";
 
 export const useUserProfile = (userId: string) => {
     return useQuery<UserProfileDto, Error>({

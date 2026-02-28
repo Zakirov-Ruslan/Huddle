@@ -1,6 +1,6 @@
 ﻿import { Tooltip } from "react-tooltip";
-import type { MessageDto } from "../api/dtos";
-import { useUserProfile } from "../hooks/usersApiHooks";
+import type { MessageDto } from "../api/types";
+import { useUserProfile } from "../hooks/queries/users";
 
 interface AuthorMessageGroupProps {
     authorId: string;

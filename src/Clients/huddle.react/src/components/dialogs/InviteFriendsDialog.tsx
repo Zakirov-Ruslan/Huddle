@@ -1,5 +1,5 @@
-﻿import { useCreateInvite } from "../hooks/invitesApiHooks";
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
+import { useCreateInvite } from "../../hooks/queries/invites";
 
 interface InviteFriendsDialogProps {
     serverId: string;

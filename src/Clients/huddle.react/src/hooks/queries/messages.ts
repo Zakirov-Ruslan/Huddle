@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type InfiniteData } from "@tanstack/react-query";
-import type { MessageDto, CreateMessageRequest, PaginatedItems, UpdateMessageRequest } from "../api/dtos";
-import { getMessages, createMessage, updateMessage, deleteMessage } from "../api/messages/messagesApi";
+import { getMessages, createMessage, updateMessage, deleteMessage } from "../../api/messages/messagesApi";
+import type { MessageDto, CreateMessageRequest, PaginatedItems, UpdateMessageRequest } from "../../api/types";
 
 
 export const useInfiniteMessages = (channelId: string) => {

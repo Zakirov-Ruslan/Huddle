@@ -1,8 +1,8 @@
 ﻿import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { SignalRContext } from '../providers/SignalRProvider';
-import { handleCreateMessage } from '../signalRHandlers/messageHandlers';
-import { handleCreateChannel } from '../signalRHandlers/channelhandlers';
+import { handleCreateMessage } from '../signalRHandlers/messages';
+import { handleCreateChannel } from '../signalRHandlers/channels';
 
 export const useGlobalSignalRHandlers = () => {
     const queryClient = useQueryClient();
@@ -18,7 +18,7 @@ export const useGlobalSignalRHandlers = () => {
         const createChannelHandler = handleCreateChannel(queryClient);
         connection.on('CreateChannel', createChannelHandler);
 
-        console.log('subscribed to all signalRHandlers')
+        console.debug('subscribed to all signalRHandlers')
 
         return () => {
             connection.off('CreateMessage', createMessageHandler);

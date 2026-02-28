@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
-import { useAcceptInvite } from "../hooks/invitesApiHooks";
 import { v4 as uuidv4 } from 'uuid';
+import { useAcceptInvite } from "../hooks/queries/invites";
 
 
 function InviteRedirect() {

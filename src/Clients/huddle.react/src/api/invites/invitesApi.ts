@@ -1,6 +1,6 @@
 import { CHANNEL_SERVICE_URL } from "../api";
 import { authenticatedFetch } from "../authenticatedFetch";
-import type { AcceptInviteResponse, InviteDto } from "../dtos";
+import type { AcceptInviteResponse, InviteDto } from "../types";
 import { v4 as uuidv4 } from 'uuid';
 
 export const getServerInvites = async (serverId: string): Promise<void> => {

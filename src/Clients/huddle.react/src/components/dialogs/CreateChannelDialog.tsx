@@ -1,6 +1,6 @@
 ﻿import { useState } from "react";
-import type { ChannelDto } from "../api/dtos";
-import { useCreateChannel } from "../hooks/channelApiHooks";
+import type { ChannelDto } from "../../api/types";
+import { useCreateChannel } from "../../hooks/queries/channels";
 import { FaHashtag } from "react-icons/fa6";
 import { HiSpeakerWave } from "react-icons/hi2";
 import { RxCross2 } from "react-icons/rx";

@@ -1,26 +1,26 @@
 ﻿import { useEffect, useMemo, useState } from "react";
-import { useServer } from "../hooks/serverApiHooks";
 import { FaHashtag } from "react-icons/fa6";
 import { Link, useNavigate, useParams } from "react-router";
-import type { ChannelDto, ServerDto } from "../api/dtos";
 import { HiSpeakerWave } from "react-icons/hi2";
 import { FaUsers } from "react-icons/fa";
 import { createContext, useContext } from "react";
 import { Outlet } from "react-router";
 import { GoPlus } from "react-icons/go";
 import { Tooltip } from "react-tooltip";
-import ReactModal from "react-modal";
-import CreateChannelDialog from "../dialogs/CreateChannelDialog";
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { BsPersonFillAdd } from "react-icons/bs";
 import { FaPlusCircle } from "react-icons/fa";
 import { RiArrowDownSLine } from "react-icons/ri";
 import { MdClose } from "react-icons/md";
-import InviteFriendsDialog from "../dialogs/InviteFriendsDialog";
 import { IoIosSettings } from "react-icons/io";
 import { useAuth } from "react-oidc-context";
 import { ImExit } from "react-icons/im";
-import { SignalRContext } from "../providers/SignalRProvider";
+import { SignalRContext, useSignalRState } from "../providers/SignalRProvider";
+import ReactModal from "react-modal";
+import type { ServerDto } from "../api/types";
+import CreateChannelDialog from "../components/dialogs/CreateChannelDialog";
+import InviteFriendsDialog from "../components/dialogs/InviteFriendsDialog";
+import { useServer } from "../hooks/queries/servers";
 
 export interface ServerContextType {
     server: ServerDto | undefined;
@@ -35,10 +35,11 @@ export const useServerContext = () => {
 type ChannelType = 'text' | 'voice';
 
 function Server() {
-
     const { serverId, channelId } = useParams();
     if (!serverId)
         return <div>Invalid server ID</div>;
+
+    const { isConnected } = useSignalRState();
 
     const [isShowMembers, setIsShowMembers] = useState(false);
     const [isCreateChannelModalOpen, setIsCreateChannelModalOpen] = useState(false)
@@ -55,11 +56,21 @@ function Server() {
     }, [server, channelId]);
 
     useEffect(() => {
-        if (!serverId || SignalRContext.connection?.state != 'Connected')
+        if (!serverId || !isConnected)
             return;
-        SignalRContext.invoke("JoinServer", serverId);
-        console.log('joined to server notification group', serverId);
-    }, [serverId, SignalRContext.connection?.state])
+
+        const serverJoin = async () => {
+            try {
+                await SignalRContext.invoke("JoinServer", serverId);
+                console.debug('joined to server notification group', serverId);
+            } catch (error) {
+                console.error('Failed to join server notification group', error);
+            }
+        }
+
+        serverJoin();
+
+    }, [serverId, isConnected])
 
     const isServerOwner = server && auth.user && server.ownerIdentityId == auth.user.profile.sub;
 

@@ -1,17 +1,16 @@
 ﻿import { Link, Outlet, useParams } from "react-router";
 import { FaMicrophone } from "react-icons/fa";
 import { TbHeadphonesOff } from "react-icons/tb";
-import { useMyServers } from "../hooks/serverApiHooks";
 import { FaCirclePlus } from "react-icons/fa6";
 import ReactModal from 'react-modal';
-import CreateServerDialog from "../dialogs/CreateServerDialog";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import type { ServerDto } from "../api/dtos";
 import { Tooltip } from 'react-tooltip'
-import { useMyProfile } from "../hooks/usersApiHooks";
 import face from "../img/huddle-mascot/face.png";
-import { useGlobalSignalRHandlers } from "../hooks/useGlobalSignalRHandlers";
+import type { ServerDto } from "../api/types";
+import CreateServerDialog from "../components/dialogs/CreateServerDialog";
+import { useMyServers } from "../hooks/queries/servers";
+import { useMyProfile } from "../hooks/queries/users";
 
 function Layout() {
 
@@ -21,17 +20,31 @@ function Layout() {
     const { data: servers, error: serversError, isPending: isServersPending } = useMyServers();
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-    useGlobalSignalRHandlers();
-
     const { data: profile, isLoading: isProfileLoading, error: profileError } = useMyProfile();
 
     return (
         <>
             <div className="relative grid h-full grid-cols-[6rem_1fr] overflow-x-hidden bg-gray-100">
                 <div className="no-scrollbar flex flex-col items-center gap-3 overflow-y-auto p-4">
-                    <Link to="/h" className="align-center flex h-15 w-15 flex-shrink-0 items-center justify-center rounded-xl bg-gray-200">
+                    <Link
+                        to="/h"
+                        className="align-center flex h-15 w-15 flex-shrink-0 items-center justify-center rounded-xl bg-gray-200"
+                        data-tooltip-id={'nav-home'}
+                    >
                         <img src={face} alt="logo" className="h-12 w-12 -scale-x-100" />
                     </Link>
+                    <Tooltip
+                        id='nav-home'
+                        style={{
+                            backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding: "5px 10px 8px 10px", boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)"
+                        }}
+                        opacity={1}
+                        border="1px solid #e8e8e8"
+                        place="right"
+                    >
+                        home
+                    </Tooltip>
+
                     <div className="my-1 w-13 border-b border-slate-300"></div>
                     {
                         servers?.map(server =>
@@ -67,9 +80,22 @@ function Layout() {
                         type="button"
                         title="new-server"
                         onClick={() => setIsModalOpen(true)}
-                        className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200 flex-shrink-0">
+                        className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200 flex-shrink-0"
+                        data-tooltip-id='nav-new-server'
+                    >
                         <FaCirclePlus className="scale-150" />
                     </button>
+                    <Tooltip
+                        id='nav-new-server'
+                        style={{
+                            backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding: "5px 10px 8px 10px", boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)"
+                        }}
+                        opacity={1}
+                        border="1px solid #e8e8e8"
+                        place="right"
+                    >
+                        add server
+                    </Tooltip>
                     <div className="absolute bottom-4 left-4 flex h-17 w-90 flex-row items-center gap-1 rounded-xl border-1 border-gray-200 bg-white p-3 shadow-2xl select-none">
                         <div className="rounded-l-4xl flex flex-grow-1 items-center gap-2 rounded-r-lg transition-colors duration-150 hover:bg-gray-100">
                             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#5D6D7B] text-sm font-medium text-white">

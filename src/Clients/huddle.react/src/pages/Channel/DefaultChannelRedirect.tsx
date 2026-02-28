@@ -1,5 +1,5 @@
 import { Navigate, useParams } from "react-router";
-import { useServer } from "../../hooks/serverApiHooks";
+import { useServer } from "../../hooks/queries/servers";
 
 export default function DefaultChannelRedirect() {
   const { serverId } = useParams();

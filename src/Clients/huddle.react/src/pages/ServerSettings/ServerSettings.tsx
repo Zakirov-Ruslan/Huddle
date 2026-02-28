@@ -1,9 +1,9 @@
 ﻿import { useParams, Outlet, Link, useNavigate } from "react-router";
 import { FaTrash } from "react-icons/fa";
-import { useServer } from "../../hooks/serverApiHooks";
-import DeleteServerDialog from "../../dialogs/DeleteServerDialog";
 import ReactModal from "react-modal";
 import { useState } from "react";
+import { useServer } from "../../hooks/queries/servers";
+import DeleteServerDialog from "../../components/dialogs/DeleteServerDialog";
 
 function ServerSettings() {
 

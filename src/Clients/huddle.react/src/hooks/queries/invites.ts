@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { AcceptInviteResponse, InviteDto } from "../api/dtos";
-import { acceptInvite, createInvite } from "../api/invites/invitesApi";
+import { acceptInvite, createInvite } from "../../api/invites/invitesApi";
+import type { InviteDto, AcceptInviteResponse } from "../../api/types";
 
 export const useCreateInvite = (serverId: string) => {
     const queryClient = useQueryClient();

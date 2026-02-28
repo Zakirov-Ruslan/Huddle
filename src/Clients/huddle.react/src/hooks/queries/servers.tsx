@@ -1,6 +1,7 @@
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
-import type { CreateServerRequest, ServerDto, UpdateServerRequest } from "../api/dtos";
-import { updateServer, deleteServer, createServer, getMyServers, getServer } from "../api/servers/serversApi";
+
+import { updateServer, deleteServer, createServer, getMyServers, getServer } from "../../api/servers/serversApi";
+import type { ServerDto, CreateServerRequest, UpdateServerRequest } from "../../api/types";
 
  export const useServer = (serverId: string) => {
     return useQuery<ServerDto, Error>({

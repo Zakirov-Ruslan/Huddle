@@ -1,5 +1,5 @@
-﻿import { useDeleteServer, useServer } from "../hooks/serverApiHooks";
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
+import { useServer, useDeleteServer } from "../../hooks/queries/servers";
 
 interface DeleteServerDialogProps {
     serverId: string,

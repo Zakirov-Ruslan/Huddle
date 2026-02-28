@@ -3,17 +3,21 @@ import { IoSend } from "react-icons/io5";
 import { RiAttachment2 } from "react-icons/ri";
 import { useInView } from "react-intersection-observer";
 import { useAuth } from "react-oidc-context";
-import type { ChannelDto, MessageDto } from "../../api/dtos";
+import type { ChannelDto, MessageDto } from "../../api/types";
 import AuthorMessageGroup from "../../components/AuthorMessageGroup";
-import { useInfiniteMessages, useSendMessage } from "../../hooks/messagesApiHooks";
-import { SignalRContext } from "../../providers/SignalRProvider";
+
+import { SignalRContext, useSignalRState } from "../../providers/SignalRProvider";
 import { adjustHeight } from "../../utils/domHelpers";
 import { groupMessagesByDayAndAuthor } from "../../utils/groupMessages";
 import "../../styles/scrollbar.css";
+import { v4 } from "uuid";
+import { useInfiniteMessages, useSendMessage } from "../../hooks/queries/messages";
 
 const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) => {
 
     const auth = useAuth();
+
+    const { isConnected } = useSignalRState();
 
     const {
         data: messages,
@@ -44,16 +48,25 @@ const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) 
     }, [messages]);
 
     useEffect(() => {
-        if (!id || SignalRContext.connection?.state != 'Connected')
+        if (!id || !isConnected)
             return;
-        SignalRContext.invoke("JoinChannel", id);
-        console.log('joined to', id);
-    }, [id, SignalRContext.connection?.state])
+
+        const channelJoin = async () => {
+            try {
+                await SignalRContext.invoke("JoinChannel", id);
+                console.debug('joined to channel notification group', id);
+            } catch (error) {
+                console.error('Failed to join channel notification group', error);
+            }
+        }
+
+        channelJoin();
+    }, [id, isConnected])
 
     SignalRContext.useSignalREffect(
         "CreateMessage",
         (newMessage: MessageDto) => {
-
+            console.debug('message reeived from text channel component')
             if (newMessage.authorId == auth.user?.profile.sub)
                 return;
 

@@ -2,8 +2,9 @@ import { LiveKitRoom, ParticipantTile, useLiveKitRoom, useTracks } from "@liveki
 import { useEffect, useState } from "react";
 import { GridLayout, ControlBar } from "@livekit/components-react";
 import { useRoomContext } from "@livekit/components-react";
-import type { ChannelDto } from "../../api/dtos";
-import { useLiveKitToken } from "../../hooks/voiceApiHooks";
+import type { ChannelDto } from "../../api/types";
+import { useLiveKitToken } from "../../hooks/queries/livekit";
+
 
 const VoiceChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) => {
 

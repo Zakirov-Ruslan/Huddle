@@ -1,6 +1,6 @@
 import { IDENTITY_SERVICE_URL } from "../api";
 import { authenticatedFetch } from "../authenticatedFetch";
-import type { UserProfileDto } from "../dtos";
+import type { UserProfileDto } from "../types";
 
 export const getUserProfile = async (id: string): Promise<UserProfileDto> => {
     const response = await authenticatedFetch(`${IDENTITY_SERVICE_URL}/api/UserProfiles/${id}`, {

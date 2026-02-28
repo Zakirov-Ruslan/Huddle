@@ -1,6 +1,6 @@
 import { CHANNEL_SERVICE_URL } from "../api";
 import { authenticatedFetch } from "../authenticatedFetch";
-import type { MessageDto, CreateMessageRequest, UpdateMessageRequest, PaginatedItems, MessageParams } from "../dtos";
+import type { MessageParams, PaginatedItems, MessageDto, CreateMessageRequest, UpdateMessageRequest } from "../types";
 
 export const getMessages = async ({
     channelId,

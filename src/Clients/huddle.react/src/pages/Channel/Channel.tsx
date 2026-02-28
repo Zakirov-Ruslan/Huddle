@@ -1,11 +1,11 @@
 ﻿import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import ServerMemberItem from "../../components/ServerMemberItem";
-import { useInfiniteMembers } from "../../hooks/memberApiHooks";
 import { useServerContext } from "../Server";
 import TextChannel from "./TextChannel";
 import VoiceChannel from "./VoiceChannel";
 import { useParams } from 'react-router';
+import { useInfiniteMembers } from "../../hooks/queries/members";
 
 
 export const Channel = () => {

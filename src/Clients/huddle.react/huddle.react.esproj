@@ -12,6 +12,5 @@
     <Folder Include="public\" />
     <Folder Include="src\assets\" />
     <Folder Include="src\services\" />
-    <Folder Include="src\signalRHandlers\" />
   </ItemGroup>
 </Project>
