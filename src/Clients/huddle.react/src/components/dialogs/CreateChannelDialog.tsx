@@ -5,27 +5,27 @@ import { FaHashtag } from "react-icons/fa6";
 import { HiSpeakerWave } from "react-icons/hi2";
 import { RxCross2 } from "react-icons/rx";
 
-interface CreateServerDialogProps {
+interface CreateChannelDialogProps {
     onCreateChannel: (createdChannel: ChannelDto | null) => void;
     serverId: string;
 }
 
-const CreateChannelDialog: React.FC<CreateServerDialogProps> = ({ onCreateChannel, serverId }) => {
+const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({ onCreateChannel, serverId }) => {
 
     const [channelName, setChannelName] = useState("");
     const [channelType, setChannelType] = useState('');
 
     const createChannel = useCreateChannel(serverId);
 
-    const handleNameChange = (e) => {
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setChannelName(e.target.value);
     };
 
-    const handleTypeChange = (e) => {
+    const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setChannelType(e.target.value);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (createChannel.isPending || createChannel.isSuccess)
             return;

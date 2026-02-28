@@ -13,7 +13,7 @@ const CreateServerDialog: React.FC<CreateServerDialogProps> = ({ onCreateServer 
     const createServer = useCreateServer();
     const [serverName, setServerName] = useState('');
 
-    const handleCreate = (e) => {
+    const handleCreate = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (createServer.isPending || createServer.isSuccess)
