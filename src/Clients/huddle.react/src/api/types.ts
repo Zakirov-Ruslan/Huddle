@@ -1,10 +1,3 @@
-export interface ChannelDto {
-    id: string;
-    serverId: string;
-    name: string;
-    channelType: string;
-}
-
 export interface CreateChannelRequest {
     name: string;
     channelType: string;
@@ -32,15 +25,26 @@ export interface UpdateServerRequest {
     name: string;
 }
 
-export interface MemberDto {
-    id: string;
-    serverId: string;
-    identityId: string;
+export interface UpdateMemberRequest {
     serverUsername: string;
     description: string;
 }
 
-export interface UpdateMemberRequest {
+export interface AcceptInviteResponse {
+    serverId: string;
+}
+
+export interface Channel {
+    id: string;
+    serverId: string;
+    name: string;
+    channelType: string;
+}
+
+export interface Member {
+    id: string;
+    serverId: string;
+    identityId: string;
     serverUsername: string;
     description: string;
 }
@@ -58,7 +62,7 @@ export interface MembersParams {
     limit?: number;
 }
 
-export interface MessageDto {
+export interface Message {
     id: string;
     channelId: string;
     authorId: string;
@@ -72,25 +76,21 @@ export interface PaginatedItems<T> {
     nextCursor: string | null;
 }
 
-export interface ServerDto {
+export interface Server {
     id: string;
     name: string;
     ownerIdentityId: string;
-    channels: ChannelDto[];
+    channels: Channel[];
 }
 
-export interface InviteDto {
+export interface Invite {
     id: string;
     serverId: string;
     createdAt: Date;
     code: string;
 }
 
-export interface AcceptInviteResponse {
-    serverId: string;
-}
-
-export interface UserProfileDto {
+export interface UserProfile {
     userId: string;
     userName: string;
 }

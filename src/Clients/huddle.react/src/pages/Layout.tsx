@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Tooltip } from 'react-tooltip'
 import face from "../img/huddle-mascot/face.png";
-import type { ServerDto } from "../api/types";
+import type { Server } from "../api/types";
 import CreateServerDialog from "../components/dialogs/CreateServerDialog";
 import { useMyServers } from "../hooks/queries/servers";
 import { useMyProfile } from "../hooks/queries/users";
@@ -128,7 +128,7 @@ function Layout() {
                 shouldFocusAfterRender={false}
                 appElement={document.getElementById('root')!}
             >
-                <CreateServerDialog onCreateServer={(createdServer: ServerDto | null) => {
+                <CreateServerDialog onCreateServer={(createdServer: Server | null) => {
                     setIsModalOpen(false);
                     if (createdServer)
                         navigate(`/s/${createdServer.id}`)

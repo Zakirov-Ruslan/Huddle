@@ -1,15 +1,15 @@
 import { CHANNEL_SERVICE_URL } from "../api";
 import { authenticatedFetch } from "../authenticatedFetch";
-import type { ServerDto, UpdateServerRequest, CreateServerRequest } from "../types";
+import type { Server, UpdateServerRequest, CreateServerRequest } from "../types";
 
-export const getMyServers = async (): Promise<ServerDto[]> => {
+export const getMyServers = async (): Promise<Server[]> => {
     const response = await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/Servers/my`, {
         method: 'GET',
     });
     return response.json();
 };
 
-export const getServer = async (id: string): Promise<ServerDto> => {
+export const getServer = async (id: string): Promise<Server> => {
     const response = await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/Servers/${id}`, {
         method: 'GET',
     });
@@ -29,7 +29,7 @@ export const deleteServer = async (id: string): Promise<void> => {
     });
 };
 
-export const createServer = async (data: CreateServerRequest): Promise<ServerDto> => {
+export const createServer = async (data: CreateServerRequest): Promise<Server> => {
     const response = await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/Servers`, {
         method: 'POST',
         body: JSON.stringify(data),

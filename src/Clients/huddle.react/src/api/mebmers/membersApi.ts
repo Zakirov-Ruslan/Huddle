@@ -1,8 +1,8 @@
 import { CHANNEL_SERVICE_URL } from "../api";
 import { authenticatedFetch } from "../authenticatedFetch";
-import type { MemberDto, MembersParams, PaginatedItems, UpdateMemberRequest } from "../types";
+import type { Member, MembersParams, PaginatedItems, UpdateMemberRequest } from "../types";
 
-export const getMember = async (serverId: string, memberId: string): Promise<MemberDto> => {
+export const getMember = async (serverId: string, memberId: string): Promise<Member> => {
     const response = await authenticatedFetch(
         `${CHANNEL_SERVICE_URL}/api/servers/${serverId}/Members/${memberId}`, {
             method: 'GET',
@@ -11,7 +11,7 @@ export const getMember = async (serverId: string, memberId: string): Promise<Mem
     return response.json();
 };
 
-export const getServerMembers = async ({ serverId, cursor = null, limit = 50 }: MembersParams): Promise<PaginatedItems<MemberDto>> => {
+export const getServerMembers = async ({ serverId, cursor = null, limit = 50 }: MembersParams): Promise<PaginatedItems<Member>> => {
 
     const params = new URLSearchParams();
     if (cursor) params.append('cursor', cursor);

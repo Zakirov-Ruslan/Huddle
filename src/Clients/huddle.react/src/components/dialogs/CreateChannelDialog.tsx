@@ -1,12 +1,12 @@
 ﻿import { useState } from "react";
-import type { ChannelDto } from "../../api/types";
+import type { Channel } from "../../api/types";
 import { useCreateChannel } from "../../hooks/queries/channels";
 import { FaHashtag } from "react-icons/fa6";
 import { HiSpeakerWave } from "react-icons/hi2";
 import { RxCross2 } from "react-icons/rx";
 
 interface CreateChannelDialogProps {
-    onCreateChannel: (createdChannel: ChannelDto | null) => void;
+    onCreateChannel: (createdChannel: Channel | null) => void;
     serverId: string;
 }
 

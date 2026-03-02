@@ -1,11 +1,11 @@
 ﻿import { useState } from "react";
 import { FaPlus } from "react-icons/fa6";
 import { RxCross2 } from "react-icons/rx";
-import type { ServerDto } from "../../api/types";
+import type { Server } from "../../api/types";
 import { useCreateServer } from "../../hooks/queries/servers";
 
 interface CreateServerDialogProps {
-    onCreateServer: (createdServer: ServerDto | null) => void;
+    onCreateServer: (createdServer: Server | null) => void;
 }
 
 const CreateServerDialog: React.FC<CreateServerDialogProps> = ({ onCreateServer }) => {

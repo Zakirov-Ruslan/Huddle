@@ -1,12 +1,12 @@
 import { CHANNEL_SERVICE_URL } from "../api";
 import { authenticatedFetch } from "../authenticatedFetch";
-import type { MessageParams, PaginatedItems, MessageDto, CreateMessageRequest, UpdateMessageRequest } from "../types";
+import type { MessageParams, PaginatedItems, Message, CreateMessageRequest, UpdateMessageRequest } from "../types";
 
 export const getMessages = async ({
     channelId,
     cursor = null,
     limit = 50
-}: MessageParams): Promise<PaginatedItems<MessageDto>> => {
+}: MessageParams): Promise<PaginatedItems<Message>> => {
     const params = new URLSearchParams();
     if (cursor) params.append('cursor', cursor);
     params.append('limit', limit.toString());
@@ -23,7 +23,7 @@ export const getMessages = async ({
 export const createMessage = async (
     channelId: string,
     data: CreateMessageRequest
-): Promise<MessageDto> => {
+): Promise<Message> => {
     const response = await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/channels/${channelId}/Messages`, {
         method: 'POST',
         body: JSON.stringify(data),

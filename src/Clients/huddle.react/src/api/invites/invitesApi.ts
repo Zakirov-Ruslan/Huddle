@@ -1,6 +1,6 @@
 import { CHANNEL_SERVICE_URL } from "../api";
 import { authenticatedFetch } from "../authenticatedFetch";
-import type { AcceptInviteResponse, InviteDto } from "../types";
+import type { AcceptInviteResponse, Invite } from "../types";
 import { v4 as uuidv4 } from 'uuid';
 
 export const getServerInvites = async (serverId: string): Promise<void> => {
@@ -11,7 +11,7 @@ export const getServerInvites = async (serverId: string): Promise<void> => {
     return response.json();
 };
 
-export const createInvite = async (serverId: string): Promise<InviteDto> => {
+export const createInvite = async (serverId: string): Promise<Invite> => {
     const response = await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/servers/${serverId}/invites`, {
         method: 'POST',
     });

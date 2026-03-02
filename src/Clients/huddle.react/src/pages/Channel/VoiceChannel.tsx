@@ -2,11 +2,11 @@ import { LiveKitRoom, ParticipantTile, useLiveKitRoom, useTracks } from "@liveki
 import { useEffect, useState } from "react";
 import { GridLayout, ControlBar } from "@livekit/components-react";
 import { useRoomContext } from "@livekit/components-react";
-import type { ChannelDto } from "../../api/types";
+import type { Channel } from "../../api/types";
 import { useLiveKitToken } from "../../hooks/queries/livekit";
 
 
-const VoiceChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) => {
+const VoiceChannel: React.FC<Channel> = ({ id, serverId, name, channelType }) => {
 
     const { data, error, isLoading } = useLiveKitToken(serverId, id);
     const room = useRoomContext();
@@ -30,10 +30,10 @@ const VoiceChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType })
 
         connectRoom();
 
-        // Очистка при размонтировании компонента
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         return () => {
             isMounted = false;
-            // Не отключаемся здесь, так как комната может использоваться другими компонентами
+            // пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         };
     }, [data]);
 

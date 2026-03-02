@@ -17,13 +17,13 @@ import { useAuth } from "react-oidc-context";
 import { ImExit } from "react-icons/im";
 import { SignalRContext, useSignalRState } from "../providers/SignalRProvider";
 import ReactModal from "react-modal";
-import type { ServerDto } from "../api/types";
+import type { Server } from "../api/types";
 import CreateChannelDialog from "../components/dialogs/CreateChannelDialog";
 import InviteFriendsDialog from "../components/dialogs/InviteFriendsDialog";
 import { useServer } from "../hooks/queries/servers";
 
 export interface ServerContextType {
-    server: ServerDto | undefined;
+    server: Server | undefined;
     isShowMembers: boolean;
 }
 export const ServerContext = createContext<ServerContextType | null>(null);

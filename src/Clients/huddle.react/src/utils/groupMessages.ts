@@ -1,9 +1,9 @@
-import type { MessageDto } from "../api/types";
+import type { Message } from "../api/types";
 
-const groupByDay = (messages: MessageDto[]) => {
-    const groups: { day: string; messages: MessageDto[] }[] = [];
+const groupByDay = (messages: Message[]) => {
+    const groups: { day: string; messages: Message[] }[] = [];
     let currentDay = '';
-    let currentGroup: MessageDto[] = [];
+    let currentGroup: Message[] = [];
 
     for (const msg of messages) {
         const msgDay = new Date(msg.sentAt).toLocaleDateString('ru-RU');
@@ -26,10 +26,10 @@ const groupByDay = (messages: MessageDto[]) => {
     return groups;
 };
 
-const groupConsecutiveByAuthor = (messages: MessageDto[]) => {
-    const groups: { authorId: string; messages: MessageDto[] }[] = [];
+const groupConsecutiveByAuthor = (messages: Message[]) => {
+    const groups: { authorId: string; messages: Message[] }[] = [];
     let currentAuthor = '';
-    let currentGroup: MessageDto[] = [];
+    let currentGroup: Message[] = [];
 
     for (const msg of messages) {
         if (msg.authorId !== currentAuthor) {
@@ -50,7 +50,7 @@ const groupConsecutiveByAuthor = (messages: MessageDto[]) => {
     return groups;
 };
 
-export const groupMessagesByDayAndAuthor = (messages: MessageDto[]) => {
+export const groupMessagesByDayAndAuthor = (messages: Message[]) => {
     const sorted = [...messages].sort((a, b) =>
         new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
     );

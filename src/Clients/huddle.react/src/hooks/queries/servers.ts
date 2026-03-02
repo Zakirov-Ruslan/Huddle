@@ -1,17 +1,17 @@
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 
 import { updateServer, deleteServer, createServer, getMyServers, getServer } from "../../api/servers/serversApi";
-import type { ServerDto, CreateServerRequest, UpdateServerRequest } from "../../api/types";
+import type { Server, CreateServerRequest, UpdateServerRequest } from "../../api/types";
 
  export const useServer = (serverId: string) => {
-    return useQuery<ServerDto, Error>({
+    return useQuery<Server, Error>({
         queryKey: ['server', serverId],
         queryFn: () => getServer(serverId),
     });
 };
 
 export const useMyServers = () => {
-    return useQuery<ServerDto[], Error>({
+    return useQuery<Server[], Error>({
         queryKey: ['myServers'],
         queryFn: getMyServers,
     });
@@ -19,7 +19,7 @@ export const useMyServers = () => {
 
 export const useCreateServer = () => {
     const queryClient = useQueryClient();
-    return useMutation<ServerDto, Error, CreateServerRequest>({
+    return useMutation<Server, Error, CreateServerRequest>({
         mutationFn: createServer,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['myServers'] });

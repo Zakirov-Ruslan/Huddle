@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { getMessages, createMessage, updateMessage, deleteMessage } from "../../api/messages/messagesApi";
-import type { MessageDto, CreateMessageRequest, PaginatedItems, UpdateMessageRequest } from "../../api/types";
+import type { Message, CreateMessageRequest, PaginatedItems, UpdateMessageRequest } from "../../api/types";
 
 
 export const useInfiniteMessages = (channelId: string) => {
@@ -23,17 +23,17 @@ export const useInfiniteMessages = (channelId: string) => {
 export const useSendMessage = () => {
     const queryClient = useQueryClient();
 
-    return useMutation<MessageDto, Error, { channelId: string; data: CreateMessageRequest }>({
+    return useMutation<Message, Error, { channelId: string; data: CreateMessageRequest }>({
         mutationFn: ({ channelId, data }) => createMessage(channelId, data),
         onSuccess: (newMessage, variables) => {
             const { channelId } = variables;
 
-            const currentData = queryClient.getQueryData<InfiniteData<PaginatedItems<MessageDto>>>(['messages', newMessage.channelId]);
+            const currentData = queryClient.getQueryData<InfiniteData<PaginatedItems<Message>>>(['messages', newMessage.channelId]);
             const messageExists = currentData?.pages.some(page => page.items.some(msg => msg.id === newMessage.id));
             if (messageExists)
                 return;
 
-            queryClient.setQueryData<InfiniteData<PaginatedItems<MessageDto>>>(
+            queryClient.setQueryData<InfiniteData<PaginatedItems<Message>>>(
                 ['messages', channelId],
                 (oldData) => {
                     if (!oldData) {
@@ -82,7 +82,7 @@ export const useDeleteMessage = () => {
         mutationFn: ({ channelId, messageId }) => deleteMessage(channelId, messageId),
         onSuccess: (_, variables) => {
             const { channelId } = variables;
-            queryClient.setQueryData<MessageDto[]>(
+            queryClient.setQueryData<Message[]>(
                 ["messages", channelId],
                 (oldMessages = []) =>
                     oldMessages.filter((msg) => msg.id !== variables.messageId)

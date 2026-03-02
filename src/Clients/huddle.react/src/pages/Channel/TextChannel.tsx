@@ -3,7 +3,7 @@ import { IoSend } from "react-icons/io5";
 import { RiAttachment2 } from "react-icons/ri";
 import { useInView } from "react-intersection-observer";
 import { useAuth } from "react-oidc-context";
-import type { ChannelDto, MessageDto } from "../../api/types";
+import type { Channel, Message } from "../../api/types";
 import AuthorMessageGroup from "../../components/AuthorMessageGroup";
 import { SignalRContext, useSignalRState } from "../../providers/SignalRProvider";
 import { adjustHeight } from "../../utils/domHelpers";
@@ -11,7 +11,7 @@ import { groupMessagesByDayAndAuthor } from "../../utils/groupMessages";
 import "../../styles/scrollbar.css";
 import { useInfiniteMessages, useSendMessage } from "../../hooks/queries/messages";
 
-const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) => {
+const TextChannel: React.FC<Channel> = ({ id, serverId, name, channelType }) => {
 
     const auth = useAuth();
 

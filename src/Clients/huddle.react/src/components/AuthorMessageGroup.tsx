@@ -1,10 +1,10 @@
 ﻿import { Tooltip } from "react-tooltip";
-import type { MessageDto } from "../api/types";
+import type { Message } from "../api/types";
 import { useUserProfile } from "../hooks/queries/users";
 
 interface AuthorMessageGroupProps {
     authorId: string;
-    messageGroup: MessageDto[];
+    messageGroup: Message[];
 }
 
 const AuthorMessageGroup = ({ authorId, messageGroup }: AuthorMessageGroupProps) => {
