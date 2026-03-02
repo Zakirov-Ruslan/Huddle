@@ -74,6 +74,7 @@ namespace Huddle.Channel.Infrastructure.Extensions
             services.AddSingleton<IValidator<AcceptInviteCommand>, AcceptInviteCommandValidator>();
 
             services.AddScoped<IRequestManager, RequestManager>();
+            services.AddScoped<RequestContext>();
 
             return services;
         }

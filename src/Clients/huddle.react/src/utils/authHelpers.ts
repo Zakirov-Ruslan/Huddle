@@ -11,3 +11,15 @@ export default function getUser(): User {
     const user = User.fromStorageString(oidcStorage);
     return user;
 }
+
+const SESSION_STORAGE_KEY = 'sessionId';
+
+export const initSessionId = (): string => {
+    const sessionId = crypto.randomUUID();
+    sessionStorage.setItem(SESSION_STORAGE_KEY, sessionId);
+    return sessionId;
+};
+
+export const getSessionId = (): string | null => {
+    return sessionStorage.getItem(SESSION_STORAGE_KEY);
+};

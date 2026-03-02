@@ -17,6 +17,7 @@ public class Program
 
         builder.Services.AddApplicationServices(builder.Configuration);
 
+
         builder.Services.AddGrpc(options =>
         {
             options.EnableDetailedErrors = true;
@@ -51,6 +52,8 @@ public class Program
         var app = builder.Build();
 
         app.MapDefaultEndpoints();
+        
+        app.UseMiddleware<RequestContextMiddleware>();
 
         if (app.Environment.IsDevelopment())
         {

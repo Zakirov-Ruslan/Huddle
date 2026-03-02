@@ -47,7 +47,8 @@ public class RequestManager : IRequestManager
         // Catching unique keys exception
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException exception && exception.SqlState == "23505")
         {
-            _context.Entry(request).State = EntityState.Detached;
+            //_context.Entry(request).State = EntityState.Detached;
+            _context.ChangeTracker.Clear();
             throw new ParallelIdempotentRequestException();
         }
     }

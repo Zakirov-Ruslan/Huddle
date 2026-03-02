@@ -32,10 +32,17 @@ namespace Huddle.SignalR
 
         public async Task JoinServer(string serverId)
         {
-            var isAccessible = await _grpcChannelAccessClient.CheckServerAccessAsync(Guid.Parse(serverId), Guid.Parse(Context.UserIdentifier));
+            try
+            {
+                var isAccessible = await _grpcChannelAccessClient.CheckServerAccessAsync(Guid.Parse(serverId), Guid.Parse(Context.UserIdentifier));
 
-            if (isAccessible)
-                await Groups.AddToGroupAsync(Context.ConnectionId, $"server:{serverId}");
+                if (isAccessible)
+                    await Groups.AddToGroupAsync(Context.ConnectionId, $"server:{serverId}");
+            }
+            catch (OperationCanceledException)
+            {
+
+            }
         }
 
         public async Task LeaveServer(string serverId)

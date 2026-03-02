@@ -1,4 +1,4 @@
-import getUser from "../utils/authHelpers";
+import getUser, { getSessionId } from "../utils/authHelpers";
 
 export const authenticatedFetch = async (url: string, options: RequestInit = {}) => {
     const user = getUser();
@@ -12,6 +12,10 @@ export const authenticatedFetch = async (url: string, options: RequestInit = {})
     };
 
     defaultHeaders['Authorization'] = `Bearer ${token}`;
+
+    const sessionId = getSessionId()
+    if (sessionId)
+        defaultHeaders['X-Session-Id'] = sessionId;
 
     const config: RequestInit = {
         ...options,

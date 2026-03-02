@@ -1,16 +1,14 @@
-﻿import { useEffect, useMemo, useRef, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { IoSend } from "react-icons/io5";
 import { RiAttachment2 } from "react-icons/ri";
 import { useInView } from "react-intersection-observer";
 import { useAuth } from "react-oidc-context";
 import type { ChannelDto, MessageDto } from "../../api/types";
 import AuthorMessageGroup from "../../components/AuthorMessageGroup";
-
 import { SignalRContext, useSignalRState } from "../../providers/SignalRProvider";
 import { adjustHeight } from "../../utils/domHelpers";
 import { groupMessagesByDayAndAuthor } from "../../utils/groupMessages";
 import "../../styles/scrollbar.css";
-import { v4 } from "uuid";
 import { useInfiniteMessages, useSendMessage } from "../../hooks/queries/messages";
 
 const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) => {
@@ -37,7 +35,8 @@ const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) 
     const [loaderRef, inView] = useInView();
 
     const groupedMessages = useMemo(() => {
-        if (!messages?.pages) return [];
+        if (!messages?.pages) 
+            return [];
 
         const allMessages = messages.pages.flatMap(page => page.items);
         const sortedMessages = [...allMessages].sort(
@@ -63,25 +62,6 @@ const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) 
         channelJoin();
     }, [id, isConnected])
 
-    SignalRContext.useSignalREffect(
-        "CreateMessage",
-        (newMessage: MessageDto) => {
-            console.debug('message reeived from text channel component')
-            if (newMessage.authorId == auth.user?.profile.sub)
-                return;
-
-            if (newMessage.channelId === id) {
-                setTimeout(() => {
-                    listRef.current?.scrollTo({
-                        top: listRef.current.scrollHeight,
-                        behavior: 'smooth'
-                    });
-                }, 100);
-            }
-        },
-        [id]
-    );
-
     useEffect(() => {
         if (inView && hasNextPage && !isFetchingNextPage) {
             fetchNextPage();
@@ -96,6 +76,27 @@ const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) 
             });
         }
     }, [isFetching, messages?.pages]);
+
+    const handleSendMessage = (e: FormEvent<HTMLFormElement>): void => {
+        e.preventDefault();
+
+        if (message.trim().length == 0)
+            return;
+
+        sendMessage.mutate(
+            {
+                channelId: id,
+                data: { text: message }
+            }
+        )
+
+        setMessage('');
+        if (textareaRef.current) {
+            requestAnimationFrame(() => {
+                adjustHeight(textareaRef.current!);
+            });
+        }
+    }
 
     return (
         <div className="flex flex-grow flex-row">
@@ -118,28 +119,9 @@ const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) 
                         </div>
                     ))}
                 </section>
-                <main className="bg-white px-5 pb-4">
+                <div className="bg-white px-5 pb-4">
                     <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-
-                            if (message.trim().length == 0)
-                                return;
-
-                            sendMessage.mutate(
-                                { channelId: id, data: { text: message } },
-                                {
-                                    onSuccess: () => {
-                                        setMessage('');
-                                        if (textareaRef.current) {
-                                            requestAnimationFrame(() => {
-                                                adjustHeight(textareaRef.current!);
-                                            });
-                                        }
-                                    }
-                                }
-                            )
-                        }}
+                        onSubmit={handleSendMessage}
                         className="flex min-h-17 flex-grow flex-row items-center gap-2 rounded-xl border border-gray-200 bg-white p-3 shadow-2xl dark:border-gray-600 dark:bg-gray-800">
                         <button
                             type="button"
@@ -155,7 +137,6 @@ const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) 
                             onChange={(e) => setMessage(e.target.value)}
                             placeholder={`Write to #${name}`}
                             className=" flex-1  dark:bg-gray-700 px-4 py-2 outline-none resize-none"
-
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                     e.preventDefault();
@@ -170,7 +151,7 @@ const TextChannel: React.FC<ChannelDto> = ({ id, serverId, name, channelType }) 
                             <IoSend className="scale-120" />
                         </button>
                     </form>
-                </main>
+                </div>
             </div>
         </div>
     );

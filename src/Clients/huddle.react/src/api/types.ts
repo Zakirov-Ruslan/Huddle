@@ -94,3 +94,8 @@ export interface UserProfileDto {
     userId: string;
     userName: string;
 }
+
+export interface SignalRNotification<T> {
+    entity: T;
+    initiatorSessionId: string | null;
+}

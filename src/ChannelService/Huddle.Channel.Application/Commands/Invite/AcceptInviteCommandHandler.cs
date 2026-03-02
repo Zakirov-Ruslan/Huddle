@@ -2,7 +2,6 @@
 using Huddle.Channel.Domain.Aggregates.MemberAggregate;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System.ComponentModel;
 
 namespace Huddle.Channel.Application.Commands.Invite
 {
@@ -22,11 +21,9 @@ namespace Huddle.Channel.Application.Commands.Invite
             var invite = await _inviteRepository.GetByCode(request.InviteCode)
                 ?? throw new KeyNotFoundException("Invite not found");
 
-            // No necessary for this check
-            // Have to handle this with IdentifiedCommandHandler - CreateResultForDuplicateRequest
-            //var alreadyMember = await _memberRepository.GetByServerAndIdentityIdAsync(invite.ServerId, request.IdentityId) is not null;
-            //if (alreadyMember)
-            //    return invite.ServerId;
+            var alreadyMember = await _memberRepository.GetByServerAndIdentityIdAsync(invite.ServerId, request.IdentityId) is not null;
+            if (alreadyMember)
+               return invite.ServerId;
 
             Domain.Aggregates.MemberAggregate.Member member = new(invite.ServerId, request.IdentityId);
             _memberRepository.Add(member);
@@ -51,10 +48,10 @@ namespace Huddle.Channel.Application.Commands.Invite
             _memberRepository = memberRepository;
         }
 
-        protected override Guid CreateResultForDuplicateRequest()
+        protected override async Task<Guid> CreateResultForDuplicateRequest()
         {
-            //var alreadyMember = await _memberRepository.GetByServerAndIdentityIdAsync(invite.ServerId, request.IdentityId) is not null;
-            //if (alreadyMember)
+            // var alreadyMember = await _memberRepository.GetByServerAndIdentityIdAsync(invite.ServerId, request.IdentityId) is not null;
+            // if (alreadyMember)
             //    return invite.ServerId;
             return Guid.Empty;
         }

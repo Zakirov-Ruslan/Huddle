@@ -1,14 +1,15 @@
 import type { QueryClient, InfiniteData } from "@tanstack/react-query";
-import type { MessageDto, PaginatedItems } from "../api/types";
+import type { MessageDto, PaginatedItems, SignalRNotification } from "../api/types";
 
 export function handleCreateMessage(queryClient: QueryClient) {
-    return (newMessage: MessageDto) => {
+    return (notification: SignalRNotification<MessageDto>) => {
+        const newMessage = notification.entity;
         console.debug('message received (global cache handler)', newMessage);
 
-        const currentData = queryClient.getQueryData<InfiniteData<PaginatedItems<MessageDto>>>(['messages', newMessage.channelId]);
-        const messageExists = currentData?.pages.some(page => page.items.some(msg => msg.id === newMessage.id));
-        if (messageExists)
-            return;
+        // const currentData = queryClient.getQueryData<InfiniteData<PaginatedItems<MessageDto>>>(['messages', newMessage.channelId]);
+        // const messageExists = currentData?.pages.some(page => page.items.some(msg => msg.id === newMessage.id));
+        // if (messageExists)
+        //     return;
 
         queryClient.setQueryData<InfiniteData<PaginatedItems<MessageDto>>>(
             ['messages', newMessage.channelId],

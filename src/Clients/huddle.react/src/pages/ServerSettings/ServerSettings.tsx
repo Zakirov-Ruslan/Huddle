@@ -56,12 +56,12 @@ function ServerSettings() {
                         className="flex items-center rounded-md px-3 py-1 font-medium text-red-400 duration-150 hover:bg-gray-300"
                         onClick={() => setIsDeleteServerModalIsOpen(true)}
                     >
-                        <span className="flex-grow text-left">Delete server</span>
+                        <span className="grow text-left">Delete server</span>
                         <FaTrash />
                     </button>
                 </div>
 
-                <div className="flex-grow bg-gray-100">
+                <div className="grow bg-gray-100">
                     <Outlet />
                 </div>
             </div>

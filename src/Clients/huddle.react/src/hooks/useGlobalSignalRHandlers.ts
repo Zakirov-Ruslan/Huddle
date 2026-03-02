@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { SignalRContext } from '../providers/SignalRProvider';
 import { handleCreateMessage } from '../signalRHandlers/messages';
 import { handleCreateChannel } from '../signalRHandlers/channels';
+import { getSessionId } from '../utils/authHelpers';
 
 export const useGlobalSignalRHandlers = () => {
     const queryClient = useQueryClient();
@@ -12,7 +13,7 @@ export const useGlobalSignalRHandlers = () => {
         if (!connection) 
             return;
         
-        const createMessageHandler = handleCreateMessage(queryClient);
+        const createMessageHandler = withSessionFilter(handleCreateMessage(queryClient));
         connection.on('CreateMessage', createMessageHandler);
 
         const createChannelHandler = handleCreateChannel(queryClient);
@@ -25,4 +26,19 @@ export const useGlobalSignalRHandlers = () => {
             connection.off('CreateChannel', createChannelHandler);
         };
     }, [SignalRContext.connection, queryClient]);
+};
+
+export const withSessionFilter = <T extends Record<string, any>>(
+    handler: (data: T) => void
+) => {
+    return (data: T & { initiatorSessionId?: string }) => {
+        const mySessionId = getSessionId();
+        
+        if (data.initiatorSessionId === mySessionId) {
+            console.debug('Ignoring self initiated event:', data);
+            return;
+        }
+
+        handler(data);
+    };
 };

@@ -17,6 +17,8 @@ import ServerProfile from './pages/ServerSettings/ServerProfile'
 import ServerSettings from './pages/ServerSettings/ServerSettings'
 import { Channel } from './pages/Channel/Channel'
 import SignalRHandlersWrapper from './providers/SignalRHandlersWrapper'
+import { useEffect } from 'react'
+import { initSessionId } from './utils/authHelpers'
 
 const queryClient = new QueryClient()
 
@@ -40,6 +42,10 @@ function App() {
         window.history.replaceState({}, document.title, path);
         window.location.href = path;
     };
+
+    useEffect(() => {
+        initSessionId();
+    }, []);
 
     return (
         <>

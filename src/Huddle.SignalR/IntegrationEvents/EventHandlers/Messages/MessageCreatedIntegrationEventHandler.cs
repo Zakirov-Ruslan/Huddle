@@ -23,7 +23,9 @@ namespace Huddle.SignalR.IntegrationEvents.EventHandlers.Messages
 
             MessageDto createdMessage = new(@event.MessageId, @event.ChannelId, @event.AuthorId, @event.Text, @event.SentAt, false);
 
-            await _hubContext.Clients.Group($"channel:{@event.ChannelId}").SendAsync("CreateMessage", createdMessage);
+            Notification<MessageDto> notification = new(createdMessage, @event.InitiatorSessionId);
+
+            await _hubContext.Clients.Group($"channel:{@event.ChannelId}").SendAsync("CreateMessage", notification);
         }
     }
 }

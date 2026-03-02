@@ -34,7 +34,7 @@ public abstract class IdentifiedCommandHandler<T, R> : IRequestHandler<Identifie
     /// Creates the result value to return if a previous request was found
     /// </summary>
     /// <returns></returns>
-    protected abstract R CreateResultForDuplicateRequest();
+    protected abstract Task<R> CreateResultForDuplicateRequest();
 
     /// <summary>
     /// This method handles the command. It just ensures that no other request exists with the same ID, and if this is the case
@@ -47,7 +47,7 @@ public abstract class IdentifiedCommandHandler<T, R> : IRequestHandler<Identifie
         var alreadyExists = await _requestManager.IsExistsAsync(message.Id);
         if (alreadyExists)
         {
-            return CreateResultForDuplicateRequest();
+            return await CreateResultForDuplicateRequest();
         }
         else
         {
