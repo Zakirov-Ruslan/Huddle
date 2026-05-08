@@ -16,7 +16,7 @@ export const useGlobalSignalRHandlers = () => {
         const createMessageHandler = withSessionFilter(handleCreateMessage(queryClient));
         connection.on('CreateMessage', createMessageHandler);
 
-        const createChannelHandler = handleCreateChannel(queryClient);
+        const createChannelHandler = withSessionFilter(handleCreateChannel(queryClient));
         connection.on('CreateChannel', createChannelHandler);
 
         console.debug('subscribed to all signalRHandlers')

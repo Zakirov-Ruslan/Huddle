@@ -21,9 +21,10 @@ namespace Huddle.SignalR.IntegrationEvents.EventHandlers.Channels
         {
             _logger.LogInformation("----- Handling integration event: {IntegrationEventId} at {AppName} - ({@IntegrationEvent})", @event.Id, Assembly.GetExecutingAssembly().FullName, @event);
 
-            var channelDto = new ChannelDto(@event.Id, @event.ServerId, @event.Name, @event.Type);
+            var createdChannel = new ChannelDto(@event.Id, @event.ServerId, @event.Name, @event.Type);
+            Notification<ChannelDto> notification = new(createdChannel, @event.InitiatorSessionId);
 
-            await _hubContext.Clients.Group($"server:{@event.ServerId}").SendAsync("CreateChannel", channelDto);
+            await _hubContext.Clients.Group($"server:{@event.ServerId}").SendAsync("CreateChannel", notification);
         }
     }
 }
