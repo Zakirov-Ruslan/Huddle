@@ -1,6 +1,8 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { getMessages, createMessage, updateMessage, deleteMessage } from "../../api/messages/messagesApi";
 import type { Message, CreateMessageRequest, PaginatedItems, UpdateMessageRequest } from "../../api/types";
+import { useTextChannelStore } from "../../stores/textChannelStore";
+import getUser from "../../utils/authHelpers";
 
 
 export const useInfiniteMessages = (channelId: string) => {
@@ -23,10 +25,39 @@ export const useInfiniteMessages = (channelId: string) => {
 export const useSendMessage = () => {
     const queryClient = useQueryClient();
 
-    return useMutation<Message, Error, { channelId: string; data: CreateMessageRequest }>({
+    return useMutation<Message, Error, { channelId: string; data: CreateMessageRequest }, { localId: string }>({
+        mutationKey: ['sendMessage'],
         mutationFn: ({ channelId, data }) => createMessage(channelId, data),
-        onSuccess: (newMessage, variables) => {
+        onMutate: async (variables) => {
+            const { channelId, data: message } = variables;
+            const localId = `local_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+            const user = getUser();
+
+            useTextChannelStore.getState().addMessage(
+                channelId,
+                {
+                    id: localId,
+                    text: message.text,
+                    authorId: user.profile.sub,
+                    sentAt: new Date(),
+                    channelId: channelId,
+                    isEdited: false
+                }
+            );
+
+            return { localId };
+        },
+        onError: (error, variables, context) => {
+            if (context?.localId) {
+                useTextChannelStore.getState().updateMessageStatus(context.localId, "error", error);
+            }
+        },
+        onSuccess: (newMessage, variables, context) => {
             const { channelId } = variables;
+
+            if (context?.localId) {
+                useTextChannelStore.getState().removeMessage(context.localId);
+            }
 
             const currentData = queryClient.getQueryData<InfiniteData<PaginatedItems<Message>>>(['messages', newMessage.channelId]);
             const messageExists = currentData?.pages.some(page => page.items.some(msg => msg.id === newMessage.id));

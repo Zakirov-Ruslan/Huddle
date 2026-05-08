@@ -10,7 +10,7 @@ import { adjustHeight } from "../../utils/domHelpers";
 import { groupMessagesByDayAndAuthor } from "../../utils/groupMessages";
 import "../../styles/scrollbar.css";
 import { useInfiniteMessages, useSendMessage } from "../../hooks/queries/messages";
-import { useTextChannelStore } from '../../stores/textChannelStore';
+import { useTextChannelStore, type LocalMessage } from '../../stores/textChannelStore';
 
 const TextChannel: React.FC<Channel> = ({ id, serverId, name, channelType }) => {
 
@@ -20,6 +20,7 @@ const TextChannel: React.FC<Channel> = ({ id, serverId, name, channelType }) => 
 
     const draftText = useTextChannelStore((state) => state.drafts[id] || '');
     const setDraft = useTextChannelStore((state) => state.setDraft);
+    const localMessages = useTextChannelStore((state) => state.localMessages[id]);
 
     const {
         data: messages,
@@ -36,17 +37,26 @@ const TextChannel: React.FC<Channel> = ({ id, serverId, name, channelType }) => 
 
     const [loaderRef, inView] = useInView();
 
-    const groupedMessages = useMemo(() => {
-        if (!messages?.pages)
-            return [];
+    const allMessages = useMemo(() => {
 
-        const allMessages = messages.pages.flatMap(page => page.items);
-        const sortedMessages = [...allMessages].sort(
-            (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+        const serverMessages = messages?.pages?.flatMap(page => page.items) || [];
+        const serverMessagesAsLocal: LocalMessage[] = serverMessages.map(msg => ({
+            ...msg,
+            status: "success" as const,
+        }));
+
+        const combined = localMessages 
+            ? [...serverMessagesAsLocal, ...localMessages] 
+            : serverMessagesAsLocal;
+
+        return combined.sort((a, b) =>
+            new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
         );
+    }, [messages, localMessages]);
 
-        return groupMessagesByDayAndAuthor(sortedMessages);
-    }, [messages]);
+    const groupedMessages = useMemo(() => {
+        return groupMessagesByDayAndAuthor(allMessages);
+    }, [allMessages]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newText = e.target.value;
@@ -77,13 +87,13 @@ const TextChannel: React.FC<Channel> = ({ id, serverId, name, channelType }) => 
     }, [inView, hasNextPage, fetchNextPage, isFetchingNextPage]);
 
     useEffect(() => {
-        if (!isFetching && listRef.current && messages?.pages?.[0]?.items?.length) {
+        if (!isFetching && listRef.current && allMessages?.length) {
             listRef.current?.scrollTo({
                 top: listRef.current.scrollHeight,
                 behavior: 'instant'
             });
         }
-    }, [isFetching, messages?.pages]);
+    }, [isFetching, allMessages]);
 
     const handleSendMessage = (e: FormEvent<HTMLFormElement>): void => {
         e.preventDefault();

@@ -1,10 +1,11 @@
 ﻿import { Tooltip } from "react-tooltip";
 import type { Message } from "../api/types";
 import { useUserProfile } from "../hooks/queries/users";
+import type { LocalMessage } from "../stores/textChannelStore";
 
 interface AuthorMessageGroupProps {
     authorId: string;
-    messageGroup: Message[];
+    messageGroup: LocalMessage[];
 }
 
 const AuthorMessageGroup = ({ authorId, messageGroup }: AuthorMessageGroupProps) => {
@@ -39,29 +40,34 @@ const AuthorMessageGroup = ({ authorId, messageGroup }: AuthorMessageGroupProps)
                 {messageGroup.map((msg, msgIndex) => (
                     <div
                         key={msg.id}
-                        className={`flex items-start space-x-2 ${msgIndex === 0 ? 'mt-2' : 'mt-1' }`}
+                        className={`flex items-start space-x-2 ${msgIndex === 0 ? 'mt-2' : 'mt-1'}`}
                     >
-                                <div className="flex-1">
-                                {msgIndex == 0 && 
-                                    <div className="flex items-center space-x-2">
-                                        <span className="font-medium text-gray-800 dark:text-slate-200">
-                                            {profile?.userName}
-                                        </span>
-                                    </div>
-                                }
-                                    <div className="flex flex-row">
-                                        <p className="mt-1 flex-grow text-left text-gray-700 dark:text-slate-200">
-                                            {msg.text}
-                                        </p>
-                                        <span className="text-[12px] text-gray-500 dark:text-gray-400">
-                                            {new Date(msg.sentAt).toLocaleTimeString([], {
-                                                hour: '2-digit',
-                                                minute: '2-digit',
-                                            })}
-                                        </span>
-                                    </div>
-
+                        <div className="flex-1">
+                            {msgIndex == 0 &&
+                                <div className="flex items-center space-x-2">
+                                    <span className="font-medium text-gray-800 dark:text-slate-200">
+                                        {profile?.userName}
+                                    </span>
                                 </div>
+                            }
+                            <div className="flex flex-row">
+                                <p className={`mt-1 flex-grow text-left ${msg.status == "pending"
+                                        ? "text-gray-400"
+                                        : msg.status === "error"
+                                            ? "text-red-400"
+                                            : "text-gray-700"
+                                    }`}>
+                                    {msg.text}
+                                </p>
+                                <span className="text-[12px] text-gray-500 dark:text-gray-400">
+                                    {new Date(msg.sentAt).toLocaleTimeString([], {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                    })}
+                                </span>
+                            </div>
+
+                        </div>
                     </div>
                 ))}
             </div>

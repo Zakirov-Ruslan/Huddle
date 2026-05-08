@@ -1,9 +1,10 @@
 import type { Message } from "../api/types";
+import type { LocalMessage } from "../stores/textChannelStore";
 
-const groupByDay = (messages: Message[]) => {
-    const groups: { day: string; messages: Message[] }[] = [];
+const groupByDay = (messages: LocalMessage[]) => {
+    const groups: { day: string; messages: LocalMessage[] }[] = [];
     let currentDay = '';
-    let currentGroup: Message[] = [];
+    let currentGroup: LocalMessage[] = [];
 
     for (const msg of messages) {
         const msgDay = new Date(msg.sentAt).toLocaleDateString('ru-RU');
@@ -26,10 +27,10 @@ const groupByDay = (messages: Message[]) => {
     return groups;
 };
 
-const groupConsecutiveByAuthor = (messages: Message[]) => {
-    const groups: { authorId: string; messages: Message[] }[] = [];
+const groupConsecutiveByAuthor = (messages: LocalMessage[]) => {
+    const groups: { authorId: string; messages: LocalMessage[] }[] = [];
     let currentAuthor = '';
-    let currentGroup: Message[] = [];
+    let currentGroup: LocalMessage[] = [];
 
     for (const msg of messages) {
         if (msg.authorId !== currentAuthor) {
@@ -50,7 +51,7 @@ const groupConsecutiveByAuthor = (messages: Message[]) => {
     return groups;
 };
 
-export const groupMessagesByDayAndAuthor = (messages: Message[]) => {
+export const groupMessagesByDayAndAuthor = (messages: LocalMessage[]) => {
     const sorted = [...messages].sort((a, b) =>
         new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
     );
