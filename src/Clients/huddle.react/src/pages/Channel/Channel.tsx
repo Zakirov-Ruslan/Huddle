@@ -1,17 +1,19 @@
 ﻿import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import ServerMemberItem from "../../components/ServerMemberItem";
-import { useServerContext } from "../Server";
 import TextChannel from "./TextChannel";
 import VoiceChannel from "./VoiceChannel";
 import { useParams } from 'react-router';
 import { useInfiniteMembers } from "../../hooks/queries/members";
-
+import { useApplicationStore } from '../../stores/applicationStore'; 
 
 export const Channel = () => {
     const { channelId } = useParams<{ channelId: string }>();
 
-    const serverContext = useServerContext();
+    const isMembersPanelOpened = useApplicationStore((state) => state.isMembersPanelOpened);
+    const activeServer = useApplicationStore((state) => state.activeServer);
+
+    const serverId = activeServer?.id; 
 
     const {
         data,
@@ -19,7 +21,7 @@ export const Channel = () => {
         isFetchingNextPage,
         hasNextPage,
         fetchNextPage,
-    } = useInfiniteMembers(serverContext?.server?.id, Boolean(serverContext && serverContext.server));
+    } = useInfiniteMembers(serverId, Boolean(serverId));
     const [loaderRef, inView] = useInView();
 
     useEffect(() => {
@@ -28,10 +30,10 @@ export const Channel = () => {
         }
     }, [inView, hasNextPage, fetchNextPage, isFetchingNextPage]);
 
-    if (!serverContext || !serverContext.server)
+    if (!activeServer)
         return <div>Loading...</div>;
 
-    const channel = serverContext.server.channels.find(ch => ch.id === channelId);
+    const channel = activeServer.channels.find(ch => ch.id === channelId);
     if (!channel)
         return <div>Nothing is here</div>;;
 
@@ -47,7 +49,7 @@ export const Channel = () => {
             )}
 
 
-            {serverContext.isShowMembers && channel.channelType.toLowerCase() === "text" && (
+            {isMembersPanelOpened && channel.channelType.toLowerCase() === "text" && (
                 (
                     <div className="flex w-60 flex-col gap-1 border-l-1 border-gray-200 bg-white p-1.5">
                         {data?.pages.flatMap(page => page.items).map(member => (
