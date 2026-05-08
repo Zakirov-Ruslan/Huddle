@@ -10,12 +10,16 @@ import { adjustHeight } from "../../utils/domHelpers";
 import { groupMessagesByDayAndAuthor } from "../../utils/groupMessages";
 import "../../styles/scrollbar.css";
 import { useInfiniteMessages, useSendMessage } from "../../hooks/queries/messages";
+import { useTextChannelStore } from '../../stores/textChannelStore';
 
 const TextChannel: React.FC<Channel> = ({ id, serverId, name, channelType }) => {
 
     const auth = useAuth();
 
     const { isConnected } = useSignalRState();
+
+    const draftText = useTextChannelStore((state) => state.drafts[id] || '');
+    const setDraft = useTextChannelStore((state) => state.setDraft);
 
     const {
         data: messages,
@@ -27,15 +31,13 @@ const TextChannel: React.FC<Channel> = ({ id, serverId, name, channelType }) => 
 
     const sendMessage = useSendMessage();
 
-    const [message, setMessage] = useState('');
-
     const listRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const [loaderRef, inView] = useInView();
 
     const groupedMessages = useMemo(() => {
-        if (!messages?.pages) 
+        if (!messages?.pages)
             return [];
 
         const allMessages = messages.pages.flatMap(page => page.items);
@@ -45,6 +47,12 @@ const TextChannel: React.FC<Channel> = ({ id, serverId, name, channelType }) => 
 
         return groupMessagesByDayAndAuthor(sortedMessages);
     }, [messages]);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const newText = e.target.value;
+        setDraft(id, newText);
+        adjustHeight(e.currentTarget);
+    };
 
     useEffect(() => {
         if (!id || !isConnected)
@@ -80,17 +88,17 @@ const TextChannel: React.FC<Channel> = ({ id, serverId, name, channelType }) => 
     const handleSendMessage = (e: FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
 
-        if (message.trim().length == 0)
+        if (draftText.trim().length == 0)
             return;
 
         sendMessage.mutate(
             {
                 channelId: id,
-                data: { text: message }
+                data: { text: draftText }
             }
         )
 
-        setMessage('');
+        setDraft(id, '');
         if (textareaRef.current) {
             requestAnimationFrame(() => {
                 adjustHeight(textareaRef.current!);
@@ -131,10 +139,9 @@ const TextChannel: React.FC<Channel> = ({ id, serverId, name, channelType }) => 
                         </button>
                         <textarea
                             ref={textareaRef}
-                            onInput={(e) => adjustHeight(e.currentTarget)}
                             rows={1}
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
+                            value={draftText}
+                            onChange={handleInputChange}
                             placeholder={`Write to #${name}`}
                             className=" flex-1  dark:bg-gray-700 px-4 py-2 outline-none resize-none"
                             onKeyDown={(e) => {
@@ -146,7 +153,8 @@ const TextChannel: React.FC<Channel> = ({ id, serverId, name, channelType }) => 
                         />
                         <button
                             type="submit"
-                            className="flex h-8 w-8 items-center justify-center"
+                            className='flex h-8 w-8 items-center justify-center'
+                            disabled={!draftText.trim()}
                         >
                             <IoSend className="scale-120" />
                         </button>

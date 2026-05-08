@@ -34,6 +34,7 @@ function Server() {
     const { isConnected } = useSignalRState();
 
     const toggleMembersPanedOpened = useApplicationStore((state) => state.toggleMembersPanedOpened);
+    const isMembersPanelOpened = useApplicationStore((state) => state.isMembersPanelOpened);
 
     const [isCreateChannelModalOpen, setIsCreateChannelModalOpen] = useState(false)
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
@@ -140,17 +141,31 @@ function Server() {
                     {activeChannel?.name}
                 </h2>
                 <div className="flex space-x-2">
-                    {/*<button className="rounded p-1 hover:bg-gray-200 dark:hover:bg-gray-700">*/}
-                    {/*    <svg className="h-5 w-5 text-gray-600 dark:text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">*/}
-                    {/*        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />*/}
-                    {/*    </svg>*/}
-                    {/*</button>*/}
                     <button
                         onClick={() => toggleMembersPanedOpened()}
-                        className="rounded p-1 hover:bg-gray-200 dark:hover:bg-gray-700">
+                        className="rounded p-1 hover:bg-gray-200 dark:hover:bg-gray-700"
+                        data-tooltip-id='members-panel-switcher'
+                    >
                         <FaUsers />
                     </button>
                 </div>
+                <Tooltip
+                    id='members-panel-switcher'
+                    style={{
+                        backgroundColor: "rgb(255, 255, 255)",
+                        color: "#222",
+                        borderRadius: "10px",
+                        fontWeight: "500",
+                        padding: "5px 10px 8px 10px",
+                        boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)",
+                        zIndex: "1"
+                    }}
+                    opacity={1}
+                    border="1px solid #e8e8e8"
+                    place="top-end"
+                >
+                    {isMembersPanelOpened ? "Show list of members" : "Hide list of members"}
+                </Tooltip>
             </header>
             <nav className="flex-1 overflow-y-auto p-4">
                 <div className="mb-2 flex flex-row px-3 text-left text-sm font-semibold text-gray-500 hover:text-gray-600">
