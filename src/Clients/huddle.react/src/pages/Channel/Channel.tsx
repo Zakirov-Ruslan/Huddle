@@ -5,7 +5,8 @@ import TextChannel from "./TextChannel";
 import VoiceChannel from "./VoiceChannel";
 import { useParams } from 'react-router';
 import { useInfiniteMembers } from "../../hooks/queries/members";
-import { useApplicationStore } from '../../stores/applicationStore'; 
+import { useApplicationStore } from '../../stores/applicationStore';
+import idunno from "../../img/huddle-mascot/idunno.png";
 
 export const Channel = () => {
     const { channelId } = useParams<{ channelId: string }>();
@@ -13,7 +14,7 @@ export const Channel = () => {
     const isMembersPanelOpened = useApplicationStore((state) => state.isMembersPanelOpened);
     const activeServer = useApplicationStore((state) => state.activeServer);
 
-    const serverId = activeServer?.id; 
+    const serverId = activeServer?.id;
 
     const {
         data,
@@ -35,7 +36,22 @@ export const Channel = () => {
 
     const channel = activeServer.channels.find(ch => ch.id === channelId);
     if (!channel)
-        return <div>Nothing is here</div>;;
+        return (
+            <div className="flex flex-col items-center justify-center bg-white select-none">
+                <div className="relative max-w-md rotate-1 transform rounded-3xl bg-white p-8 shadow">
+                    <div className="text-center">
+                        <h2 className="mb-4 text-3xl font-bold tracking-wide text-gray-800">Nothing is here</h2>
+                        <p>It looks weird</p>
+                    </div>
+                </div>
+
+
+                <img
+                    src={idunno}
+                    alt="empty content"
+                    className="h-60 w-60"
+                />
+            </div>);
 
     return (
         <div className="flex min-h-0 flex-row bg-white" >
@@ -47,7 +63,6 @@ export const Channel = () => {
             ) : (
                 <div>Unsupported channel type</div>
             )}
-
 
             {isMembersPanelOpened && channel.channelType.toLowerCase() === "text" && (
                 (
