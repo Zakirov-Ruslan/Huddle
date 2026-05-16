@@ -20,20 +20,22 @@ namespace Huddle.Channel.Application.Queries.Messages
             _accessService = accessService;
         }
 
-        public async Task<PaginatedItems<MessageDto>> GetMessages(Guid userIdentityId, Guid channelId, Guid? cursor = null, int limit = 50)
+        public async Task<PaginatedItems<MessageDto>> GetMessages(Guid userIdentityId, Guid channelId, Guid? cursor = null, bool older = true, int limit = 50)
         {
             var hasAccess = await _accessService.CanUserAccessChannelAsync(channelId, userIdentityId);
             if (!hasAccess)
                 throw new ForbiddenAccessException("User dont have access to this channel");
 
-            var paginatedMessages = await _messageRepository.GetMessagesAsync(channelId, cursor, limit);
+            var paginatedMessages = await _messageRepository.GetMessagesAsync(channelId, cursor, older);
 
             var messagesDto = paginatedMessages.Items.Select(_mapper.Map<MessageDto>);
 
             return new PaginatedItems<MessageDto>(
                 messagesDto, 
-                paginatedMessages.HasMore, 
-                paginatedMessages.NextCursor
+                paginatedMessages.HasPrev, 
+                paginatedMessages.HasNext,
+                paginatedMessages.NextCursor,
+                paginatedMessages.PrevCursor
             );
         }
     }

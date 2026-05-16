@@ -1,22 +1,50 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { getMessages, createMessage, updateMessage, deleteMessage } from "../../api/messages/messagesApi";
-import type { Message, CreateMessageRequest, PaginatedItems, UpdateMessageRequest } from "../../api/types";
+import type { Message, CreateMessageRequest, PaginatedItems, UpdateMessageRequest, MessageParams } from "../../api/types";
 import { useTextChannelStore } from "../../stores/textChannelStore";
 import getUser from "../../utils/authHelpers";
+import { v4 as uuidv4 } from 'uuid';
 
+interface MessagePageParam {
+    cursor: string | null;
+    older: boolean;
+}
 
 export const useInfiniteMessages = (channelId: string) => {
     return useInfiniteQuery({
         queryKey: ['messages', channelId],
-        queryFn: ({ pageParam }: { pageParam: string | null }) =>
-            getMessages({
+
+        initialPageParam: { cursor: null, older: true } as MessagePageParam,
+
+        queryFn: ({ pageParam }: { pageParam: MessagePageParam }) => {
+            return getMessages({
                 channelId,
-                cursor: pageParam
-            }),
-        getNextPageParam: (lastPage) => {
-            return lastPage.hasMore ? lastPage.nextCursor : undefined;
+                cursor: pageParam.cursor,
+                older: pageParam.older,
+            });
         },
-        initialPageParam: null,
+
+        // Scroll bottom?
+        getNextPageParam: (lastPage, allPages) => {
+            if (!lastPage.hasNext)
+                return undefined;
+
+            return {
+                cursor: lastPage.nextCursor,
+                older: false
+            };
+        },
+
+        // Sroll top?
+        getPreviousPageParam: (firstPage, allPages) => {
+            if (!firstPage.hasPrev)
+                return undefined;
+
+            return {
+                cursor: firstPage.prevCursor,
+                older: true
+            };
+        },
         staleTime: 5 * 60 * 1000, //5 minutes
         refetchOnWindowFocus: false,
     });
@@ -30,7 +58,7 @@ export const useSendMessage = () => {
         mutationFn: ({ channelId, data }) => createMessage(channelId, data),
         onMutate: async (variables) => {
             const { channelId, data: message } = variables;
-            const localId = `local_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+            const localId = uuidv4();
             const user = getUser();
 
             useTextChannelStore.getState().addMessage(
@@ -71,10 +99,12 @@ export const useSendMessage = () => {
                         return {
                             pages: [{
                                 items: [newMessage],
-                                hasMore: true,
-                                nextCursor: null
+                                hasNext: true,
+                                hasPrev: false,
+                                nextCursor: null,
+                                prevCursor: null
                             }],
-                            pageParams: [null]
+                            pageParams: [{ cursor: null, direction: 'older' }] 
                         };
                     }
 

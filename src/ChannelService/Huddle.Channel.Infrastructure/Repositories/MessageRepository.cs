@@ -16,30 +16,37 @@ namespace Huddle.Channel.Infrastructure.Repositories
 
         public IUnitOfWork UnitOfWork => _context;
 
-        public async Task<PaginatedItems<Message>> GetMessagesAsync(Guid channelId, Guid? cursor = null, int limit = 50)
+        public async Task<PaginatedItems<Message>> GetMessagesAsync(Guid channelId, Guid? cursor = null, bool older = true, int limit = 50)
         {
             var query = _context.Messages
-                .Where(m => m.ChannelId == channelId)
-                .OrderByDescending(m => m.SentAt);
+                .Where(m => m.ChannelId == channelId);
 
             if (cursor.HasValue)
             {
-                var cursorMessage = await _context.Messages.FindAsync(cursor.Value);
-                if (cursorMessage is not null)
-                {
-                    query = _context.Messages
-                        .Where(m => m.ChannelId == channelId && m.SentAt < cursorMessage.SentAt)
-                        .OrderByDescending(m => m.SentAt);
-                }
+                query = older
+                    ? query.Where(m => m.Id < cursor.Value)
+                    : query.Where(m => m.Id > cursor.Value);
             }
+
+            query = query.OrderByDescending(m => m.Id);
 
             var messages = await query.Take(limit + 1).ToListAsync();
 
             var hasMore = messages.Count > limit;
-            var result = hasMore ? messages.Take(limit).ToList() : messages;
-            var nextCursor = result.Any() ? result.Last().Id : (Guid?)null;
+            bool hasNext = !older && hasMore;
+            bool hasPrev = older && hasMore;
 
-            return new PaginatedItems<Message>(result, hasMore, nextCursor);
+            var result = hasMore ? messages.Take(limit).ToList() : messages;
+
+            var nextCursor = result.Any()
+                ? older ? result.First().Id : result.Last().Id
+                : (Guid?)null;
+
+            var prevCursor = result.Any()
+                ? older ? result.Last().Id : result.First().Id
+                : (Guid?)null;
+
+            return new PaginatedItems<Message>(result, hasPrev, hasNext, nextCursor, prevCursor);
         }
 
         public async Task<Message?> GetAsync(Guid id)
@@ -56,7 +63,7 @@ namespace Huddle.Channel.Infrastructure.Repositories
 
         public async Task Delete(Guid id)
         {
-            var message = await _context.Messages.SingleOrDefaultAsync(m => m.Id == id)  ??
+            var message = await _context.Messages.SingleOrDefaultAsync(m => m.Id == id) ??
                 throw new KeyNotFoundException($"Server with id {id} not found");
 
             _context.Messages.Remove(message);

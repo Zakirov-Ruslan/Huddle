@@ -13,9 +13,6 @@ import { useInfiniteMessages, useSendMessage } from "../../hooks/queries/message
 import { useTextChannelStore, type LocalMessage } from '../../stores/textChannelStore';
 
 const TextChannel: React.FC<Channel> = ({ id, serverId, name, channelType }) => {
-
-    const auth = useAuth();
-
     const { isConnected } = useSignalRState();
 
     const draftText = useTextChannelStore((state) => state.drafts[id] || '');

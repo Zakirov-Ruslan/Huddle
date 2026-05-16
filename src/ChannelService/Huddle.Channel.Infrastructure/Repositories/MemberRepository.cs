@@ -42,7 +42,7 @@ namespace Huddle.Channel.Infrastructure.Repositories
             var result = hasMore ? messages.Take(limit).ToList() : messages;
             var nextCursor = result.Any() ? result.Last().Id : (Guid?)null;
 
-            return new PaginatedItems<Member>(result, hasMore, nextCursor);
+            return new PaginatedItems<Member>(result, false, hasMore, nextCursor, null);
         }
 
         public Member Add(Member mebmer)

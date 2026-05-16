@@ -22,7 +22,7 @@ namespace Huddle.Channel.WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<PaginatedItems<MessageDto>>> Get(Guid channelId, [FromQuery] Guid? cursor = null, [FromQuery] int limit = 20)
+        public async Task<ActionResult<PaginatedItems<MessageDto>>> Get(Guid channelId, [FromQuery] Guid? cursor = null, [FromQuery] bool older = true, [FromQuery] int limit = 20)
         {
             var identityId = User.GetCurrentUserIdentityId();
             if (identityId == null)
@@ -30,7 +30,7 @@ namespace Huddle.Channel.WebApi.Controllers
 
             try
             {
-                var messages = await _messageQueries.GetMessages(identityId.Value, channelId, cursor, limit);
+                var messages = await _messageQueries.GetMessages(identityId.Value, channelId, cursor, older, limit);
 
                 return Ok(messages);
             }
@@ -55,7 +55,7 @@ namespace Huddle.Channel.WebApi.Controllers
                 var createdMessage = await _mediator.Send(command);
                 return Ok(createdMessage);
             }
-            catch (ForbiddenAccessException ex)
+            catch (ForbiddenAccessException)
             {
                 return Forbid();
             }
@@ -77,7 +77,7 @@ namespace Huddle.Channel.WebApi.Controllers
 
                 return Ok();
             }
-            catch (ForbiddenAccessException ex)
+            catch (ForbiddenAccessException)
             {
                 return Forbid();
             }
@@ -103,7 +103,7 @@ namespace Huddle.Channel.WebApi.Controllers
 
                 return NoContent();
             }
-            catch (ForbiddenAccessException ex)
+            catch (ForbiddenAccessException)
             {
                 return Forbid();
             }

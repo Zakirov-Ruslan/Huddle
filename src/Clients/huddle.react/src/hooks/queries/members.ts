@@ -10,7 +10,7 @@ export const useInfiniteMembers = (serverId?: string, enabled: boolean = true) =
                 cursor: pageParam
             }),
         getNextPageParam: (lastPage) => {
-            return lastPage.hasMore ? lastPage.nextCursor : undefined;
+            return lastPage.hasPrev ? lastPage.nextCursor : undefined;
         },
         initialPageParam: null,
         staleTime: 5 * 60 * 1000, //5 minutes

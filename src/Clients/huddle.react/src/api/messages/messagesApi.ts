@@ -5,11 +5,14 @@ import type { MessageParams, PaginatedItems, Message, CreateMessageRequest, Upda
 export const getMessages = async ({
     channelId,
     cursor = null,
+    older = true,
     limit = 50
 }: MessageParams): Promise<PaginatedItems<Message>> => {
     const params = new URLSearchParams();
-    if (cursor) params.append('cursor', cursor);
+    if (cursor)
+        params.append('cursor', cursor);
     params.append('limit', limit.toString());
+    params.append('older', older.toString());
 
     const response = await authenticatedFetch(`${CHANNEL_SERVICE_URL}/api/channels/${channelId}/Messages?${params.toString()}`,
         {

@@ -30,8 +30,10 @@ namespace Huddle.Channel.Application.Queries.Members
 
             return new PaginatedItems<MemberDto>(
                 membersDto,
-                paginatedMembers.HasMore,
-                paginatedMembers.NextCursor
+                false,
+                paginatedMembers.HasNext,
+                paginatedMembers.NextCursor,
+                null
             );
         }
     }

@@ -54,6 +54,7 @@ export interface MessageParams
     channelId: string;
     cursor?: string | null;
     limit?: number;
+    older: boolean;
 }
 
 export interface MembersParams {
@@ -72,8 +73,10 @@ export interface Message {
 }
 export interface PaginatedItems<T> {
     items: T[];
-    hasMore: boolean;
+    hasNext: boolean; // newer 
+    hasPrev: boolean; // older
     nextCursor: string | null;
+    prevCursor: string | null;
 }
 
 export interface Server {

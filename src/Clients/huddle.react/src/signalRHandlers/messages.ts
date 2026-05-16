@@ -18,7 +18,7 @@ export function handleCreateMessage(queryClient: QueryClient) {
                     return {
                         pages: [{
                             items: [newMessage],
-                            hasMore: true,
+                            hasPrev: true,
                             nextCursor: null
                         }],
                         pageParams: [null]
