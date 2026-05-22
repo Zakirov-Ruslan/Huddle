@@ -13,10 +13,9 @@ namespace Huddle.Channel.Infrastructure.EntityConfigurations
                 .ValueGeneratedNever()
                 .HasColumnType("uuid");
 
-            messageConfiguration.Ignore(s => s.DomainEvents);
+            messageConfiguration.HasIndex(x => new { x.ChannelId, x.Id });
 
-            // SentAt index doesnt need for pagination with v7 uuid
-            //messageConfiguration.HasIndex(m => m.SentAt);
+            messageConfiguration.Ignore(s => s.DomainEvents);
 
             messageConfiguration
                 .HasOne<Domain.Aggregates.ServerAggregate.Channel>()
