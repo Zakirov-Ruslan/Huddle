@@ -8,12 +8,13 @@ import { RxCross2 } from "react-icons/rx";
 interface CreateChannelDialogProps {
     onCreateChannel: (createdChannel: Channel | null) => void;
     serverId: string;
+    initialChannelType: 'text' | 'voice'
 }
 
-const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({ onCreateChannel, serverId }) => {
+const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({ onCreateChannel, serverId, initialChannelType }) => {
 
     const [channelName, setChannelName] = useState("");
-    const [channelType, setChannelType] = useState('');
+    const [channelType, setChannelType] = useState(initialChannelType);
 
     const createChannel = useCreateChannel(serverId);
 
@@ -60,7 +61,7 @@ const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({ onCreateChann
                             value={channelName}
                             onChange={handleNameChange}
                             placeholder="new-channel"
-                            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:placeholder-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                             required
                         />
                     </div>
