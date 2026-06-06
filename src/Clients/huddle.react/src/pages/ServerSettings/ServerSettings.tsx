@@ -43,10 +43,10 @@ function ServerSettings() {
 
     return (
         <>
-            <div className="flex h-full w-full flex-row">
-                <div className="flex w-1/3 justify-end bg-gray-200">
+            <div className="flex h-full w-full flex-row bg-gray-200">
+                <div className="flex w-1/3 justify-end pt-10">
                     <div className="m-2 flex w-60 flex-col gap-2">
-                        <span className="px-3 py-1 text-left font-medium">
+                        <span className="ml-2 px-3 py-1 text-left font-medium">
                             {server?.name}
                         </span>
                         <Link to='server-profile' className="flex items-center rounded-md px-3 py-1 font-medium text-gray-700 transition-colors duration-150 hover:bg-gray-300">
@@ -63,7 +63,7 @@ function ServerSettings() {
                     </div>
                 </div>
 
-                <div className="grow bg-gray-100">
+                <div className="grow bg-gray-100 pt-10">
                     <Outlet />
                 </div>
             </div>

@@ -94,7 +94,7 @@ const DeleteServerDialog: React.FC<DeleteServerDialogProps> = ({ serverId, onSer
                 <button 
                     type="button" 
                     onClick={() => onServerDelete(false)}
-                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors font-medium"
                     disabled={deleteServer.isPending}
                 >
                     Cancel
@@ -103,7 +103,7 @@ const DeleteServerDialog: React.FC<DeleteServerDialogProps> = ({ serverId, onSer
                     type="button" 
                     onClick={handleDelete}
                     disabled={!isValidInput || deleteServer.isPending}
-                    className={`px-4 py-2 rounded transition-colors ${
+                    className={`px-4 py-2 rounded transition-colors font-medium ${
                         isValidInput && !deleteServer.isPending
                             ? 'bg-red-600 text-white hover:bg-red-700'
                             : 'bg-gray-300 text-gray-500 cursor-not-allowed'

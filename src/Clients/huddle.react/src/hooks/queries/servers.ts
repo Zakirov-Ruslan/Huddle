@@ -31,7 +31,7 @@ export const useUpdateServer = () => {
     const queryClient = useQueryClient();
     return useMutation<void, Error, { id: string; data: UpdateServerRequest }>({
         mutationFn: ({ id, data }) => updateServer(id, data),
-        onSuccess: (variables) => { 
+        onSuccess: (data, variables) => { 
             queryClient.invalidateQueries({ queryKey: ['server', variables.id] });
             queryClient.invalidateQueries({ queryKey: ['myServers'] });
         },

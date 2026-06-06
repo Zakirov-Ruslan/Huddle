@@ -61,7 +61,7 @@ const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({ onCreateChann
                             value={channelName}
                             onChange={handleNameChange}
                             placeholder="new-channel"
-className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#5D6D7B] dark:focus:ring-[#5D6D7B]"
+                            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#5D6D7B] focus:ring-[#5D6D7B] dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-white dark:focus:ring-white"
                             required
                         />
                     </div>

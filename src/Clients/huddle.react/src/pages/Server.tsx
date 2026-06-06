@@ -172,7 +172,7 @@ function Server() {
                     border="1px solid #e8e8e8"
                     place="top-end"
                 >
-                    {isMembersPanelOpened ? "Show list of members" : "Hide list of members"}
+                    {isMembersPanelOpened ? "Hide list of members" : "Show list of members"}
                 </Tooltip>
             </header>
             <nav className="flex-1 overflow-y-auto p-4">
