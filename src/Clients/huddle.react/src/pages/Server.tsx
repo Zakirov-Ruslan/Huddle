@@ -16,7 +16,7 @@ import { useAuth } from "react-oidc-context";
 import { ImExit } from "react-icons/im";
 import { SignalRContext, useSignalRState } from "../providers/SignalRProvider";
 import ReactModal from "react-modal";
-import type { Server } from "../api/types";
+import type { Channel, Server } from "../api/types";
 import CreateChannelDialog from "../components/dialogs/CreateChannelDialog";
 import InviteFriendsDialog from "../components/dialogs/InviteFriendsDialog";
 import { useServer } from "../hooks/queries/servers";
@@ -73,6 +73,14 @@ function Server() {
     }, [serverId, isConnected])
 
     const isServerOwner = server && auth.user && server.ownerIdentityId == auth.user.profile.sub;
+
+    const handleChannelCreated = (createdChannel: Channel | null) => {
+        if (createdChannel == null)
+            return;
+
+        setIsCreateChannelModalOpen(false);
+        navigate(`ch/${createdChannel.id}`)
+    }
 
     return (
         <>
@@ -278,7 +286,11 @@ function Server() {
                 shouldFocusAfterRender={false}
                 appElement={document.getElementById('root')!}
             >
-                <CreateChannelDialog serverId={serverId} onCreateChannel={(createdChannel) => { if (createdChannel == null) return; setIsCreateChannelModalOpen(false); navigate(`ch/${createdChannel.id}`) }} />
+                <CreateChannelDialog
+                    serverId={serverId}
+                    onCreateChannel={handleChannelCreated}
+                    initialChannelType={'text'}
+                />
             </ReactModal>
 
             <ReactModal

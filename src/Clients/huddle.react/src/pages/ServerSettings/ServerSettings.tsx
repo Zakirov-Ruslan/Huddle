@@ -44,21 +44,23 @@ function ServerSettings() {
     return (
         <>
             <div className="flex h-full w-full flex-row">
-                <div className="flex w-60 flex-col gap-2 bg-gray-200 p-2">
-                    <span className="px-3 py-1 text-left font-medium">
-                        {server?.name}
-                    </span>
-                    <Link to='server-profile' className="flex items-center rounded-md px-3 py-1 font-medium text-gray-700 transition-colors duration-150 hover:bg-gray-300">
-                        Server profile
-                    </Link>
-                    <button
-                        type="button"
-                        className="flex items-center rounded-md px-3 py-1 font-medium text-red-400 duration-150 hover:bg-gray-300"
-                        onClick={() => setIsDeleteServerModalIsOpen(true)}
-                    >
-                        <span className="grow text-left">Delete server</span>
-                        <FaTrash />
-                    </button>
+                <div className="flex w-1/3 justify-end bg-gray-200">
+                    <div className="m-2 flex w-60 flex-col gap-2">
+                        <span className="px-3 py-1 text-left font-medium">
+                            {server?.name}
+                        </span>
+                        <Link to='server-profile' className="flex items-center rounded-md px-3 py-1 font-medium text-gray-700 transition-colors duration-150 hover:bg-gray-300">
+                            Server profile
+                        </Link>
+                        <button
+                            type="button"
+                            className="flex items-center rounded-md px-3 py-1 font-medium text-red-400 duration-150 hover:bg-gray-300"
+                            onClick={() => setIsDeleteServerModalIsOpen(true)}
+                        >
+                            <span className="grow text-left">Delete server</span>
+                            <FaTrash />
+                        </button>
+                    </div>
                 </div>
 
                 <div className="grow bg-gray-100">
