@@ -61,7 +61,7 @@ const CreateServerDialog: React.FC<CreateServerDialogProps> = ({ onCreateServer 
                     autoFocus={true}
                     type="text"
                     name="project-name"
-                    className="p-2.5 block w-full rounded-lg border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+className="p-2.5 block w-full rounded-lg border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#5D6D7B] dark:focus:border-[#5D6D7B]"
                     required
                     placeholder="new-server"
                 />
@@ -69,7 +69,7 @@ const CreateServerDialog: React.FC<CreateServerDialogProps> = ({ onCreateServer 
             <div className="flex w-full flex-row justify-end">
                 <button
                     type="submit"
-                    className="mt-1 w-25 rounded-md bg-indigo-500 p-2 font-medium text-white transition-colors duration-150 hover:bg-indigo-600"
+className="mt-1 w-25 rounded-md bg-[#5D6D7B] p-2 font-medium text-white transition-colors duration-150 hover:bg-[#4F5E6A]"
                     disabled={createServer.isPending }
                     
                 >

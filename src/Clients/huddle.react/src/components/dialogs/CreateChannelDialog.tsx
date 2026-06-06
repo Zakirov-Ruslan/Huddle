@@ -61,7 +61,7 @@ const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({ onCreateChann
                             value={channelName}
                             onChange={handleNameChange}
                             placeholder="new-channel"
-                            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:ring-primary-600 focus:border-primary-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#5D6D7B] dark:focus:ring-[#5D6D7B]"
                             required
                         />
                     </div>
@@ -73,7 +73,7 @@ const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({ onCreateChann
                         </label>
                         <div className="space-y-3">
                         <label className={`flex gap-2 text-gray-700 items-center p-3 border rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-50 ${channelType === 'text'
-                                    ? 'border-indigo-500 bg-indigo-50 ring-1 ring-indigo-500'
+                                    ? 'border-[#5D6D7B] bg-gray-100 ring-1 ring-[#5D6D7B]'
                                     : 'border-gray-300 hover:border-gray-400'
                                 }`}>
                                 <input
@@ -86,7 +86,7 @@ const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({ onCreateChann
                                     required
                                 />
                                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${channelType === 'text'
-                                        ? 'border-indigo-500 bg-indigo-500'
+                                        ? 'border-[#5D6D7B] bg-[#5D6D7B]'
                                         : 'border-gray-400'
                                     }`}>
                                     {channelType === 'text' && (
@@ -101,7 +101,7 @@ const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({ onCreateChann
                             </label>
 
                             <label className={`flex gap-2 text-gray-700 items-center p-3 border rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-50 ${channelType === 'voice'
-                                    ? 'border-indigo-500 bg-indigo-50 ring-1 ring-indigo-500'
+                                    ? 'border-[#5D6D7B] bg-gray-100 ring-1 ring-[#5D6D7B]'
                                     : 'border-gray-300 hover:border-gray-400'
                                 }`}>
                                 <input
@@ -113,7 +113,7 @@ const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({ onCreateChann
                                     className="sr-only"
                                 />
                                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${channelType === 'voice'
-                                        ? 'border-indigo-500 bg-indigo-500'
+                                        ? 'border-[#5D6D7B] bg-[#5D6D7B]'
                                         : 'border-gray-400'
                                     }`}>
                                     {channelType === 'voice' && (
@@ -133,7 +133,7 @@ const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({ onCreateChann
                 <div className="flex w-full flex-row items-center justify-end">
                     <button
                         type="submit"
-                        className="mt-1 w-25 rounded-md bg-indigo-500 p-2 font-medium text-white transition-colors duration-150 hover:bg-indigo-600"
+className="mt-1 w-25 rounded-md bg-[#5D6D7B] p-2 font-medium text-white transition-colors duration-150 hover:bg-[#4F5E6A]"
                         disabled={createChannel.isPending }
                     >
                         { createChannel.isPending? 'Creating...' : 'Create'}

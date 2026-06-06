@@ -33,7 +33,7 @@ const InviteFriendsDialog: React.FC<InviteFriendsDialogProps> = ({ serverId }) =
                 }
                 <button
                     type="button"
-                    className={` ml-2 rounded-md px-3 py-1 font-medium text-white ${isCopied ? 'bg-green-500' : 'bg-indigo-500'}` }
+className={` ml-2 rounded-md px-3 py-1 font-medium text-white ${isCopied ? 'bg-green-500' : 'bg-[#5D6D7B]'}` }
                     onClick={() => {
                         if (inviteLink && inviteLink.trim().length > 0) {
                             navigator.clipboard.writeText(inviteLink)
