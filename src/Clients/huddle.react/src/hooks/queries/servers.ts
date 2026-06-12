@@ -3,10 +3,11 @@ import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { updateServer, deleteServer, createServer, getMyServers, getServer } from "../../api/servers/serversApi";
 import type { Server, CreateServerRequest, UpdateServerRequest } from "../../api/types";
 
- export const useServer = (serverId: string) => {
+export const useServer = (serverId: string | undefined) => {
     return useQuery<Server, Error>({
         queryKey: ['server', serverId],
-        queryFn: () => getServer(serverId),
+        queryFn: () => getServer(serverId!),
+        enabled: !!serverId,
     });
 };
 

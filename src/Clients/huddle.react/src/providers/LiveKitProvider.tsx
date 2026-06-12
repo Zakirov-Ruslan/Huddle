@@ -1,21 +1,24 @@
-import { useEffect, useState } from "react";
-import { LiveKitRoom, RoomContext } from "@livekit/components-react";
-import { Room } from "livekit-client";
+﻿import { LiveKitRoom, RoomAudioRenderer } from "@livekit/components-react";
+import { useVoiceChannelStore } from "../stores/voiceChannelStore";
 import { Outlet } from "react-router";
 
 export default function LiveKitProvider() {
-    const [room] = useState(() => new Room({}));
-
-    useEffect(() => {
-        // room.connect(url, token)
-        // return () => room.disconnect();
-    }, [room]);
+    const { activeChannel, token } = useVoiceChannelStore();
 
     return (
-        <RoomContext.Provider value={room}>
-             <Outlet />
-        </RoomContext.Provider>
+        <LiveKitRoom
+            className="h-screen w-screen"
+            serverUrl="wss://localhost:7062/liveKit-server/"
+            token={token || ""} // Пустая строка, если токена нет
+            connect={!!(activeChannel && token)} // Подключаемся только если есть канал и токен
+            audio={true}
+            video={false}
+            onDisconnected={() => {
+                useVoiceChannelStore.getState().leaveChannel();
+            }}
+        >
+            <RoomAudioRenderer />
+            <Outlet />
+        </LiveKitRoom>
     );
 }
-
-

@@ -4,6 +4,8 @@ import { getLiveKitToken } from "../../api/liveKit/liveKitApi";
 export const useLiveKitToken = (serverId: string, channelId: string) => {
     return useQuery<string, Error>({
         queryKey: ['liveKitToken', channelId],
-        queryFn: () => getLiveKitToken(serverId, channelId)
+        queryFn: () => getLiveKitToken(serverId, channelId),
+
+        staleTime: 10 * 60 * 1000
     });
 };

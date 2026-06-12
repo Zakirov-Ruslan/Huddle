@@ -9,8 +9,11 @@ import { Tooltip } from 'react-tooltip'
 import face from "../img/huddle-mascot/face.png";
 import type { Server } from "../api/types";
 import CreateServerDialog from "../components/dialogs/CreateServerDialog";
-import { useMyServers } from "../hooks/queries/servers";
+import { useMyServers, useServer } from "../hooks/queries/servers";
 import { useMyProfile } from "../hooks/queries/users";
+import { useVoiceChannelStore } from "../stores/voiceChannelStore";
+import { TbDoorExit } from "react-icons/tb";
+import { RiVoiceprintLine } from "react-icons/ri";
 
 function Layout() {
 
@@ -21,6 +24,8 @@ function Layout() {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
     const { data: profile, isLoading: isProfileLoading, error: profileError } = useMyProfile();
+    const { activeChannel, leaveChannel } = useVoiceChannelStore();
+    const { data: server } = useServer(activeChannel?.serverId)
 
     return (
         <>
@@ -96,20 +101,43 @@ function Layout() {
                     >
                         add server
                     </Tooltip>
-                    <div className="absolute bottom-4 left-4 flex h-17 w-90 flex-row items-center gap-1 rounded-xl border-1 border-gray-200 bg-white p-3 shadow-2xl select-none">
-                        <div className="rounded-l-4xl flex flex-grow-1 items-center gap-2 rounded-r-lg transition-colors duration-150 hover:bg-gray-100">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#5D6D7B] text-sm font-medium text-white">
-                                {profile?.userName[0]}
+                    <div className="absolute bottom-4 left-4 w-90 rounded-xl border-1 border-gray-200 bg-white p-3 shadow-2xl select-none">
+                        {activeChannel && (
+                            <div className="mb-4 flex items-center gap-3 text-left">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-md border border-green-600/40 bg-gray-100 text-green-600 transition-colors duration-150">
+                                    <RiVoiceprintLine />
+                                </div>
+
+                                <div className="flex flex-grow flex-col font-medium">
+                                    <span className="text-green-600">Connected to the voice channel</span>
+                                    <span className="text-sm">{server?.name + " / " + activeChannel.name}</span>
+                                </div>
+ 
+                                <button
+                                    type="button"
+                                    className="flex h-8 w-8 items-center justify-center rounded-md transition-colors duration-150 hover:bg-gray-100"
+                                    onClick={leaveChannel}
+                                >
+                                    <TbDoorExit />
+                                </button>
                             </div>
-                            <span className="font-medium">{profile?.userName}</span>
+                        )}
+                        <div className="flex flex-row items-center gap-1">
+                            <div className="rounded-l-4xl flex flex-grow-1 items-center gap-2 rounded-r-lg transition-colors duration-150 hover:bg-gray-100">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#5D6D7B] text-sm font-medium text-white">
+                                    {profile?.userName[0]}
+                                </div>
+                                <span className="font-medium">{profile?.userName}</span>
+                            </div>
+
+                            <button className="flex h-8 w-8 items-center justify-center rounded-md transition-colors duration-150 hover:bg-gray-100">
+                                <FaMicrophone />
+                            </button>
+                            <button className="flex h-8 w-8 items-center justify-center rounded-md transition-colors duration-150 hover:bg-gray-100">
+                                <TbHeadphonesOff />
+                            </button>
                         </div>
 
-                        <button className="flex h-8 w-8 items-center justify-center rounded-md transition-colors duration-150 hover:bg-gray-100">
-                            <FaMicrophone />
-                        </button>
-                        <button className="flex h-8 w-8 items-center justify-center rounded-md transition-colors duration-150 hover:bg-gray-100">
-                            <TbHeadphonesOff />
-                        </button>
                     </div>
                 </div>
                 <div className="flex flex-row overflow-hidden pt-4">
