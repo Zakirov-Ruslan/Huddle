@@ -1,4 +1,4 @@
-﻿import { LiveKitRoom, useTracks, ParticipantTile, GridLayout, ControlBar, useParticipants, RoomAudioRenderer, useIsSpeaking } from "@livekit/components-react";
+﻿import { LiveKitRoom, useTracks, ParticipantTile, GridLayout, ControlBar, useParticipants, RoomAudioRenderer, useIsSpeaking, useLocalParticipant } from "@livekit/components-react";
 import type { Channel } from "../../api/types";
 import { useLiveKitToken } from "../../hooks/queries/livekit";
 import { useEffect } from "react";
@@ -24,12 +24,12 @@ const ParticipantPlaceholder: React.FC<{ participant: LocalParticipant | RemoteP
                 ${isSpeaking && "border-3 border-green-400 shadow-[0_0_15px_rgba(74,222,128,0.5)]"}
             `}
         >
-            {/* Иконка */}
+            {/* Icon */}
             <div className="mb-1 text-2xl">
                 {isSpeaking ? "🎤" : "👤"}
             </div>
 
-            {/* Имя пользователя */}
+            {/* UserName */}
             {isLoading ? (
                 <span className="opacity-70">Loading...</span>
             ) : (
@@ -39,17 +39,30 @@ const ParticipantPlaceholder: React.FC<{ participant: LocalParticipant | RemoteP
     );
 };
 
-// Сетка участников
 const VoiceChannelUI: React.FC = () => {
 
     const participants = useParticipants();
+    const { localParticipant } = useLocalParticipant();
+
+    useEffect(() => {
+        if (localParticipant && !localParticipant.isMicrophoneEnabled) {
+            localParticipant.setMicrophoneEnabled(true, {
+                noiseSuppression: true,
+                echoCancellation: true,
+                autoGainControl: true,
+            }).catch((err) => {
+                console.error("Unable to turn on the microphone, the user may have disabled its use:", err);
+            });
+        }
+    }, [localParticipant]);
+
 
     return (
-            <div className="flex w-full flex-wrap items-center justify-center gap-10 overflow-hidden p-10">
-                {participants.map((p) => (
-                        <ParticipantPlaceholder key={p.identity} participant={p} />
-                ))}
-            </div>
+        <div className="flex w-full flex-wrap items-center justify-center gap-10 overflow-hidden p-10">
+            {participants.map((p) => (
+                <ParticipantPlaceholder key={p.identity} participant={p} />
+            ))}
+        </div>
     );
 };
 

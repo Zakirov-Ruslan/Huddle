@@ -11,7 +11,7 @@ export default function LiveKitProvider() {
             serverUrl="wss://localhost:7062/liveKit-server/"
             token={token || ""} // Пустая строка, если токена нет
             connect={!!(activeChannel && token)} // Подключаемся только если есть канал и токен
-            audio={true}
+            audio={false}
             video={false}
             onDisconnected={() => {
                 useVoiceChannelStore.getState().leaveChannel();
