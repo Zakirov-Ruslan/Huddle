@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { useServer, useUpdateServer } from "../../hooks/queries/servers";
 import type { UpdateServerRequest } from "../../api/types";

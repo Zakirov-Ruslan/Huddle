@@ -1,9 +1,9 @@
-﻿import { LiveKitRoom, useTracks, ParticipantTile, GridLayout, ControlBar, useParticipants, RoomAudioRenderer, useIsSpeaking, useLocalParticipant } from "@livekit/components-react";
+﻿import { useParticipants, useIsSpeaking, useLocalParticipant } from "@livekit/components-react";
 import type { Channel } from "../../api/types";
 import { useLiveKitToken } from "../../hooks/queries/livekit";
 import { useEffect } from "react";
 import { useUserProfile } from "../../hooks/queries/users";
-import { LocalParticipant, RemoteParticipant, Track } from "livekit-client";
+import type { LocalParticipant, RemoteParticipant } from "livekit-client";
 import { useVoiceChannelStore } from "../../stores/voiceChannelStore";
 
 const ParticipantPlaceholder: React.FC<{ participant: LocalParticipant | RemoteParticipant }> = ({ participant }) => {
@@ -15,7 +15,7 @@ const ParticipantPlaceholder: React.FC<{ participant: LocalParticipant | RemoteP
     return (
         <div
             className={`
-                h-100 rounded-xl aspect-video
+                aspect-video w-32 shrink-0 rounded-xl md:w-64
                 bg-gradient-to-br from-[#71787f] to-[#57636d]
                 flex flex-col items-center justify-center
                 text-white text-sm font-bold
@@ -58,7 +58,7 @@ const VoiceChannelUI: React.FC = () => {
 
 
     return (
-        <div className="flex w-full flex-wrap items-center justify-center gap-10 overflow-hidden p-10">
+        <div className="flex min-h-0 w-full flex-1 flex-wrap items-center justify-center gap-3 overflow-y-auto p-4 md:gap-10 md:p-10">
             {participants.map((p) => (
                 <ParticipantPlaceholder key={p.identity} participant={p} />
             ))}
@@ -66,7 +66,7 @@ const VoiceChannelUI: React.FC = () => {
     );
 };
 
-const VoiceChannel: React.FC<Channel> = ({ id, serverId, name, channelType }) => {
+const VoiceChannel: React.FC<Channel> = ({ id, serverId, name }) => {
 
     const { data: token, error, isLoading } = useLiveKitToken(serverId, id);
     const { joinChannel, activeChannel } = useVoiceChannelStore();
@@ -81,8 +81,8 @@ const VoiceChannel: React.FC<Channel> = ({ id, serverId, name, channelType }) =>
         }
     }
 
-    if (isLoading) return <div>Loading...</div>;
-    if (error || !token) return <div>Getting token error</div>;
+    if (isLoading) return <div className="flex flex-1 items-center justify-center">Loading...</div>;
+    if (error || !token) return <div className="flex flex-1 items-center justify-center">Getting token error</div>;
 
     if (activeChannel?.id === id) {
         return (
@@ -91,11 +91,11 @@ const VoiceChannel: React.FC<Channel> = ({ id, serverId, name, channelType }) =>
     }
 
     return (
-        <div className="flex h-full w-full items-center justify-center">
-            <div className="flex flex-col gap-2">
-                <span className="text-3xl font-medium">{name}</span>
+        <div className="flex min-h-0 w-full flex-1 items-center justify-center p-4">
+            <div className="flex flex-col items-center gap-3 text-center">
+                <span className="text-2xl font-medium md:text-3xl">{name}</span>
                 <button
-                    className="text rounded-md bg-gray-200 px-4 py-2 font-medium"
+                    className="rounded-md bg-gray-200 px-4 py-2 font-medium"
                     onClick={handleJoinChannel}
                 >
                     Join voice channel

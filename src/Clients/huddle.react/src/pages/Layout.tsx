@@ -1,171 +1,34 @@
-﻿import { Link, Outlet, useParams } from "react-router";
-import { FaMicrophone } from "react-icons/fa";
-import { TbHeadphonesOff } from "react-icons/tb";
-import { FaCirclePlus } from "react-icons/fa6";
-import ReactModal from 'react-modal';
-import { useState } from "react";
-import { useNavigate } from "react-router";
-import { Tooltip } from 'react-tooltip'
-import face from "../img/huddle-mascot/face.png";
-import type { Server } from "../api/types";
-import CreateServerDialog from "../components/dialogs/CreateServerDialog";
-import { useMyServers, useServer } from "../hooks/queries/servers";
-import { useMyProfile } from "../hooks/queries/users";
-import { useVoiceChannelStore } from "../stores/voiceChannelStore";
-import { TbDoorExit } from "react-icons/tb";
-import { RiVoiceprintLine } from "react-icons/ri";
+﻿import { Outlet } from "react-router";
+import ServerRail from "../components/layout/ServerRail";
+import UserPanel from "../components/layout/UserPanel";
 
+/**
+ * Application shell.
+ *
+ *   [ server rail ][ main area ]
+ *
+ * The desktop keeps the floating user card at the bottom-left of the content
+ * area; on phones/tablets the same component is docked to the bottom of the
+ * channel list (`ServerSidebar`) instead, so it never covers the chat.
+ */
 function Layout() {
-
-    const { serverId: currentServerId } = useParams();
-    const navigate = useNavigate();
-
-    const { data: servers, error: serversError, isPending: isServersPending } = useMyServers();
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-
-    const { data: profile, isLoading: isProfileLoading, error: profileError } = useMyProfile();
-    const { activeChannel, leaveChannel } = useVoiceChannelStore();
-    const { data: server } = useServer(activeChannel?.serverId)
-
     return (
-        <>
-            <div className="relative grid h-full grid-cols-[6rem_1fr] overflow-x-hidden bg-gray-100">
-                <div className="no-scrollbar flex flex-col items-center gap-3 overflow-y-auto p-4">
-                    <Link
-                        to="/h"
-                        className="align-center flex h-15 w-15 flex-shrink-0 items-center justify-center rounded-xl bg-gray-200"
-                        data-tooltip-id={'nav-home'}
-                    >
-                        <img src={face} alt="logo" className="h-12 w-12 -scale-x-100" />
-                    </Link>
-                    <Tooltip
-                        id='nav-home'
-                        style={{
-                            backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding: "5px 10px 8px 10px", boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)"
-                        }}
-                        opacity={1}
-                        border="1px solid #e8e8e8"
-                        place="right"
-                    >
-                        home
-                    </Tooltip>
+        <div className="relative flex h-full w-full overflow-hidden bg-gray-100">
+            <ServerRail />
 
-                    <div className="my-1 w-13 border-b border-slate-300"></div>
-                    {
-                        servers?.map(server =>
-                            <div key={server.id}>
-                                <Link
-                                    to={`s/${server.id}`}
-                                    replace
-                                    onClick={(e) => {
-                                        if (currentServerId === server.id) {
-                                            e.preventDefault();
-                                        }
-                                    }}
-                                    className="align-center flex h-15 w-15 flex-shrink-0 items-center justify-center rounded-xl bg-gray-200 text-xl font-medium text-gray-600 hover:text-gray-700"
-                                    data-tooltip-id={`server-item-tooltip-${server.id}`}
-                                >
-                                    {server.name[0]}
-                                </Link>
-                                <Tooltip
-                                    id={`server-item-tooltip-${server.id}`} data-tooltip-content={server.name}
-                                    style={{
-                                        backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding: "5px 10px 8px 10px", boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)"
-                                    }}
-                                    opacity={1}
-                                    border="1px solid #e8e8e8"
-                                    place="right"
-                                >
-
-                                    {server.name}
-                                </Tooltip>
-                            </div>
-                        )}
-                    <button
-                        type="button"
-                        title="new-server"
-                        onClick={() => setIsModalOpen(true)}
-                        className="align-center flex h-15 w-15 items-center justify-center rounded-xl bg-gray-200 flex-shrink-0"
-                        data-tooltip-id='nav-new-server'
-                    >
-                        <FaCirclePlus className="scale-150" />
-                    </button>
-                    <Tooltip
-                        id='nav-new-server'
-                        style={{
-                            backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding: "5px 10px 8px 10px", boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)"
-                        }}
-                        opacity={1}
-                        border="1px solid #e8e8e8"
-                        place="right"
-                    >
-                        add server
-                    </Tooltip>
-                    <div className="absolute bottom-4 left-4 w-90 rounded-xl border-1 border-gray-200 bg-white p-3 shadow-2xl select-none">
-                        {activeChannel && (
-                            <div className="mb-4 flex items-center gap-3 text-left">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-md border border-green-600/40 bg-gray-100 text-green-600 transition-colors duration-150">
-                                    <RiVoiceprintLine />
-                                </div>
-
-                                <div className="flex flex-grow flex-col font-medium">
-                                    <span className="text-green-600">Connected to the voice channel</span>
-                                    <span className="text-sm">{server?.name + " / " + activeChannel.name}</span>
-                                </div>
- 
-                                <button
-                                    type="button"
-                                    className="flex h-8 w-8 items-center justify-center rounded-md transition-colors duration-150 hover:bg-gray-100"
-                                    onClick={leaveChannel}
-                                >
-                                    <TbDoorExit />
-                                </button>
-                            </div>
-                        )}
-                        <div className="flex flex-row items-center gap-1">
-                            <div className="rounded-l-4xl flex flex-grow-1 items-center gap-2 rounded-r-lg transition-colors duration-150 hover:bg-gray-100">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#5D6D7B] text-sm font-medium text-white">
-                                    {profile?.userName[0]}
-                                </div>
-                                <span className="font-medium">{profile?.userName}</span>
-                            </div>
-
-                            <button className="flex h-8 w-8 items-center justify-center rounded-md transition-colors duration-150 hover:bg-gray-100">
-                                <FaMicrophone />
-                            </button>
-                            <button className="flex h-8 w-8 items-center justify-center rounded-md transition-colors duration-150 hover:bg-gray-100">
-                                <TbHeadphonesOff />
-                            </button>
-                        </div>
-
-                    </div>
+            <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden md:pt-4">
+                <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-gray-100 md:rounded-tl-2xl md:border md:border-r-0 md:border-b-0 md:border-gray-300">
+                    <Outlet />
                 </div>
-                <div className="flex flex-row overflow-hidden pt-4">
-                    <div className="grid h-full flex-grow-1 grid-cols-[300px_1fr] grid-rows-[50px_1fr] overflow-hidden rounded-tl-2xl border-1 border-gray-300 bg-gray-100">
-                        <Outlet />
-                    </div>
-                </div>
+            </main>
+
+            {/* Desktop only: same card, floating over the bottom-left of the content area. */}
+            <div className="pointer-events-none absolute bottom-4 left-4 z-30 hidden w-90 lg:block">
+                <UserPanel className="pointer-events-auto" />
             </div>
-
-            <ReactModal
-                isOpen={isModalOpen}
-                className="modal"
-                overlayClassName="modal-overlay"
-                onRequestClose={() => setIsModalOpen(false)}
-                closeTimeoutMS={150}
-                shouldFocusAfterRender={false}
-                appElement={document.getElementById('root')!}
-            >
-                <CreateServerDialog onCreateServer={(createdServer: Server | null) => {
-                    setIsModalOpen(false);
-                    if (createdServer)
-                        navigate(`/s/${createdServer.id}`)
-                }} />
-            </ReactModal>
-        </>
+        </div>
     );
 }
-
 
 export default Layout;
 

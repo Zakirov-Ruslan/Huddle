@@ -15,7 +15,9 @@
 
 .modal {
     background-color: white;
-    overflow: hidden;
+    overflow-y: auto;
+    max-width: min(92vw, 40rem);
+    max-height: 90dvh;
     border-radius: 0.5em;
     padding: 0.7rem;
     transform: scale(0.9);

@@ -12,13 +12,13 @@ export const Channel = () => {
     const { channelId } = useParams<{ channelId: string }>();
 
     const isMembersPanelOpened = useApplicationStore((state) => state.isMembersPanelOpened);
+    const setMembersPanelOpened = useApplicationStore((state) => state.setMembersPanelOpened);
     const activeServer = useApplicationStore((state) => state.activeServer);
 
     const serverId = activeServer?.id;
 
     const {
         data,
-        isFetching,
         isFetchingNextPage,
         hasNextPage,
         fetchNextPage,
@@ -32,12 +32,12 @@ export const Channel = () => {
     }, [inView, hasNextPage, fetchNextPage, isFetchingNextPage]);
 
     if (!activeServer)
-        return <div>Loading...</div>;
+        return <div className="flex flex-1 items-center justify-center">Loading...</div>;
 
     const channel = activeServer.channels.find(ch => ch.id === channelId);
     if (!channel)
         return (
-            <div className="flex flex-col items-center justify-center bg-white select-none">
+            <div className="flex flex-1 flex-col items-center justify-center bg-white select-none">
                 <div className="relative max-w-md rotate-1 transform rounded-3xl bg-white p-8 shadow">
                     <div className="text-center">
                         <h2 className="mb-4 text-3xl font-bold tracking-wide text-gray-800">Nothing is here</h2>
@@ -53,10 +53,12 @@ export const Channel = () => {
                 />
             </div>);
 
-    return (
-        <div className="flex min-h-0 flex-row bg-white" >
+    const isTextChannel = channel.channelType.toLowerCase() === "text";
 
-            {channel.channelType.toLowerCase() === "text" ? (
+    return (
+        <div className="relative flex min-h-0 flex-1 flex-row overflow-hidden bg-white" >
+
+            {isTextChannel ? (
                 <TextChannel {...channel} />
             ) : channel.channelType.toLowerCase() === "voice" ? (
                 <VoiceChannel {...channel} />
@@ -64,15 +66,30 @@ export const Channel = () => {
                 <div>Unsupported channel type</div>
             )}
 
-            {isMembersPanelOpened && channel.channelType.toLowerCase() === "text" && (
-                (
-                    <div className="flex w-60 flex-col gap-1 border-l-1 border-gray-200 bg-white p-1.5">
-                        {data?.pages.flatMap(page => page.items).map(member => (
-                            <ServerMemberItem key={member.identityId} userId={member.identityId} />
-                        ))}
-                        <div ref={loaderRef} />
-                    </div>
-                )
+            {isMembersPanelOpened && isTextChannel && (
+                <>
+                    {/* Backdrop: on phones the members list is an overlay, not a column. */}
+                    <button
+                        type="button"
+                        aria-label="Close members list"
+                        onClick={() => setMembersPanelOpened(false)}
+                        className="absolute inset-0 z-20 cursor-default bg-black/20 md:hidden"
+                    />
+
+                    <aside className="absolute inset-y-0 right-0 z-30 flex w-72 max-w-[85%] flex-col border-l-1 border-gray-200 bg-white p-1.5 shadow-2xl md:static md:z-auto md:w-60 md:max-w-none md:shrink-0 md:shadow-none">
+                        {/* The close button lives in the channel header — no duplicate here. */}
+                        <div className="mb-1 px-2 py-1 md:hidden">
+                            <span className="text-sm font-semibold text-gray-500">Members</span>
+                        </div>
+
+                        <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
+                            {data?.pages.flatMap(page => page.items).map(member => (
+                                <ServerMemberItem key={member.identityId} userId={member.identityId} />
+                            ))}
+                            <div ref={loaderRef} />
+                        </div>
+                    </aside>
+                </>
             )}
         </div>
     );

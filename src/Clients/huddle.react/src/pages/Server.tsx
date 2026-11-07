@@ -1,48 +1,43 @@
 ﻿import { useEffect, useMemo, useState } from "react";
-import { FaHashtag } from "react-icons/fa6";
-import { Link, useNavigate, useParams } from "react-router";
-import { HiSpeakerWave } from "react-icons/hi2";
-import { FaUsers } from "react-icons/fa";
-import { Outlet } from "react-router";
-import { GoPlus } from "react-icons/go";
-import { Tooltip } from "react-tooltip";
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { BsPersonFillAdd } from "react-icons/bs";
-import { FaPlusCircle } from "react-icons/fa";
-import { RiArrowDownSLine } from "react-icons/ri";
-import { MdClose } from "react-icons/md";
-import { IoIosSettings } from "react-icons/io";
+import { Outlet, useNavigate, useParams } from "react-router";
 import { useAuth } from "react-oidc-context";
-import { ImExit } from "react-icons/im";
-import { SignalRContext, useSignalRState } from "../providers/SignalRProvider";
 import ReactModal from "react-modal";
-import type { Channel, Server } from "../api/types";
+import { SignalRContext, useSignalRState } from "../providers/SignalRProvider";
+import type { Channel } from "../api/types";
 import CreateChannelDialog from "../components/dialogs/CreateChannelDialog";
 import InviteFriendsDialog from "../components/dialogs/InviteFriendsDialog";
+import ServerSidebar, { type ChannelType } from "../components/server/ServerSidebar";
+import ChannelHeader from "../components/server/ChannelHeader";
 import { useServer } from "../hooks/queries/servers";
-import { useApplicationStore } from '../stores/applicationStore';
+import { useApplicationStore } from "../stores/applicationStore";
 
-type ChannelType = 'text' | 'voice';
-
+/**
+ * Server screen: channel list + channel content.
+ *
+ * Breakpoints:
+ *  - `< md`  → two separate screens. The channel list is shown on the index
+ *              route (`/s/:serverId`), the channel itself on `/s/:serverId/ch/:channelId`.
+ *              The current screen is derived from the URL, so the browser's
+ *              back button / Android back gesture work out of the box.
+ *  - `>= md` → classic two-column layout (channel list + chat), no switching.
+ */
 function Server() {
     const { serverId, channelId } = useParams();
-    if (!serverId)
-        return <div>Invalid server ID</div>;
-
-    const setActiveServer = useApplicationStore((state) => state.setActiveServer);
 
     const { isConnected } = useSignalRState();
 
-    const toggleMembersPanedOpened = useApplicationStore((state) => state.toggleMembersPanedOpened);
+    const setActiveServer = useApplicationStore((state) => state.setActiveServer);
     const isMembersPanelOpened = useApplicationStore((state) => state.isMembersPanelOpened);
+    const toggleMembersPanelOpened = useApplicationStore((state) => state.toggleMembersPanelOpened);
 
-    const [isCreateChannelModalOpen, setIsCreateChannelModalOpen] = useState(false)
-    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
+    const [isCreateChannelModalOpen, setIsCreateChannelModalOpen] = useState(false);
+    const [initialChannelType, setInitialChannelType] = useState<ChannelType>("text");
+    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
     const navigate = useNavigate();
-
-    const { data: server, error, isPending } = useServer(serverId);
     const auth = useAuth();
+
+    const { data: server, isPending } = useServer(serverId);
 
     const activeChannel = useMemo(() => {
         if (!server || !channelId) return null;
@@ -51,9 +46,9 @@ function Server() {
 
     useEffect(() => {
         if (serverId) {
-            setActiveServer(server);
+            setActiveServer(server ?? null);
         }
-    }, [server, setActiveServer]);
+    }, [server, serverId, setActiveServer]);
 
     useEffect(() => {
         if (!serverId || !isConnected)
@@ -72,210 +67,56 @@ function Server() {
 
     }, [serverId, isConnected])
 
-    const isServerOwner = server && auth.user && server.ownerIdentityId == auth.user.profile.sub;
+    const isServerOwner = Boolean(server && auth.user && server.ownerIdentityId === auth.user.profile.sub);
+
+    /** On phones the presence of `channelId` *is* the "chat screen is open" flag. */
+    const isChannelOpen = Boolean(channelId);
+
+    const openCreateChannelDialog = (channelType: ChannelType) => {
+        setInitialChannelType(channelType);
+        setIsCreateChannelModalOpen(true);
+    };
 
     const handleChannelCreated = (createdChannel: Channel | null) => {
         if (createdChannel == null)
             return;
 
         setIsCreateChannelModalOpen(false);
-        navigate(`ch/${createdChannel.id}`)
+        navigate(`ch/${createdChannel.id}`);
     }
+
+    if (!serverId)
+        return <div className="flex flex-1 items-center justify-center">Invalid server ID</div>;
 
     return (
         <>
-            <Menu>
-                <MenuButton type="button" className="justify-left flex items-center border-b border-gray-300 px-5 text-lg font-semibold text-gray-700 transition-colors duration-150 hover:bg-gray-200 focus:not-data-focus:outline-none">
-                    {({ active }) => (
-                        <>
-                            {server == null ? (
-                                <span className="h-6 w-32 flex-grow animate-pulse rounded-xl bg-gray-200"></span>
-                            ) : (
-                                <span className="flex-grow text-left">{server.name}</span>
-                            )}
-                            {active ? <MdClose /> : <RiArrowDownSLine />}
-                        </>
-                    )}
-                </MenuButton>
-                <MenuItems
-                    anchor="bottom"
-                    transition
-                    className="flex w-56 origin-top flex-col rounded-xl border-1 border-gray-200 bg-white p-2 shadow-md transition duration-200 ease-out focus:outline-none [--anchor-gap:--spacing(1)] data-closed:scale-95 data-closed:opacity-0"
-                >
-                    {isServerOwner ? (
-                        <>
-                            <MenuItem>
-                                <Link to={`/server-settings/${serverId}`} className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100">
-                                    <span className="flex-grow">Server settings</span>
-                                    <IoIosSettings />
-                                </Link>
-                            </MenuItem>
-                            <MenuItem>
-                                <button
-                                    type="button"
-                                    className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100"
-                                    onClick={() => setIsInviteModalOpen(true)}
-                                >
-                                    <span className="flex-grow">Invite friends</span>
-                                    <BsPersonFillAdd />
-                                </button>
-                            </MenuItem>
-                            <MenuItem>
-                                <button
-                                    type="button"
-                                    className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100"
-                                    onClick={() => setIsCreateChannelModalOpen(true)}
-                                >
-                                    <span className="flex-grow">Create channel</span>
-                                    <FaPlusCircle />
-                                </button>
-                            </MenuItem>
-                        </>)
-                        : (<MenuItem>
-                            <button
-                                type="button"
-                                className="flex flex-row items-center rounded p-2 text-left text-sm font-semibold text-red-500 hover:bg-gray-100"
-                                onClick={() => { }}
-                            >
-                                <span className="flex-grow">Leave channel</span>
-                                <ImExit />
-                            </button>
-                        </MenuItem>)}
-                </MenuItems>
-            </Menu>
-            <header className="flex items-center justify-between border-b-1 border-gray-300 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
-                <h2 className="flex flex-row items-center gap-1 font-semibold text-gray-700 dark:text-slate-200">
-                    <FaHashtag />
-                    {activeChannel?.name}
-                </h2>
-                <div className="flex space-x-2">
-                    <button
-                        onClick={() => toggleMembersPanedOpened()}
-                        className="rounded p-1 hover:bg-gray-200 dark:hover:bg-gray-700"
-                        data-tooltip-id='members-panel-switcher'
-                    >
-                        <FaUsers />
-                    </button>
-                </div>
-                <Tooltip
-                    id='members-panel-switcher'
-                    style={{
-                        backgroundColor: "rgb(255, 255, 255)",
-                        color: "#222",
-                        borderRadius: "10px",
-                        fontWeight: "500",
-                        padding: "5px 10px 8px 10px",
-                        boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)",
-                        zIndex: "1"
-                    }}
-                    opacity={1}
-                    border="1px solid #e8e8e8"
-                    place="top-end"
-                >
-                    {isMembersPanelOpened ? "Hide list of members" : "Show list of members"}
-                </Tooltip>
-            </header>
-            <nav className="flex-1 overflow-y-auto p-4">
-                <div className="mb-2 flex flex-row px-3 text-left text-sm font-semibold text-gray-500 hover:text-gray-600">
-                    <span className="flex-grow">Text channels</span>
-                    {isServerOwner &&
-                        <>
-                            <button
-                                onClick={() => setIsCreateChannelModalOpen(true)}
-                                data-tooltip-id='create-text-channel-tooltip'
-                                type="button">
-                                <GoPlus />
-                            </button>
+            <div className="flex min-h-0 flex-1 overflow-hidden">
+                <ServerSidebar
+                    server={server}
+                    serverId={serverId}
+                    isPending={isPending}
+                    isOwner={isServerOwner}
+                    activeChannelId={channelId}
+                    className={isChannelOpen ? "max-md:hidden" : ""}
+                    onCreateChannel={openCreateChannelDialog}
+                    onInviteFriends={() => setIsInviteModalOpen(true)}
+                />
 
-                            <Tooltip
-                                id='create-text-channel-tooltip' data-tooltip-content=""
-                                style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding: "5px 10px 8px 10px", boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)" }}
-                                opacity={1}
-                                border="1px solid #e8e8e8"
-                                place="top"
-                            >
-                                Create channel
-                            </Tooltip>
-                        </>
-                    }
-                </div>
-                <ul className="mb-3 space-y-1">
-                    {isPending ? (
-                        <>
-                            {[...Array(2)].map((_, i) => (
-                                <li key={i} className="animate-pulse">
-                                    <div className="h-8 w-full rounded-xl bg-gray-200"></div>
-                                </li>
-                            ))}
-                        </>
-                    ) : (
-                        <>
-                            {server?.channels.filter(ch => ch.channelType == "Text").map((channel) => (
-                                <li key={channel.id}>
-                                    <Link
-                                        to={`ch/${channel.id}`}
-                                        className={`w-full flex gap-2 flex-row items-center text-left rounded-xl px-3 py-1.5 transition-colors ${activeChannel === channel
-                                            ? 'bg-gray-300' : 'hover:bg-gray-200'}`}
-                                    >
-                                        <FaHashtag />
-                                        {channel.name}
-                                    </Link>
-                                </li>))}
-                        </>
-                    )}
-                </ul>
-                <div className="mb-2 flex flex-row px-3 text-left text-sm font-semibold text-gray-500 hover:text-gray-600">
-                    <span className="flex-grow">Voice channels</span>
-                    {isServerOwner &&
-                        <>
-                            <button
-                                onClick={() => setIsCreateChannelModalOpen(true)}
-                                data-tooltip-id='create-voice-channel-tooltip'
-                                type="button">
-                                <GoPlus />
-                            </button>
-                            <Tooltip
-                                id='create-voice-channel-tooltip' data-tooltip-content=""
-                                style={{ backgroundColor: "rgb(255, 255, 255)", color: "#222", borderRadius: "10px", fontWeight: "500", padding: "5px 10px 8px 10px", boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)" }}
-                                opacity={1}
-                                border="1px solid #e8e8e8"
-                                place="top"
-                            >
-                                Create channel
-                            </Tooltip>
-                        </>
-                    }
-                </div>
-                <ul className="space-y-1">
+                <section
+                    className={`flex min-h-0 min-w-0 flex-1 flex-col bg-white ${isChannelOpen ? "" : "max-md:hidden"}`}
+                >
+                    <ChannelHeader
+                        channel={activeChannel}
+                        isMembersPanelOpened={isMembersPanelOpened}
+                        onToggleMembers={toggleMembersPanelOpened}
+                        onBack={() => navigate(`/s/${serverId}`)}
+                    />
 
-                    {isPending ? (
-                        <>
-                            {[...Array(3)].map((_, i) => (
-                                <li key={i} className="animate-pulse">
-                                    <div className="h-8 w-full rounded-xl bg-gray-200"></div>
-                                </li>
-                            ))}
-                        </>
-                    ) : (
-                        <>
-                            {server?.channels.filter(ch => ch.channelType == "Voice").map((channel) => (
-                                <li key={channel.id}>
-                                    <Link
-                                        to={`ch/${channel.id}`}
-                                        className={`w-full flex gap-2 flex-row items-center text-left rounded-xl px-3 py-1.5 transition-colors ${activeChannel === channel
-                                            ? 'bg-gray-300'
-                                            : 'hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        <HiSpeakerWave />
-                                        {channel.name}
-                                    </Link>
-                                </li>))}
-                        </>
-                    )}
-                </ul>
-            </nav>
-            <Outlet key={channelId} />
+                    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                        <Outlet key={channelId} />
+                    </div>
+                </section>
+            </div>
 
             <ReactModal
                 isOpen={isCreateChannelModalOpen}
@@ -289,7 +130,7 @@ function Server() {
                 <CreateChannelDialog
                     serverId={serverId}
                     onCreateChannel={handleChannelCreated}
-                    initialChannelType={'text'}
+                    initialChannelType={initialChannelType}
                 />
             </ReactModal>
 

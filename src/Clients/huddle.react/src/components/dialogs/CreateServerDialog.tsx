@@ -31,7 +31,7 @@ const CreateServerDialog: React.FC<CreateServerDialogProps> = ({ onCreateServer 
 
     return (
         <form
-            className="w-80 space-y-4 px-2 pb-2 md:space-y-3"
+            className="w-full max-w-80 space-y-4 px-2 pb-2 md:space-y-3"
             onSubmit={handleCreate}
         >
             <div className="items-left flex flex-col">

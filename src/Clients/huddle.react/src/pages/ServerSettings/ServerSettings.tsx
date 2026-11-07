@@ -8,8 +8,6 @@ import DeleteServerDialog from "../../components/dialogs/DeleteServerDialog";
 function ServerSettings() {
 
     const { serverId } = useParams();
-    if (!serverId)
-        return <div>Invalid server ID</div>;
 
     const { data: server, error, isPending } = useServer(serverId);
     const navigate = useNavigate(); 
@@ -22,6 +20,9 @@ function ServerSettings() {
             navigate('/h');
         }
     };
+
+    if (!serverId)
+        return <div className="flex h-full items-center justify-center">Invalid server ID</div>;
 
     if (isPending) {
         return (
@@ -43,10 +44,10 @@ function ServerSettings() {
 
     return (
         <>
-            <div className="flex h-full w-full flex-row bg-gray-200">
-                <div className="flex w-1/3 justify-end pt-10">
-                    <div className="m-2 flex w-60 flex-col gap-2">
-                        <span className="ml-2 px-3 py-1 text-left font-medium">
+            <div className="flex h-full w-full flex-col overflow-y-auto bg-gray-200 md:flex-row md:overflow-hidden">
+                <div className="flex w-full shrink-0 justify-start px-4 pt-6 md:w-1/3 md:justify-end md:px-0 md:pt-10">
+                    <div className="m-0 flex w-full max-w-60 flex-col gap-2 md:m-2">
+                        <span className="ml-2 truncate px-3 py-1 text-left font-medium">
                             {server?.name}
                         </span>
                         <Link to='server-profile' className="flex items-center rounded-md px-3 py-1 font-medium text-gray-700 transition-colors duration-150 hover:bg-gray-300">
@@ -63,7 +64,7 @@ function ServerSettings() {
                     </div>
                 </div>
 
-                <div className="grow bg-gray-100 pt-10">
+                <div className="min-h-0 grow bg-gray-100 pt-6 md:overflow-y-auto md:pt-10">
                     <Outlet />
                 </div>
             </div>

@@ -23,7 +23,7 @@ const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({ onCreateChann
     };
 
     const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setChannelType(e.target.value);
+        setChannelType(e.target.value === 'voice' ? 'voice' : 'text');
     };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -34,14 +34,14 @@ const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({ onCreateChann
         createChannel.mutate(
             { name: channelName, channelType: channelType },
             {
-                onSuccess: (data, variables, context) => {
+                onSuccess: (data) => {
                     onCreateChannel(data);
                 }
             });
     };
 
     return (
-            <div className="w-90 max-w-md bg-white px-2 pb-2">
+            <div className="w-full max-w-90 bg-white px-2 pb-2">
                 <div className="mb-2 flex flex-row items-center text-left">
                     <h3 className="mb-2 flex-grow text-2xl font-bold text-gray-700">Create channel</h3>
                     <button type="button" onClick={() => onCreateChannel(null)}>
