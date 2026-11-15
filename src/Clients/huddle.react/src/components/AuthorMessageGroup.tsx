@@ -41,6 +41,7 @@ const AuthorMessageGroup = ({ authorId, messageGroup }: AuthorMessageGroupProps)
                 {messageGroup.map((msg, msgIndex) => (
                     <div
                         key={msg.id}
+                        data-message-id={msg.id}
                         className={`flex hover:bg-gray-100 rounded-md px-4 pb-2 items-start space-x-2 min-w-0 ${msgIndex === 0 ? 'mt-1' : 'mt-0'}`}
                     >
                         <div className="min-w-0 flex-1">
