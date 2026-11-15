@@ -5,6 +5,7 @@ using Huddle.Channel.Application.Commands.Message;
 using Huddle.Channel.Application.Commands.Server;
 using Huddle.Channel.Application.Dto;
 using Huddle.Channel.Application.IntegrationEvents;
+using Huddle.Channel.Application.Mapping;
 using Huddle.Channel.Application.Queries.Invites;
 using Huddle.Channel.Application.Queries.Members;
 using Huddle.Channel.Application.Queries.Messages;
@@ -18,6 +19,7 @@ using Huddle.Channel.Domain.Aggregates.ServerAggregate;
 using Huddle.Channel.Domain.SeedWork;
 using Huddle.Channel.Infrastructure.Behaviors;
 using Huddle.Channel.Infrastructure.Idempotency;
+using Huddle.Channel.Infrastructure.Integrations.Files;
 using Huddle.Channel.Infrastructure.Repositories;
 using Huddle.Channel.Infrastructure.Services;
 using Huddle.IntegrationEventLogEF.Services;
@@ -63,6 +65,15 @@ namespace Huddle.Channel.Infrastructure.Extensions
             services.AddScoped<IInviteRepository, InviteRepository>();
             services.AddScoped<IAccessService, AccessService>();
             services.AddScoped<IShortIdService, NanoIdService>();
+
+            services.AddScoped<IMessageDtoFactory, MessageDtoFactory>();
+            services.AddScoped<IServerDtoFactory, ServerDtoFactory>();
+            services.AddSingleton<IFileUrlProvider, ConfigurationFileUrlProvider>();
+
+            services.AddHttpClient<IFilesClient, FilesHttpClient>(client =>
+            {
+                client.BaseAddress = new Uri("http://files");
+            });
 
             services.AddScoped<IMessagesQueries, MessagesQueries>();
             services.AddScoped<IServersQueries, ServersQueries>();

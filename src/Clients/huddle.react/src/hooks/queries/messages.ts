@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { getMessages, createMessage, updateMessage, deleteMessage } from "../../api/messages/messagesApi";
-import type { Message, CreateMessageRequest, PaginatedItems, UpdateMessageRequest, MessageParams } from "../../api/types";
+import type { Message, CreateMessageRequest, PaginatedItems, UpdateMessageRequest, MessageParams, MessageAttachment } from "../../api/types";
 import { useTextChannelStore } from "../../stores/textChannelStore";
 import getUser from "../../utils/authHelpers";
 import { v4 as uuidv4 } from 'uuid';
@@ -8,6 +8,12 @@ import { v4 as uuidv4 } from 'uuid';
 interface MessagePageParam {
     cursor: string | null;
     older: boolean;
+}
+
+interface SendMessageVariables {
+    channelId: string;
+    data: CreateMessageRequest;
+    attachments?: MessageAttachment[];
 }
 
 export const useInfiniteMessages = (channelId: string) => {
@@ -53,11 +59,11 @@ export const useInfiniteMessages = (channelId: string) => {
 export const useSendMessage = () => {
     const queryClient = useQueryClient();
 
-    return useMutation<Message, Error, { channelId: string; data: CreateMessageRequest }, { localId: string }>({
+    return useMutation<Message, Error, SendMessageVariables, { localId: string }>({
         mutationKey: ['sendMessage'],
         mutationFn: ({ channelId, data }) => createMessage(channelId, data),
         onMutate: async (variables) => {
-            const { channelId, data: message } = variables;
+            const { channelId, data: message, attachments } = variables;
             const localId = uuidv4();
             const user = getUser();
 
@@ -69,7 +75,8 @@ export const useSendMessage = () => {
                     authorId: user.profile.sub,
                     sentAt: new Date(),
                     channelId: channelId,
-                    isEdited: false
+                    isEdited: false,
+                    attachments: attachments
                 }
             );
 

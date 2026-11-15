@@ -11,6 +11,8 @@ namespace Huddle.Channel.Infrastructure.EntityConfigurations
             serverConfiguration.HasKey(x => x.Id);
             serverConfiguration.Property(e => e.Id).ValueGeneratedNever();
 
+            serverConfiguration.Property(e => e.AvatarFileId).HasColumnType("uuid");
+
             serverConfiguration.Ignore(s => s.DomainEvents);
 
             serverConfiguration.Metadata.FindNavigation(nameof(Server.Channels))

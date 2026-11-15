@@ -7,6 +7,8 @@ internal class Program
     private const string LIVEKIT_API_KEY = "APILp6Aw52mbE6a";
     private const string LIVEKIT_API_SECRET = "Jpg42EoVl5q0CwlmAvupAkRoepUcRiraNO0b0tY8LbP";
 
+    private const string FILES_INTERNAL_API_KEY = "huddle-files-internal-key";
+
     private static void Main(string[] args)
     {
         var builder = DistributedApplication.CreateBuilder(args);
@@ -20,13 +22,21 @@ internal class Program
 
         var channelDb = postgres.AddDatabase("channeldb");
         var identityDb = postgres.AddDatabase("identitydb");
-
-        var minio = builder.AddMinioContainer("minio");
-        var fileServise = builder.AddProject<Huddle_FileService>("minio-client")
-            .WithReference(minio).WaitFor(minio);
+        var fileDb = postgres.AddDatabase("filedb");
 
         var identity = builder.AddProject<Projects.Huddle_Identity>("identity")
             .WithReference(identityDb).WaitFor(identityDb);
+
+        var minio = builder.AddMinioContainer("minio")
+            .WithDataVolume()
+            .WithLifetime(ContainerLifetime.Persistent)
+            .WithExternalHttpEndpoints();
+
+        var files = builder.AddProject<Huddle_FileService>("files")
+            .WithReference(minio).WaitFor(minio)
+            .WithReference(fileDb).WaitFor(fileDb)
+            .WithEnvironment("Storage__InternalApiKey", FILES_INTERNAL_API_KEY)
+            .WithEnvironment("IDENTITY_URL", identity.GetEndpoint("https"));
 
         //https://livekit.io/connection-test - for tests
         var liveKit = builder.AddContainer("livekit", "livekit/livekit-server")
@@ -48,7 +58,9 @@ internal class Program
 
         var channelService = builder.AddProject<Projects.Huddle_Channel_WebApi>("channel")
             .WithReference(channelDb).WaitFor(channelDb)
-            .WithReference(rabbitMq).WaitFor(rabbitMq);
+            .WithReference(rabbitMq).WaitFor(rabbitMq)
+            .WithReference(files).WaitFor(files)
+            .WithEnvironment("FILES_INTERNAL_API_KEY", FILES_INTERNAL_API_KEY);
 
         var signalRService = builder.AddProject<Projects.Huddle_SignalR>("signalR")
             .WithReference(rabbitMq).WaitFor(rabbitMq)
@@ -62,7 +74,8 @@ internal class Program
             .WithEnvironment("LIVEKIT_API_SECRET", LIVEKIT_API_SECRET)
             .WithEnvironment("LIVEKIT_URL", liveKit.GetEndpoint("http"));
 
-        var gateway = builder.AddProject<Projects.Huddle_ApiGateway>("gateway");
+        var gateway = builder.AddProject<Projects.Huddle_ApiGateway>("gateway")
+            .WithReference(files).WaitFor(files);
 
         var reactApp = builder.AddNpmApp("react-vite", "../Clients/huddle.react", "dev")
             .WithHttpEndpoint(env: "PORT")

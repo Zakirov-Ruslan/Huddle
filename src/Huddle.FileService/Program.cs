@@ -1,40 +1,120 @@
-using Microsoft.AspNetCore.Mvc;
+ï»¿using Huddle.FileService.Data;
+using Huddle.FileService.Endpoints;
+using Huddle.FileService.Options;
+using Huddle.FileService.Services;
+using Huddle.FileService.Storage;
+using Huddle.FileService.Validation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Minio;
-using Minio.DataModel.Args;
 
 namespace Huddle.FileService;
 
 public class Program
 {
+    private const long MaxRequestBodySizeBytes = 64L * 1024 * 1024;
+
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        builder.AddServiceDefaults();
 
-        var accessKey = "minioadmin";
-        var secretKey = "minioadmin";
+        builder.WebHost.ConfigureKestrel(options =>
+        {
+            options.Limits.MaxRequestBodySize = MaxRequestBodySizeBytes;
+        });
 
-        builder.Services.AddMinio(accessKey, secretKey);
+        var fileDbConnectionString = builder.Configuration.GetConnectionString("filedb") ?? string.Empty;
+        builder.Services.AddDbContext<FileDbContext>(options => options.UseNpgsql(fileDbConnectionString));
+        builder.EnrichNpgsqlDbContext<FileDbContext>();
+
+        var minioConnection = MinioConnection.Parse(builder.Configuration.GetConnectionString(StorageOptions.MinioConnectionStringName));
+
+        builder.Services.AddOptions<StorageOptions>()
+            .Bind(builder.Configuration.GetSection(StorageOptions.SectionName))
+            .PostConfigure(options =>
+            {
+                options.Endpoint = FirstNonEmpty(options.Endpoint, minioConnection.Endpoint);
+                options.AccessKey = FirstNonEmpty(options.AccessKey, minioConnection.AccessKey);
+                options.SecretKey = FirstNonEmpty(options.SecretKey, minioConnection.SecretKey);
+            })
+            .Validate(options => !string.IsNullOrWhiteSpace(options.Endpoint), "MinIO endpoint is not configured")
+            .Validate(options => !string.IsNullOrWhiteSpace(options.AccessKey), "MinIO access key is not configured")
+            .Validate(options => !string.IsNullOrWhiteSpace(options.SecretKey), "MinIO secret key is not configured")
+            .ValidateOnStart();
+
+        builder.Services.AddSingleton<IMinioClient>(provider =>
+        {
+            var options = provider.GetRequiredService<IOptions<StorageOptions>>().Value;
+            var (endpoint, useSsl) = ParseMinioEndpoint(options.Endpoint!, options.UseSsl);
+
+            return new MinioClient()
+                .WithEndpoint(endpoint)
+                .WithCredentials(options.AccessKey, options.SecretKey)
+                .WithSSL(useSsl)
+                .Build();
+        });
+
+        builder.Services.AddSingleton<IFileStorage, MinioFileStorage>();
+        builder.Services.AddSingleton<FileUploadValidator>();
+
+        builder.Services.AddHostedService<DatabaseMigrationHostedService>();
+        builder.Services.AddHostedService<MinioBucketInitializer>();
+        builder.Services.AddHostedService<PendingFileCleanupService>();
+
+        var identityUrl = Environment.GetEnvironmentVariable("IDENTITY_URL")
+            ?? throw new ArgumentNullException("IDENTITY_URL environment variable not defined");
+
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.Authority = identityUrl;
+            options.Audience = "huddle.files.api";
+            options.RequireHttpsMetadata = true;
+
+            options.TokenValidationParameters.ValidateAudience = true;
+            options.TokenValidationParameters.ValidateLifetime = true;
+            options.TokenValidationParameters.ValidateIssuer = true;
+            options.TokenValidationParameters.ValidIssuer = identityUrl;
+            options.TokenValidationParameters.ClockSkew = TimeSpan.FromMinutes(2);
+        });
+
+        builder.Services.AddAuthorization();
+
+        builder.Services.ConfigureHttpJsonOptions(options =>
+        {
+            options.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        });
 
         var app = builder.Build();
 
-        app.MapPost("/upload", async (IFormFile file, [FromServices] IMinioClient minioClient) =>
-        {
-            var objectName = Guid.NewGuid().ToString();
-            var putObjectArgs = new PutObjectArgs()
-                .WithBucket("my-bucket")
-                .WithObject(objectName)
-                .WithStreamData(file.OpenReadStream())
-                .WithObjectSize(file.Length)
-                .WithContentType(file.ContentType);
+        app.MapDefaultEndpoints();
 
-            await minioClient.PutObjectAsync(putObjectArgs);
+        // The service is only reachable through the gateway over plain HTTP inside the cluster,
+        // so there is no HTTPS redirect here.
+        app.UseAuthentication();
+        app.UseAuthorization();
 
-            // Ïóáëèêàöèÿ ñîáûòèÿ
-            // await eventBus.PublishAsync(new FileUploadedEvent(objectName, file.FileName));
-
-            return Results.Ok(new { ObjectName = objectName });
-        });
+        app.MapFileEndpoints();
 
         app.Run();
+    }
+
+    private static string? FirstNonEmpty(string? value, string? fallback) =>
+        string.IsNullOrWhiteSpace(value) ? fallback : value;
+
+    private static (string Endpoint, bool UseSsl) ParseMinioEndpoint(string endpoint, bool useSsl)
+    {
+        if (!Uri.TryCreate(endpoint, UriKind.Absolute, out var uri) || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+            return (endpoint, useSsl);
+
+        var host = uri.IsDefaultPort ? uri.Host : $"{uri.Host}:{uri.Port}";
+
+        return (host, uri.Scheme == Uri.UriSchemeHttps);
     }
 }

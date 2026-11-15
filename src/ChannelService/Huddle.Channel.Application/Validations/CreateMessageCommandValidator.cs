@@ -7,7 +7,11 @@ namespace Huddle.Channel.Application.Validations
     {
         public CreateMessageCommandValidator()
         {
-            RuleFor(command => command.Text).NotEmpty().MaximumLength(100);
+            RuleFor(command => command.Text).MaximumLength(100);
+
+            RuleFor(command => command)
+                .Must(command => !string.IsNullOrWhiteSpace(command.Text) || command.AttachmentIds.Count > 0)
+                .WithMessage("Message must contain text or at least one attachment");
         }
     }
 }

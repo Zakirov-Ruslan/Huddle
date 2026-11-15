@@ -2,6 +2,7 @@
 import type { Message } from "../api/types";
 import { useUserProfile } from "../hooks/queries/users";
 import type { LocalMessage } from "../stores/textChannelStore";
+import MessageAttachments from "./chat/MessageAttachments";
 
 interface AuthorMessageGroupProps {
     authorId: string;
@@ -36,13 +37,13 @@ const AuthorMessageGroup = ({ authorId, messageGroup }: AuthorMessageGroupProps)
                     </Tooltip>
                 </div>
             </div>
-            <div className="ml-12 flex flex-col">
+            <div className="ml-12 flex min-w-0 flex-col">
                 {messageGroup.map((msg, msgIndex) => (
                     <div
                         key={msg.id}
-                        className={`flex hover:bg-gray-100 rounded-md px-4 pb-2 items-start space-x-2 ${msgIndex === 0 ? 'mt-1' : 'mt-0'}`}
+                        className={`flex hover:bg-gray-100 rounded-md px-4 pb-2 items-start space-x-2 min-w-0 ${msgIndex === 0 ? 'mt-1' : 'mt-0'}`}
                     >
-                        <div className="flex-1">
+                        <div className="min-w-0 flex-1">
                             {msgIndex == 0 &&
                                 <div className="flex items-center space-x-2">
                                     <span className="font-medium text-gray-800 dark:text-slate-200">
@@ -50,16 +51,18 @@ const AuthorMessageGroup = ({ authorId, messageGroup }: AuthorMessageGroupProps)
                                     </span>
                                 </div>
                             }
-                            <div className="flex flex-row align-middle">
-                                <p className={`mt-1 flex-grow text-left whitespace-pre-line ${msg.status == "pending"
-                                    ? "text-gray-400"
-                                    : msg.status === "error"
-                                        ? "text-red-400"
-                                        : "text-gray-700"
-                                    }`}>
-                                    {msg.text}
-                                </p>
-                                <span className="mt-2 text-[12px] text-gray-500 dark:text-gray-400">
+                            <div className="flex min-w-0 flex-row align-middle">
+                                {msg.text.length > 0 && (
+                                    <p className={`mt-1 flex-grow text-left whitespace-pre-line ${msg.status == "pending"
+                                        ? "text-gray-400"
+                                        : msg.status === "error"
+                                            ? "text-red-400"
+                                            : "text-gray-700"
+                                        }`}>
+                                        {msg.text}
+                                    </p>
+                                )}
+                                <span className="mt-2 ml-auto pl-2 text-[12px] text-gray-500 dark:text-gray-400">
                                     {new Date(msg.sentAt).toLocaleTimeString([], {
                                         hour: '2-digit',
                                         minute: '2-digit',
@@ -67,6 +70,7 @@ const AuthorMessageGroup = ({ authorId, messageGroup }: AuthorMessageGroupProps)
                                 </span>
                             </div>
 
+                            <MessageAttachments attachments={msg.attachments} />
                         </div>
                     </div>
                 ))}

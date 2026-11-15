@@ -50,7 +50,7 @@ namespace Huddle.Channel.WebApi.Controllers
 
             try
             {
-                CreateMessageCommand command = new(identityId.Value, channelId, request.Text);
+                CreateMessageCommand command = new(identityId.Value, channelId, request.Text, request.AttachmentIds);
 
                 var createdMessage = await _mediator.Send(command);
                 return Ok(createdMessage);
@@ -58,6 +58,10 @@ namespace Huddle.Channel.WebApi.Controllers
             catch (ForbiddenAccessException)
             {
                 return Forbid();
+            }
+            catch (FileReferenceException ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 

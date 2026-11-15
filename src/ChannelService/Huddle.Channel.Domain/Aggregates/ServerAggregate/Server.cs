@@ -11,13 +11,14 @@ namespace Huddle.Channel.Domain.Aggregates.ServerAggregate
         public string Name { get; private set; }
         public Guid OwnerIdentityId { get; private set; }
         public bool IsPrivate { get; private set; }
+        public Guid? AvatarFileId { get; private set; }
 
         private readonly List<Channel> _channels = [];
         public IEnumerable<Channel> Channels => _channels.AsReadOnly();
 
         private Server() { }
 
-        public Server(Guid ownerId, string name, bool isPrivate)
+        public Server(Guid ownerId, string name, bool isPrivate, Guid? avatarFileId = null)
         {
             ValidateName(name);
 
@@ -25,6 +26,7 @@ namespace Huddle.Channel.Domain.Aggregates.ServerAggregate
             OwnerIdentityId = ownerId;
             Name = name;
             IsPrivate = isPrivate;
+            AvatarFileId = avatarFileId;
 
             AddChannel(ChannelType.Text, "Main");
             AddChannel(ChannelType.Voice, "Main");
@@ -41,6 +43,16 @@ namespace Huddle.Channel.Domain.Aggregates.ServerAggregate
 
             ServerUpdatedDomainEvent @event = new(Id, name);
             AddDomainEvent(@event);
+        }
+
+        public void SetAvatar(Guid avatarFileId)
+        {
+            AvatarFileId = avatarFileId;
+        }
+
+        public void RemoveAvatar()
+        {
+            AvatarFileId = null;
         }
 
         private static void ValidateName(string name)

@@ -67,7 +67,8 @@ namespace Huddle.Channel.WebApi.Controllers
             var command = new CreateServerCommand(
                 creatorId: identityId.Value,
                 name: request.Name,
-                isPrivate: request.isPrivate
+                isPrivate: request.isPrivate,
+                avatarFileId: request.AvatarFileId
             );
 
             try
@@ -77,6 +78,10 @@ namespace Huddle.Channel.WebApi.Controllers
                 return CreatedAtRoute(nameof(Get), new { Id = createdServer.Id }, createdServer);
             }
             catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (FileReferenceException ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -93,7 +98,9 @@ namespace Huddle.Channel.WebApi.Controllers
             var command = new UpdateServerCommand(
                 id: id,
                 name: request.Name,
-                commandSenderIdenityId: identityId.Value
+                commandSenderIdenityId: identityId.Value,
+                avatarFileId: request.AvatarFileId,
+                removeAvatar: request.RemoveAvatar
             );
 
             try
@@ -114,11 +121,77 @@ namespace Huddle.Channel.WebApi.Controllers
             {
                 return BadRequest(ex.Message);
             }
+            catch (FileReferenceException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // PUT api/<ServersController>/5/avatar
+        [HttpPut("{id}/avatar")]
+        public async Task<IActionResult> PutAvatar(Guid id, [FromBody] UpdateServerAvatarRequest request)
+        {
+            var identityId = User.GetCurrentUserIdentityId();
+            if (identityId == null)
+                return Unauthorized();
+
+            var command = new UpdateServerAvatarCommand(
+                serverId: id,
+                avatarFileId: request.FileId,
+                commandSenderIdentityId: identityId.Value
+            );
+
+            try
+            {
+                await _mediator.Send(command);
+
+                return Ok();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ForbiddenAccessException)
+            {
+                return Forbid();
+            }
+            catch (FileReferenceException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // DELETE api/<ServersController>/5/avatar
+        [HttpDelete("{id}/avatar")]
+        public async Task<IActionResult> DeleteAvatar(Guid id)
+        {
+            var identityId = User.GetCurrentUserIdentityId();
+            if (identityId == null)
+                return Unauthorized();
+
+            var command = new RemoveServerAvatarCommand(
+                serverId: id,
+                commandSenderIdentityId: identityId.Value
+            );
+
+            try
+            {
+                await _mediator.Send(command);
+
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ForbiddenAccessException)
+            {
+                return Forbid();
+            }
         }
 
         // DELETE api/<ServersController>/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+        [HttpDelete("{id}")]        public async Task<IActionResult> Delete(Guid id)
         {
             var identityId = User.GetCurrentUserIdentityId();
             if (identityId == null)

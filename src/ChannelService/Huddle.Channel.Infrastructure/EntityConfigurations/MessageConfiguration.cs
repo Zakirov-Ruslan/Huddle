@@ -17,6 +17,19 @@ namespace Huddle.Channel.Infrastructure.EntityConfigurations
 
             messageConfiguration.Ignore(s => s.DomainEvents);
 
+            messageConfiguration.OwnsMany(message => message.Attachments, attachment =>
+            {
+                attachment.ToTable("message_attachments");
+                attachment.WithOwner().HasForeignKey("MessageId");
+                attachment.HasKey(a => new { a.FileId, a.Position });
+
+                attachment.Property(a => a.FileName).HasMaxLength(255).IsRequired();
+                attachment.Property(a => a.ContentType).HasMaxLength(150).IsRequired();
+            });
+
+            messageConfiguration.Metadata.FindNavigation(nameof(Message.Attachments))
+                ?.SetPropertyAccessMode(PropertyAccessMode.Field);
+
             messageConfiguration
                 .HasOne<Domain.Aggregates.ServerAggregate.Channel>()
                 .WithMany()
