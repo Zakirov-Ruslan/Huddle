@@ -60,14 +60,14 @@ function ServerRail() {
                                         e.preventDefault();
                                     }
                                 }}
-                                className={`${railItemClasses} overflow-hidden ${currentServerId === server.id ? "bg-gray-300" : ""}`}
+                                className={`${railItemClasses} group overflow-hidden ${currentServerId === server.id ? "bg-gray-300" : ""}`}
                                 data-tooltip-id={`server-item-tooltip-${server.id}`}
                             >
                                 <ServerAvatar
                                     name={server.name}
                                     avatarUrl={server.avatarUrl}
-                                    className="flex h-full w-full items-center justify-center"
-                                    imageClassName="h-full w-full rounded-xl object-cover"
+                                    className="flex h-full w-full items-center justify-center transition-transform duration-200 ease-out group-hover:scale-105"
+                                    imageClassName="h-full w-full rounded-xl object-cover transition-transform duration-200 ease-out group-hover:scale-105"
                                 />
                             </Link>
                             <AppTooltip id={`server-item-tooltip-${server.id}`} place="right">
