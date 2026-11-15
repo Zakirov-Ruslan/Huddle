@@ -8,12 +8,14 @@ namespace Huddle.Channel.Application.Commands.Server
         public Guid CreatorId { get; private set; }
         public string Name { get; private set; }
         public bool IsPrivate { get; private set; }
+        public Guid? AvatarFileId { get; private set; }
 
-        public CreateServerCommand(Guid creatorId, string name, bool isPrivate)
+        public CreateServerCommand(Guid creatorId, string name, bool isPrivate, Guid? avatarFileId = null)
         {
             CreatorId = creatorId;
             Name = name;
             IsPrivate = isPrivate;
+            AvatarFileId = avatarFileId;
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿using AutoMapper;
-using Huddle.Channel.Application.Dto;
+﻿using Huddle.Channel.Application.Dto;
 using Huddle.Channel.Application.Exceptions;
+using Huddle.Channel.Application.Mapping;
 using Huddle.Channel.Application.Services;
 using Huddle.Channel.Domain.Aggregates.ServerAggregate;
 
@@ -9,13 +9,13 @@ namespace Huddle.Channel.Application.Queries.Servers
     public class ServersQueries : IServersQueries
     {
         private readonly IServerRepository _serverRepository;
-        private readonly IMapper _mapper;
+        private readonly IServerDtoFactory _serverDtoFactory;
         private readonly IAccessService _accessService;
 
-        public ServersQueries(IServerRepository serverRepository, IMapper mapper, IAccessService accessService)
+        public ServersQueries(IServerRepository serverRepository, IServerDtoFactory serverDtoFactory, IAccessService accessService)
         {
             _serverRepository = serverRepository;
-            _mapper = mapper;
+            _serverDtoFactory = serverDtoFactory;
             _accessService = accessService;
         }
 
@@ -28,14 +28,14 @@ namespace Huddle.Channel.Application.Queries.Servers
             var server = await _serverRepository.GetAsync(serverId)
                 ?? throw new KeyNotFoundException("Server not found");
 
-            return _mapper.Map<ServerDto>(server);
+            return _serverDtoFactory.Create(server);
         }
 
         public async Task<IEnumerable<ServerDto>> GetServersByMemberAsync(Guid memberId)
         {
             var servers = await _serverRepository.GetByMemberIdAsync(memberId);
 
-            return servers.Select(_mapper.Map<ServerDto>);
+            return servers.Select(_serverDtoFactory.Create);
         }
     }
 }

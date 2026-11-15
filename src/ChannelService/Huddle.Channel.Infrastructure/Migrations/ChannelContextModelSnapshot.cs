@@ -129,6 +129,9 @@ namespace Huddle.Channel.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("AvatarFileId")
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("IsPrivate")
                         .HasColumnType("boolean");
 
@@ -243,6 +246,45 @@ namespace Huddle.Channel.Infrastructure.Migrations
                         .HasForeignKey("ChannelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.OwnsMany("Huddle.Channel.Domain.Aggregates.MessageAggregate.MessageAttachment", "Attachments", b1 =>
+                        {
+                            b1.Property<Guid>("FileId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Position")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("ContentType")
+                                .IsRequired()
+                                .HasMaxLength(150)
+                                .HasColumnType("character varying(150)");
+
+                            b1.Property<string>("FileName")
+                                .IsRequired()
+                                .HasMaxLength(255)
+                                .HasColumnType("character varying(255)");
+
+                            b1.Property<bool>("IsImage")
+                                .HasColumnType("boolean");
+
+                            b1.Property<Guid>("MessageId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<long>("Size")
+                                .HasColumnType("bigint");
+
+                            b1.HasKey("FileId", "Position");
+
+                            b1.HasIndex("MessageId");
+
+                            b1.ToTable("message_attachments", "Channels");
+
+                            b1.WithOwner()
+                                .HasForeignKey("MessageId");
+                        });
+
+                    b.Navigation("Attachments");
                 });
 
             modelBuilder.Entity("Huddle.Channel.Domain.Aggregates.ServerAggregate.Channel", b =>

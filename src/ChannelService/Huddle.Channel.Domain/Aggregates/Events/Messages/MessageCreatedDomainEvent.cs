@@ -11,8 +11,9 @@ namespace Huddle.Channel.Domain.Aggregates.Events.Messages
         public string Text { get; }
         public DateTime SentAt { get; }
         public bool IsEdited { get; }
+        public IReadOnlyList<MessageAttachment> Attachments { get; }
 
-        public MessageCreatedDomainEvent(Guid messageId, Guid channelId, Guid authorId, string text, DateTime sentAt, bool isEdited)
+        public MessageCreatedDomainEvent(Guid messageId, Guid channelId, Guid authorId, string text, DateTime sentAt, bool isEdited, IReadOnlyList<MessageAttachment> attachments)
         {
             MessageId = messageId;
             ChannelId = channelId;
@@ -20,6 +21,7 @@ namespace Huddle.Channel.Domain.Aggregates.Events.Messages
             Text = text;
             SentAt = sentAt;
             IsEdited = isEdited;
+            Attachments = attachments;
         }
     }
 }

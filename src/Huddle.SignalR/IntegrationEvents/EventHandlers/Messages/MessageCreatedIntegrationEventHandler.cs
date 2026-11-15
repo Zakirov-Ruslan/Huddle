@@ -21,7 +21,7 @@ namespace Huddle.SignalR.IntegrationEvents.EventHandlers.Messages
         {
             _logger.LogInformation("----- Handling integration event: {IntegrationEventId} at {AppName} - ({@IntegrationEvent})", @event.Id, Assembly.GetExecutingAssembly().FullName, @event);
 
-            MessageDto createdMessage = new(@event.MessageId, @event.ChannelId, @event.AuthorId, @event.Text, @event.SentAt, false);
+            MessageDto createdMessage = new(@event.MessageId, @event.ChannelId, @event.AuthorId, @event.Text, @event.SentAt, false, @event.Attachments);
 
             Notification<MessageDto> notification = new(createdMessage, @event.InitiatorSessionId);
 

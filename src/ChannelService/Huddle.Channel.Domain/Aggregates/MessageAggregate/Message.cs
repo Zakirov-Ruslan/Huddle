@@ -11,8 +11,12 @@ namespace Huddle.Channel.Domain.Aggregates.MessageAggregate
         public DateTime SentAt { get; private set; }
         public bool IsEdited { get; private set; }
 
+        private readonly List<MessageAttachment> _attachments = [];
+        public IEnumerable<MessageAttachment> Attachments => _attachments.AsReadOnly();
+
         private Message() { }
-        public Message(Guid authorId, Guid channelId, string text)
+
+        public Message(Guid authorId, Guid channelId, string text, IEnumerable<MessageAttachment>? attachments = null)
         {
             Id = Guid.CreateVersion7();
             AuthorId = authorId;
@@ -21,7 +25,10 @@ namespace Huddle.Channel.Domain.Aggregates.MessageAggregate
             SentAt = DateTime.UtcNow;
             IsEdited = false;
 
-            MessageCreatedDomainEvent @event = new(Id, ChannelId, AuthorId, Text, SentAt, IsEdited);
+            if (attachments is not null)
+                _attachments.AddRange(attachments);
+
+            MessageCreatedDomainEvent @event = new(Id, ChannelId, AuthorId, Text, SentAt, IsEdited, _attachments.AsReadOnly());
             AddDomainEvent(@event);
         }
 
