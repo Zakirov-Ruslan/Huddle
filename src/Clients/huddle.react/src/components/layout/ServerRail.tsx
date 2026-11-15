@@ -7,6 +7,7 @@ import type { Server } from "../../api/types";
 import CreateServerDialog from "../dialogs/CreateServerDialog";
 import { AppTooltip } from "../AppTooltip";
 import { useMyServers } from "../../hooks/queries/servers";
+import ServerAvatar from "../server/ServerAvatar";
 
 /** Shared look of a single rail button. Compact on phones, roomy from `lg`. */
 const railItemClasses =
@@ -59,10 +60,15 @@ function ServerRail() {
                                         e.preventDefault();
                                     }
                                 }}
-                                className={`${railItemClasses} ${currentServerId === server.id ? "bg-gray-300" : ""}`}
+                                className={`${railItemClasses} overflow-hidden ${currentServerId === server.id ? "bg-gray-300" : ""}`}
                                 data-tooltip-id={`server-item-tooltip-${server.id}`}
                             >
-                                {server.name[0]}
+                                <ServerAvatar
+                                    name={server.name}
+                                    avatarUrl={server.avatarUrl}
+                                    className="flex h-full w-full items-center justify-center"
+                                    imageClassName="h-full w-full rounded-xl object-cover"
+                                />
                             </Link>
                             <AppTooltip id={`server-item-tooltip-${server.id}`} place="right">
                                 {server.name}

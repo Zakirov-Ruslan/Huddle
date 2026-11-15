@@ -39,8 +39,7 @@ export const useUpdateServer = () => {
     });
 };
 
-export const useDeleteServer = () => {
-    const queryClient = useQueryClient();
+export const useDeleteServer = () => {    const queryClient = useQueryClient();
     return useMutation<void, Error, string>({
         mutationFn: deleteServer,
         onSuccess: () => {

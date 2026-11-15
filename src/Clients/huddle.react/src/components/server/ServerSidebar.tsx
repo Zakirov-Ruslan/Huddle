@@ -12,6 +12,7 @@ import { ImExit } from "react-icons/im";
 import type { Channel, Server } from "../../api/types";
 import { AppTooltip } from "../AppTooltip";
 import UserPanel from "../layout/UserPanel";
+import ServerAvatar from "./ServerAvatar";
 
 export type ChannelType = "text" | "voice";
 
@@ -128,7 +129,17 @@ function ServerSidebar({
                             {server == null ? (
                                 <span className="mr-2 h-6 w-32 flex-grow animate-pulse rounded-xl bg-gray-200" />
                             ) : (
-                                <span className="mr-2 flex-grow truncate text-left">{server.name}</span>
+                                <>
+                                    {server.avatarUrl && (
+                                        <ServerAvatar
+                                            name={server.name}
+                                            avatarUrl={server.avatarUrl}
+                                            className="mr-2 hidden h-6 w-6 items-center justify-center rounded-full bg-[#5D6D7B] text-xs text-white"
+                                            imageClassName="mr-2 h-6 w-6 rounded-full object-cover"
+                                        />
+                                    )}
+                                    <span className="mr-2 flex-grow truncate text-left">{server.name}</span>
+                                </>
                             )}
                             <span className="shrink-0">{active ? <MdClose /> : <RiArrowDownSLine />}</span>
                         </>

@@ -10,6 +10,7 @@ export interface UpdatedChannelRequest {
 
 export interface CreateMessageRequest {
     text: string;
+    attachmentIds?: string[];
 }
 
 export interface UpdateMessageRequest {
@@ -19,10 +20,13 @@ export interface UpdateMessageRequest {
 export interface CreateServerRequest {
     name: string;
     isPrivate?: boolean;
+    avatarFileId?: string | null;
 }
 
 export interface UpdateServerRequest {
     name: string;
+    avatarFileId?: string | null;
+    removeAvatar?: boolean;
 }
 
 export interface UpdateMemberRequest {
@@ -63,6 +67,16 @@ export interface MembersParams {
     limit?: number;
 }
 
+export interface MessageAttachment {
+    fileId: string;
+    fileName: string;
+    contentType: string;
+    size: number;
+    isImage: boolean;
+    /** Relative path served by the file service, e.g. `/files/api/files/{id}/content`. */
+    url: string;
+}
+
 export interface Message {
     id: string;
     channelId: string;
@@ -70,6 +84,7 @@ export interface Message {
     text: string;
     sentAt: Date; // ISO 8601 date-time string
     isEdited: boolean;
+    attachments?: MessageAttachment[];
 }
 export interface PaginatedItems<T> {
     items: T[];
@@ -83,6 +98,7 @@ export interface Server {
     id: string;
     name: string;
     ownerIdentityId: string;
+    avatarUrl?: string | null;
     channels: Channel[];
 }
 
