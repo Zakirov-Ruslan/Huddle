@@ -67,6 +67,10 @@ namespace Huddle.Identity.Configs
                 new ApiResource("huddle.channel.api", "Huddle Channel API")
                 {
                     Scopes = { "api1" }
+                },
+                new ApiResource("huddle.files.api", "Huddle Files API")
+                {
+                    Scopes = { "api1" }
                 }
             };
         }
