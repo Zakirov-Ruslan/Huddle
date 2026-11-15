@@ -1,64 +1,111 @@
 # 🎤 Huddle
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev/)
+[![.NET Aspire](https://img.shields.io/badge/.NET%20Aspire-9.3-512BD4)](https://learn.microsoft.com/dotnet/aspire/)
 
-
-**Huddle** is a real-time chat application (a Discord alternative) built on .NET using a service-oriented architecture and **.NET Aspire**. This project demonstrates the practical application of DDD, Clean Architecture, and patterns for building resilient distributed systems.
+**Huddle** is a real-time chat application (a Discord alternative) built on .NET with a service-oriented
+architecture, orchestrated locally by **.NET Aspire**. It demonstrates DDD and Clean Architecture, CQRS with a
+transactional outbox, event-driven communication over RabbitMQ and a complete real-time stack (SignalR + WebRTC).
 
 ## 🚀 Features
-- 🎥 **WebRTC** for real-time voice and video communication.
-- 🏗️ **Clean Architecture + DDD**: strict separation into Domain, Application, Infrastructure, and API layers.
-- 📨 **CQRS with MediatR**: clear separation of commands and queries.
-- 📦 **Outbox Pattern**: guaranteed event delivery via RabbitMQ.
-- 🔍 **Observability**: OpenTelemetry, structured logging (Serilog), and the .NET Aspire dashboard out of the box.
-- 📎 **File storage**: chat attachments and server avatars are stored in **MinIO** (S3-compatible) through a dedicated file service.
-
-## 📎 File storage (MinIO)
-The AppHost starts a MinIO container and a `filedb` database; every upload goes through **`Huddle.FileService`**, which is exposed through the gateway under `/files/**`.
-
-Endpoints:
-- `POST /api/files?kind=attachment` or `?kind=avatar` — multipart upload (`file` field), returns the file id and the relative content URL.
-- `GET /api/files/{id}/content` — streams the file; add `?download=true` to force a download.
-- `GET /api/files/{id}/url` — short-lived presigned MinIO URL (owner only).
-- `DELETE /api/files/{id}` — removes the object and its metadata (owner only).
-- `POST /api/files/claim` — internal endpoint the channel service uses to verify uploaded files before they are attached to a message or a server avatar.
-
-Limits and validation: up to 10 files per message, 25 MB per attachment, 5 MB per avatar; `png`, `jpeg`, `gif`, `webp`, `pdf`, `txt`, `csv`, `json`, `zip`, `docx`, `xlsx` (avatars must be images). The channel service stores attachment metadata (`message_attachments`) and the server avatar file id, and resolves the URLs itself, so the storage host is never persisted.
-
-
-## 🎥 Voice and video (LiveKit)
-The AppHost runs a `livekit/livekit-server` container and asks for host networking, so the RTC ports are reachable directly: `7880/tcp` (signalling), `7881/tcp` (ICE over TCP) and `50000-60000/udp`. Clients outside the machine need those ports forwarded to the developer machine by the router. Docker Desktop provides the "host" network inside its own VM, so there the RTC ports have to be published or forwarded with the container instead.
-
-LiveKit accepts settings such as `rtc.node_ip` only through its configuration body, so the AppHost **generates** the configuration on every run and passes it in the `LIVEKIT_CONFIG` environment variable (see [LiveKitConfigBuilder](src/Huddle.AppHost/LiveKit/LiveKitConfigBuilder.cs)) — there is no machine specific config file in the repository.
-
-`rtc.node_ip` is the public address clients connect to, so it changes with the network:
-
-- by default the AppHost detects the public IP address of the machine at startup and logs it as `[livekit] rtc.node_ip = ...`;
-- override it when detection does not fit (VPN, no internet, fixed address), either in `appsettings.Development.json`, with a user secret or with an environment variable:
-
-```
-dotnet user-secrets set "LiveKit:NodeIp" "203.0.113.7" --project src/Huddle.AppHost
-```
-
-```
-$env:LiveKit__NodeIp = "203.0.113.7"
-```
-
-- set `LiveKit:AutoDetectNodeIp` to `false` (and leave `NodeIp` empty) to fall back to LiveKit's own STUN lookup.
-
-The LiveKit API key pair and the internal key between the channel and file services are generated on every AppHost run, so no credentials are stored in the repository. Pin them with `LiveKit:ApiKey`, `LiveKit:ApiSecret` or `Files:InternalApiKey` (user secrets, environment variables or `appsettings.Development.json`) when a value has to survive a restart, for example to check the server with https://livekit.io/connection-test. The values the container actually received are visible with `docker inspect <livekit container> --format '{{json .Config.Env}}'`.
-
+- 💬 **Servers and channels**: servers with members, avatar and invite links; text and voice channels.
+- 📜 **Text chat**: windowed message list with bidirectional infinite scroll and per-channel scroll position
+  restore, message editing and deletion, attachments with drag & drop and previews.
+- 🎥 **Voice channels**: WebRTC over a self-hosted **LiveKit** SFU with live participant events in the UI.
+- 📎 **File storage**: attachments and avatars in **MinIO** (S3-compatible) through a dedicated file service,
+  with size/MIME validation and presigned URLs.
+- 🔐 **Authentication**: OpenID Connect (Duende IdentityServer) for the SPA, JWT bearer for every API.
+- ⚡ **Real-time**: SignalR hub fed by RabbitMQ integration events published through the outbox.
+- 🔍 **Observability**: OpenTelemetry traces, metrics and logs plus the Aspire dashboard out of the box.
 
 ## 🏛️ Architecture
-![Architecture Diagram](img/huddle-architecture-diagram.svg)
 
+![Huddle architecture](img/huddle-architecture-diagram.svg)
 
-## 🛠️ Getting Started
-- Ensure you have the .NET 8 SDK (or later) and Docker Desktop installed.
-- Trust the development HTTPS certificates:
-```dotnet dev-certs https --trust ```
-- Run the AppHost project:
- ```cd src/Huddle.AppHost ```
- ``` dotnet run ```
+The only client is a **React SPA**. Every request goes through the **YARP API Gateway**, which resolves the
+services with Aspire service discovery. Services own their data and interact in two ways: synchronously over
+HTTP/gRPC when a response is needed on the spot (the channel service claims an upload before attaching it, the
+voice service checks channel access over gRPC) and asynchronously over **RabbitMQ integration events** for
+everything that can happen in the background.
+
+| Service | Project | Responsibility | State |
+|---|---|---|---|
+| Identity | `Huddle.Identity` | users and login, OIDC/JWT issuing (Duende IdentityServer + ASP.NET Identity) | `identitydb` |
+| Channel | `ChannelService/*` | servers, members, invites, channels, messages; DDD layers, CQRS with MediatR, outbox, gRPC access API | `channeldb` |
+| Files | `Huddle.FileService` | attachments and avatars, validation, presigned URLs, object storage | `filedb`, MinIO |
+| Voice | `Huddle.Voice.WebApi` | LiveKit access tokens and webhooks, voice participant events | — |
+| Realtime | `Huddle.SignalR` | notifications hub that pushes events to connected clients | Redis backplane |
+| Gateway | `Gateways/Huddle.ApiGateway` | routing, WebSocket passthrough, service discovery | — |
+
+**How a message travels**
+
+1. The SPA posts to `/channel/api/messages` through the gateway; the channel service writes the message and an
+   integration event in the same transaction (outbox) and returns immediately.
+2. A background publisher forwards the event to RabbitMQ.
+3. The realtime service consumes it and pushes the message to the channel group over SignalR; the voice service
+   does the same for participant events.
+4. Attachments are uploaded to the files service first; the channel service only accepts file ids it can claim,
+   so attachment URLs are resolved on read and no storage address is persisted.
+
+## 🧰 Tech stack
+
+- **Backend**: .NET 9, ASP.NET Core, MediatR (CQRS), EF Core 9 + PostgreSQL, YARP, Duende IdentityServer 7,
+  SignalR with a Redis backplane, gRPC, MinIO SDK, LiveKit .NET SDK.
+- **Infrastructure** (provisioned by Aspire): PostgreSQL, Redis, RabbitMQ, MinIO, LiveKit, OpenTelemetry,
+  service discovery and resilience defaults.
+- **Frontend**: React 19 + TypeScript, Vite, Tailwind CSS 4, TanStack Query, Zustand, react-router,
+  react-oidc-context, @livekit/components-react.
+
+## 📁 Repository layout
+
+```
+src/
+  Huddle.AppHost/              Aspire orchestration: containers, configuration, generated secrets
+  Gateways/Huddle.ApiGateway/  YARP gateway
+  Huddle.Identity/             Duende IdentityServer + ASP.NET Identity
+  ChannelService/              Channel WebApi + Domain / Application / Infrastructure / Dtos
+  Huddle.FileService/          uploads, validation and MinIO storage
+  Huddle.Voice.WebApi/         LiveKit tokens, webhooks and voice events
+  Huddle.SignalR/              notifications hub
+  EventBus/, EventBusRabbitMQ/, IntegrationEventLogEF/   messaging building blocks
+  Shared/                      protobuf contracts and shared helpers
+  Huddle.ServiceDefaults/      OpenTelemetry, HTTP resilience, service discovery
+  Clients/huddle.react/        React SPA
+tests/
+  ChannelService.FunctionalTests/
+```
+
+## 🛠️ Getting started
+
+Requirements: **.NET 9 SDK**, **Docker Desktop** and **Node.js 20+**.
+
+```powershell
+dotnet dev-certs https --trust
+cd src/Huddle.AppHost
+dotnet run
+```
+
+The AppHost starts everything: the SPA dev server, all services, PostgreSQL, Redis, RabbitMQ, MinIO and
+LiveKit. The Aspire dashboard URL is printed in the console — services, endpoints, logs and traces are
+available there.
+
+## 🔐 Configuration (development)
+
+- **Secrets are generated, not committed.** The LiveKit API key pair and the internal channel → files key are
+  created on every AppHost run. Pin them with `LiveKit:ApiKey`, `LiveKit:ApiSecret` or `Files:InternalApiKey`
+  when a value has to survive a restart.
+- **LiveKit configuration is rendered at startup** and passed as `LIVEKIT_CONFIG`; there is no machine specific
+  config file in the repository. The public address advertised to WebRTC clients (`rtc.node_ip`) is detected
+  automatically and can be overridden with `LiveKit:NodeIp`. See
+  [LiveKitConfigBuilder](src/Huddle.AppHost/LiveKit/LiveKitConfigBuilder.cs).
+- **LiveKit ports** must be reachable from clients: `7880/tcp` (signalling, through the gateway), `7881/tcp`
+  (ICE over TCP) and `50000-60000/udp`. Behind a router they have to be forwarded to the developer machine.
+
+## 🧪 Tests
+
+```
+dotnet test
+```
 
 ## 📚 Inspiration & References
 - https://github.com/dotnet/eShop
