@@ -2,6 +2,7 @@
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev/)
 [![.NET Aspire](https://img.shields.io/badge/.NET%20Aspire-9.3-512BD4)](https://learn.microsoft.com/dotnet/aspire/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 **Huddle** is a real-time chat application (a Discord alternative) built on .NET with a service-oriented
 architecture, orchestrated locally by **.NET Aspire**. It demonstrates DDD and Clean Architecture, CQRS with a
@@ -112,3 +113,10 @@ dotnet test
 - https://github.com/dotnet-architecture/eShopOnContainers/tree/dev
 - https://github.com/ardalis/CleanArchitecture
 - https://learn.microsoft.com/ru-ru/dotnet/architecture/microservices/
+
+## 📄 License
+
+Huddle is released under the [MIT License](LICENSE).
+
+Licenses of the frameworks, packages and container images it is built on — including the ones that need
+attention — are listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
