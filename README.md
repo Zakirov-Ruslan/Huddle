@@ -8,6 +8,8 @@
 architecture, orchestrated locally by **.NET Aspire**. It demonstrates DDD and Clean Architecture, CQRS with a
 transactional outbox, event-driven communication over RabbitMQ and a complete real-time stack (SignalR + WebRTC).
 
+![Huddle chat interface: server rail, channel list, message feed with images and attachments, members panel](img/huddle-chat-screenshot.png)
+
 ## 🚀 Features
 - 💬 **Servers and channels**: servers with members, avatar and invite links; text and voice channels.
 - 📜 **Text chat**: windowed message list with bidirectional infinite scroll and per-channel scroll position
