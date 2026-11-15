@@ -10,6 +10,9 @@ interface MessagePageParam {
     older: boolean;
 }
 
+/** Messages requested per page. Matches the rendered window size. */
+export const MESSAGES_PAGE_SIZE = 100;
+
 interface SendMessageVariables {
     channelId: string;
     data: CreateMessageRequest;
@@ -27,10 +30,11 @@ export const useInfiniteMessages = (channelId: string) => {
                 channelId,
                 cursor: pageParam.cursor,
                 older: pageParam.older,
+                limit: MESSAGES_PAGE_SIZE,
             });
         },
 
-        // Scroll bottom?
+        // Newer messages (the newest page is the initial one, so this is only used as a safety net).
         getNextPageParam: (lastPage, allPages) => {
             if (!lastPage.hasNext)
                 return undefined;
@@ -41,7 +45,7 @@ export const useInfiniteMessages = (channelId: string) => {
             };
         },
 
-        // Sroll top?
+        // Older messages, loaded when the user scrolls up.
         getPreviousPageParam: (firstPage, allPages) => {
             if (!firstPage.hasPrev)
                 return undefined;
@@ -52,6 +56,8 @@ export const useInfiniteMessages = (channelId: string) => {
             };
         },
         staleTime: 5 * 60 * 1000, //5 minutes
+        // Loaded history has to survive channel switching so the scroll position can be restored.
+        gcTime: Infinity,
         refetchOnWindowFocus: false,
     });
 };

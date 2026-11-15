@@ -1,7 +1,7 @@
-﻿import { useEffect, useMemo, useRef, type FormEvent } from "react";
+﻿import { useCallback, useEffect, useMemo, useRef, type FormEvent } from "react";
+import { FiArrowDown } from "react-icons/fi";
 import { IoSend } from "react-icons/io5";
 import { RiAttachment2 } from "react-icons/ri";
-import { useInView } from "react-intersection-observer";
 import type { Channel, MessageAttachment } from "../../api/types";
 import AuthorMessageGroup from "../../components/AuthorMessageGroup";
 import AttachmentPreviewList from "../../components/chat/AttachmentPreviewList";
@@ -13,8 +13,11 @@ import "../../styles/scrollbar.css";
 import { useInfiniteMessages, useSendMessage } from "../../hooks/queries/messages";
 import { useAttachmentUploads } from "../../hooks/useAttachmentUploads";
 import { useFileDrop } from "../../hooks/useFileDrop";
+import { useMessageWindow } from "../../hooks/useMessageWindow";
 import { useTextChannelStore, type LocalMessage } from '../../stores/textChannelStore';
 import { ALLOWED_ATTACHMENT_TYPES, MAX_ATTACHMENTS } from "../../utils/fileHelpers";
+
+const dayKey = (value: Date | string) => new Date(value).toLocaleDateString('ru-RU');
 
 const TextChannel: React.FC<Channel> = ({ id, name }) => {
     const { isConnected } = useSignalRState();
@@ -26,42 +29,72 @@ const TextChannel: React.FC<Channel> = ({ id, name }) => {
     const {
         data: messages,
         isFetching,
-        isFetchingNextPage,
-        hasNextPage,
-        fetchNextPage,
+        isFetchingPreviousPage,
+        hasPreviousPage,
+        fetchPreviousPage,
     } = useInfiniteMessages(id);
 
     const sendMessage = useSendMessage();
     const attachments = useAttachmentUploads("attachment");
 
-    const listRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const [loaderRef, inView] = useInView();
 
     const { isDragging, dropHandlers } = useFileDrop({ onFiles: attachments.addFiles });
 
     const allMessages = useMemo(() => {
+        const byId = new Map<string, LocalMessage>();
 
-        const serverMessages = messages?.pages?.flatMap(page => page.items) || [];
-        const serverMessagesAsLocal: LocalMessage[] = serverMessages.map(msg => ({
-            ...msg,
-            status: "success" as const,
-        }));
+        for (const page of messages?.pages ?? []) {
+            for (const message of page.items) {
+                if (!byId.has(message.id))
+                    byId.set(message.id, { ...message, status: "success" as const });
+            }
+        }
 
-        const combined = localMessages
-            ? [...serverMessagesAsLocal, ...localMessages]
-            : serverMessagesAsLocal;
+        for (const local of localMessages ?? [])
+            byId.set(local.id, local);
 
-        return combined.sort((a, b) =>
-            new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
-        );
+        return [...byId.values()].sort((a, b) => {
+            const byDate = new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime();
+            return byDate !== 0 ? byDate : a.id.localeCompare(b.id);
+        });
     }, [messages, localMessages]);
 
+    const loadOlder = useCallback(() => {
+        void fetchPreviousPage();
+    }, [fetchPreviousPage]);
+
+    const {
+        containerRef,
+        contentRef,
+        visibleMessages,
+        startIndex,
+        isAtBottom,
+        hasNewMessages,
+        onScroll,
+        scrollToBottom,
+    } = useMessageWindow({
+        channelId: id,
+        messages: allMessages,
+        hasOlder: Boolean(hasPreviousPage),
+        isFetchingOlder: isFetchingPreviousPage,
+        onLoadOlder: loadOlder,
+    });
+
     const groupedMessages = useMemo(() => {
-        return groupMessagesByDayAndAuthor(allMessages);
-    }, [allMessages]);
+        return groupMessagesByDayAndAuthor(visibleMessages);
+    }, [visibleMessages]);
+
+    // Do not repeat the day header when the window starts in the middle of a day.
+    const hideLeadingDayLabel = useMemo(() => {
+        if (startIndex === 0 || visibleMessages.length === 0)
+            return false;
+
+        const previous = allMessages[startIndex - 1];
+
+        return previous !== undefined && dayKey(previous.sentAt) === dayKey(visibleMessages[0].sentAt);
+    }, [allMessages, startIndex, visibleMessages]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newText = e.target.value;
@@ -84,21 +117,6 @@ const TextChannel: React.FC<Channel> = ({ id, name }) => {
 
         channelJoin();
     }, [id, isConnected])
-
-    useEffect(() => {
-        if (inView && hasNextPage && !isFetchingNextPage) {
-            fetchNextPage();
-        }
-    }, [inView, hasNextPage, fetchNextPage, isFetchingNextPage]);
-
-    useEffect(() => {
-        if (!isFetching && listRef.current && allMessages?.length) {
-            listRef.current?.scrollTo({
-                top: listRef.current.scrollHeight,
-                behavior: 'instant'
-            });
-        }
-    }, [isFetching, allMessages]);
 
     const resetTextarea = () => {
         if (textareaRef.current) {
@@ -138,6 +156,7 @@ const TextChannel: React.FC<Channel> = ({ id, name }) => {
         setDraft(id, '');
         attachments.clear();
         resetTextarea();
+        scrollToBottom(true);
     }
 
     const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
@@ -163,24 +182,51 @@ const TextChannel: React.FC<Channel> = ({ id, name }) => {
         >
             {isDragging && <FileDropOverlay />}
 
-            <section ref={listRef} className="custom-scrollbar flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 md:p-6">
-                <div ref={loaderRef} />
-                {isFetchingNextPage && (
-                    <div className="loading-indicator">Loading older messages...</div> //TODO:Skeleton loading animation
-                )}
-                {groupedMessages.map((dayGroup, i) => (
-                    <div key={i}>
-                        <span className="text-sm font-medium">{dayGroup.day}</span>
-                        {dayGroup.authorGroups.map((authorGroup, idx) => (
-                            <AuthorMessageGroup
-                                key={idx}
-                                authorId={authorGroup.authorId}
-                                messageGroup={authorGroup.messages}
-                            />
-                        ))}
-                    </div>
-                ))}
+            <section
+                ref={containerRef}
+                onScroll={onScroll}
+                className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-4 md:p-6"
+            >
+                <div ref={contentRef} className="flex flex-col gap-4">
+                    {isFetchingPreviousPage && (
+                        <div className="text-center text-xs font-medium text-gray-400">Loading older messages...</div>
+                    )}
+
+                    {allMessages.length === 0 && isFetching && (
+                        <div className="text-center text-sm text-gray-400">Loading messages...</div>
+                    )}
+
+                    {groupedMessages.map((dayGroup, i) => (
+                        <div key={`${dayGroup.day}-${i}`}>
+                            {!(i === 0 && hideLeadingDayLabel) && (
+                                <span className="text-sm font-medium">{dayGroup.day}</span>
+                            )}
+                            {dayGroup.authorGroups.map((authorGroup) => (
+                                <AuthorMessageGroup
+                                    key={authorGroup.messages[0].id}
+                                    authorId={authorGroup.authorId}
+                                    messageGroup={authorGroup.messages}
+                                />
+                            ))}
+                        </div>
+                    ))}
+                </div>
             </section>
+
+            {!isAtBottom && (
+                <button
+                    type="button"
+                    onClick={() => scrollToBottom()}
+                    aria-label="Jump to the latest messages"
+                    title="Jump to the latest messages"
+                    className="absolute bottom-24 right-4 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-[#5D6D7B] shadow-lg transition-colors duration-150 hover:bg-gray-100 md:right-6"
+                >
+                    <FiArrowDown className="h-5 w-5" />
+                    {hasNewMessages && (
+                        <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[#5D6D7B]" />
+                    )}
+                </button>
+            )}
 
             <div className="shrink-0 bg-white px-3 pb-3 md:px-5 md:pb-4">
                 <AttachmentPreviewList
