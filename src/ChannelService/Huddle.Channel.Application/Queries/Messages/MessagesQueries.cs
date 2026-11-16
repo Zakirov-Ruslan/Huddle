@@ -25,7 +25,7 @@ namespace Huddle.Channel.Application.Queries.Messages
             if (!hasAccess)
                 throw new ForbiddenAccessException("User dont have access to this channel");
 
-            var paginatedMessages = await _messageRepository.GetMessagesAsync(channelId, cursor, older);
+            var paginatedMessages = await _messageRepository.GetMessagesAsync(channelId, cursor, older, limit);
 
             var messagesDto = paginatedMessages.Items.Select(_messageDtoFactory.Create).ToList();
 
