@@ -1,11 +1,11 @@
-﻿using Huddle.EventBus.Abstractions;
+using Huddle.EventBus.Abstractions;
 using Huddle.SignalR.IntegrationEvents.Events.Messages;
 using Microsoft.AspNetCore.SignalR;
 using System.Reflection;
 
 namespace Huddle.SignalR.IntegrationEvents.EventHandlers.Messages
 {
-    public class MessageUpdatedIntegrationEventHandler : IIntegrationEventHandler<MessageUpdatedIntegretaionEvent>
+    public class MessageUpdatedIntegrationEventHandler : IIntegrationEventHandler<MessageUpdatedIntegrationEvent>
     {
         private readonly IHubContext<NotificationsHub> _hubContext;
         private readonly ILogger<MessageUpdatedIntegrationEventHandler> _logger;
@@ -16,7 +16,7 @@ namespace Huddle.SignalR.IntegrationEvents.EventHandlers.Messages
             _logger = logger;
         }
 
-        public async Task Handle(MessageUpdatedIntegretaionEvent @event)
+        public async Task Handle(MessageUpdatedIntegrationEvent @event)
         {
             _logger.LogInformation("----- Handling integration event: {IntegrationEventId} at {AppName} - ({@IntegrationEvent})", @event.Id, Assembly.GetExecutingAssembly().FullName, @event);
 
