@@ -75,7 +75,9 @@ src/
   Huddle.ServiceDefaults/      OpenTelemetry, HTTP resilience, service discovery
   Clients/huddle.react/        React SPA
 tests/
-  ChannelService.FunctionalTests/
+  Huddle.Channel.Domain.UnitTests/       domain model tests
+  Huddle.Channel.Application.UnitTests/  handler and validator tests
+  Huddle.Channel.FunctionalTests/        API tests over a PostgreSQL container
 ```
 
 ## 🛠️ Getting started
@@ -109,6 +111,13 @@ available there.
 ```
 dotnet test
 ```
+
+- `tests/Huddle.Channel.Domain.UnitTests` — domain model (aggregates, value objects, domain events), no infrastructure.
+- `tests/Huddle.Channel.Application.UnitTests` — command handlers, access checks, idempotency and validators with NSubstitute.
+- `tests/Huddle.Channel.FunctionalTests` — the channel API end to end (HTTP and gRPC) on top of PostgreSQL in a
+  Docker container; requires **Docker Desktop** to be running.
+
+See [tests/README.md](tests/README.md) for the details.
 
 ## 📚 Inspiration & References
 - https://github.com/dotnet/eShop
