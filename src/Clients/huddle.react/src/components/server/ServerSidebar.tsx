@@ -13,6 +13,7 @@ import type { Channel, Server } from "../../api/types";
 import { AppTooltip } from "../AppTooltip";
 import UserPanel from "../layout/UserPanel";
 import ServerAvatar from "./ServerAvatar";
+import { Skeleton } from "../skeleton/Skeleton";
 
 export type ChannelType = "text" | "voice";
 
@@ -74,8 +75,8 @@ const ChannelList = ({
             <ul className="space-y-1">
                 {isPending
                     ? Array.from({ length: skeletonCount }).map((_, i) => (
-                        <li key={i} className="animate-pulse">
-                            <div className="h-8 w-full rounded-xl bg-gray-200" />
+                        <li key={i}>
+                            <Skeleton className="h-8 w-full" />
                         </li>
                     ))
                     : channels.map(channel => (
@@ -127,7 +128,7 @@ function ServerSidebar({
                     {({ active }) => (
                         <>
                             {server == null ? (
-                                <span className="mr-2 h-6 w-32 flex-grow animate-pulse rounded-xl bg-gray-200" />
+                                <Skeleton shape="text" className="mr-2 h-6 w-32 flex-grow" />
                             ) : (
                                 <>
                                     {server.avatarUrl && (
@@ -220,10 +221,16 @@ function ServerSidebar({
                 />
             </nav>
 
-            {/* User card + voice status: docked to the bottom of the channel list
-                (bottom-left of the rail + channel-list area), desktop keeps its floating card. */}
-            <div className="shrink-0 p-2 lg:hidden">
-                <UserPanel />
+            {/* User card + voice status on phones/tablets. It is pinned to the viewport so it can
+                start over the server rail (`left-4`) exactly like the desktop card, while the spacer
+                above keeps the last channel of the list clear of it. On `md`+ the right edge keeps
+                the same 16px gap to the channel list: 100% - rail(4rem) - shell border(1px) - list(15rem) + gap(1rem). */}
+            <div className="shrink-0 px-2 pt-2 pb-3 md:pb-4 lg:hidden">
+                <div className="h-14 md:h-17" />
+            </div>
+
+            <div className="pointer-events-none fixed right-4 bottom-3 left-4 z-30 md:right-[calc(100%_-_4rem_-_1px_-_15rem_+_1rem)] md:bottom-4 lg:hidden">
+                <UserPanel className="pointer-events-auto" />
             </div>
         </aside>
     );

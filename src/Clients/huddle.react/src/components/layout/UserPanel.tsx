@@ -4,6 +4,7 @@ import { TbDoorExit, TbHeadphonesOff } from "react-icons/tb";
 import { useMyProfile } from "../../hooks/queries/users";
 import { useServer } from "../../hooks/queries/servers";
 import { useVoiceChannelStore } from "../../stores/voiceChannelStore";
+import { Skeleton } from "../skeleton/Skeleton";
 
 interface UserPanelProps {
     className?: string;
@@ -17,7 +18,7 @@ interface UserPanelProps {
  * functionality — only the placement differs.
  */
 const UserPanel = ({ className = "" }: UserPanelProps) => {
-    const { data: profile } = useMyProfile();
+    const { data: profile, isLoading: isProfileLoading } = useMyProfile();
     const { activeChannel, leaveChannel } = useVoiceChannelStore();
     const { data: voiceServer } = useServer(activeChannel?.serverId);
 
@@ -26,7 +27,7 @@ const UserPanel = ({ className = "" }: UserPanelProps) => {
         : activeChannel?.name;
 
     return (
-        <div className={`rounded-xl border border-gray-200 bg-white p-2 shadow-lg select-none lg:p-3 lg:shadow-2xl ${className}`}>
+        <div className={`flex min-h-14 flex-col justify-center rounded-xl border border-gray-200 bg-white p-2 shadow-lg select-none md:min-h-17 lg:p-3 lg:shadow-2xl ${className}`}>
             {activeChannel && (
                 <div className="mb-2 flex items-center gap-2 border-b border-gray-100 pb-2 text-left lg:mb-4 lg:gap-3 lg:border-0 lg:pb-0">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-green-600/40 bg-gray-100 text-green-600">
@@ -58,7 +59,9 @@ const UserPanel = ({ className = "" }: UserPanelProps) => {
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#5D6D7B] text-sm font-medium text-white lg:h-10 lg:w-10">
                         {profile?.userName?.[0]}
                     </div>
-                    <span className="truncate font-medium">{profile?.userName}</span>
+                    {isProfileLoading
+                        ? <Skeleton shape="text" className="h-4 w-28" />
+                        : <span className="truncate font-medium">{profile?.userName}</span>}
                 </div>
 
                 <button
