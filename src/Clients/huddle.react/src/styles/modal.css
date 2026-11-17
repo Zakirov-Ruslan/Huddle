@@ -10,7 +10,8 @@
     align-items: center;
     opacity: 0;
     transition: all 150ms ease-in-out;
-    z-index:10;
+    /* Above the app chrome (rail/cards use z-20..z-30) so everything gets dimmed. */
+    z-index: 60;
 }
 
 .modal {
