@@ -1,0 +1,40 @@
+/* Gentle idle motion for the mascot illustrations. */
+@keyframes mascot-bob {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes mascot-tilt {
+
+    0%,
+    100% {
+        transform: rotate(-2.5deg);
+    }
+
+    50% {
+        transform: rotate(2.5deg);
+    }
+}
+
+.mascot-bob {
+    animation: mascot-bob 2.8s ease-in-out infinite;
+}
+
+.mascot-tilt {
+    animation: mascot-tilt 4.5s ease-in-out infinite;
+    transform-origin: 50% 90%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .mascot-bob,
+    .mascot-tilt {
+        animation: none;
+    }
+}

@@ -1,0 +1,39 @@
+/* Loading placeholders: one shimmer for every skeleton block. */
+@keyframes skeleton-shimmer {
+    from {
+        background-position: 200% 0;
+    }
+
+    to {
+        background-position: -200% 0;
+    }
+}
+
+.skeleton {
+    background-color: #e2e6ea;
+    background-image: linear-gradient(100deg, #e2e6ea 20%, #eef2f5 40%, #e2e6ea 60%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .skeleton {
+        animation: none;
+        background-image: none;
+    }
+}
+
+/* Same shimmer on dark surfaces (voice tiles, avatars on the brand colour). */
+.skeleton-inverse {
+    background-color: rgba(255, 255, 255, 0.24);
+    background-image: linear-gradient(100deg,
+            rgba(255, 255, 255, 0.18) 20%,
+            rgba(255, 255, 255, 0.42) 40%,
+            rgba(255, 255, 255, 0.18) 60%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .skeleton-inverse {
+        background-image: none;
+    }
+}
