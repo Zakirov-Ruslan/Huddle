@@ -16,6 +16,9 @@ import { useFileDrop } from "../../hooks/useFileDrop";
 import { useMessageWindow } from "../../hooks/useMessageWindow";
 import { useTextChannelStore, type LocalMessage } from '../../stores/textChannelStore';
 import { ALLOWED_ATTACHMENT_TYPES, MAX_ATTACHMENTS } from "../../utils/fileHelpers";
+import Mascot from "../../components/Mascot";
+import { Skeleton } from "../../components/skeleton/Skeleton";
+import { MessageListSkeleton } from "../../components/skeleton/Skeletons";
 
 const dayKey = (value: Date | string) => new Date(value).toLocaleDateString('ru-RU');
 
@@ -189,11 +192,19 @@ const TextChannel: React.FC<Channel> = ({ id, name }) => {
             >
                 <div ref={contentRef} className="flex flex-col gap-4">
                     {isFetchingPreviousPage && (
-                        <div className="text-center text-xs font-medium text-gray-400">Loading older messages...</div>
+                        <div className="flex flex-col gap-4" role="status" aria-label="Loading older messages">
+                            <Skeleton shape="text" className="mx-auto h-3 w-40" />
+                            <MessageListSkeleton groups={2} />
+                        </div>
                     )}
 
-                    {allMessages.length === 0 && isFetching && (
-                        <div className="text-center text-sm text-gray-400">Loading messages...</div>
+                    {allMessages.length === 0 && isFetching && <MessageListSkeleton groups={6} />}
+
+                    {hasPreviousPage === false && allMessages.length > 0 && (
+                        <div className="flex flex-col items-center gap-1 py-2">
+                            <Mascot pose="peeking" className="h-16 opacity-70" />
+                            <span className="text-xs font-medium text-gray-400">This is the beginning of the channel</span>
+                        </div>
                     )}
 
                     {groupedMessages.map((dayGroup, i) => (

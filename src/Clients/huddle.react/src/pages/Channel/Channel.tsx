@@ -6,7 +6,8 @@ import VoiceChannel from "./VoiceChannel";
 import { useParams } from 'react-router';
 import { useInfiniteMembers } from "../../hooks/queries/members";
 import { useApplicationStore } from '../../stores/applicationStore';
-import idunno from "../../img/huddle-mascot/idunno.png";
+import Mascot from "../../components/Mascot";
+import { ChatSkeleton, MemberListSkeleton } from "../../components/skeleton/Skeletons";
 
 export const Channel = () => {
     const { channelId } = useParams<{ channelId: string }>();
@@ -19,6 +20,7 @@ export const Channel = () => {
 
     const {
         data,
+        isPending: areMembersPending,
         isFetchingNextPage,
         hasNextPage,
         fetchNextPage,
@@ -32,12 +34,12 @@ export const Channel = () => {
     }, [inView, hasNextPage, fetchNextPage, isFetchingNextPage]);
 
     if (!activeServer)
-        return <div className="flex flex-1 items-center justify-center">Loading...</div>;
+        return <ChatSkeleton />;
 
     const channel = activeServer.channels.find(ch => ch.id === channelId);
     if (!channel)
         return (
-            <div className="flex flex-1 flex-col items-center justify-center bg-white select-none">
+            <div className="flex flex-1 flex-col items-center justify-center gap-2 bg-white select-none">
                 <div className="relative max-w-md rotate-1 transform rounded-3xl bg-white p-8 shadow">
                     <div className="text-center">
                         <h2 className="mb-4 text-3xl font-bold tracking-wide text-gray-800">Nothing is here</h2>
@@ -45,12 +47,7 @@ export const Channel = () => {
                     </div>
                 </div>
 
-
-                <img
-                    src={idunno}
-                    alt="empty content"
-                    className="h-60 w-60"
-                />
+                <Mascot pose="confused" alt="Confused Huddle mascot" className="h-60" />
             </div>);
 
     const isTextChannel = channel.channelType.toLowerCase() === "text";
@@ -83,6 +80,7 @@ export const Channel = () => {
                         </div>
 
                         <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
+                            {areMembersPending && <MemberListSkeleton />}
                             {data?.pages.flatMap(page => page.items).map(member => (
                                 <ServerMemberItem key={member.identityId} userId={member.identityId} />
                             ))}

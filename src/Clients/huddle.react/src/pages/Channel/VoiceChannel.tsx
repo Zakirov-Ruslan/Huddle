@@ -5,6 +5,9 @@ import { useEffect } from "react";
 import { useUserProfile } from "../../hooks/queries/users";
 import type { LocalParticipant, RemoteParticipant } from "livekit-client";
 import { useVoiceChannelStore } from "../../stores/voiceChannelStore";
+import Mascot from "../../components/Mascot";
+import { Skeleton } from "../../components/skeleton/Skeleton";
+import { VoiceStageSkeleton } from "../../components/skeleton/Skeletons";
 
 const ParticipantPlaceholder: React.FC<{ participant: LocalParticipant | RemoteParticipant }> = ({ participant }) => {
 
@@ -24,14 +27,14 @@ const ParticipantPlaceholder: React.FC<{ participant: LocalParticipant | RemoteP
                 ${isSpeaking && "border-3 border-green-400 shadow-[0_0_15px_rgba(74,222,128,0.5)]"}
             `}
         >
-            {/* Icon */}
-            <div className="mb-1 text-2xl">
-                {isSpeaking ? "🎤" : "👤"}
-            </div>
+            <Mascot
+                pose={isSpeaking ? "speaking" : "head"}
+                className="mb-1 h-12 w-auto"
+            />
 
             {/* UserName */}
             {isLoading ? (
-                <span className="opacity-70">Loading...</span>
+                <Skeleton shape="text" tone="inverse" className="h-3 w-24" />
             ) : (
                 <span>{profile?.userName || userId}</span>
             )}
@@ -81,8 +84,20 @@ const VoiceChannel: React.FC<Channel> = ({ id, serverId, name }) => {
         }
     }
 
-    if (isLoading) return <div className="flex flex-1 items-center justify-center">Loading...</div>;
-    if (error || !token) return <div className="flex flex-1 items-center justify-center">Getting token error</div>;
+    if (isLoading) return <VoiceStageSkeleton />;
+    if (error || !token) return (
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
+            <Mascot pose="sad" alt="Sad Huddle mascot" className="h-40" />
+            <span className="text-lg font-medium text-gray-700">Voice channel is unavailable</span>
+            <span className="text-sm text-gray-500">We could not get a voice token. Try again in a moment.</span>
+            <button
+                className="rounded-md bg-[#5D6D7B] px-4 py-2 font-medium text-white transition-colors duration-150 hover:bg-[#4F5E6A]"
+                onClick={() => window.location.reload()}
+            >
+                Reload
+            </button>
+        </div>
+    );
 
     if (activeChannel?.id === id) {
         return (
@@ -93,6 +108,7 @@ const VoiceChannel: React.FC<Channel> = ({ id, serverId, name }) => {
     return (
         <div className="flex min-h-0 w-full flex-1 items-center justify-center p-4">
             <div className="flex flex-col items-center gap-3 text-center">
+                <Mascot pose="dancing" alt="Huddle mascot dancing" className="mascot-tilt h-44 md:h-52" />
                 <span className="text-2xl font-medium md:text-3xl">{name}</span>
                 <button
                     className="rounded-md bg-gray-200 px-4 py-2 font-medium"

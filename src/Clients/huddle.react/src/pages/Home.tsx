@@ -1,4 +1,4 @@
-﻿import idunno from "../img/huddle-mascot/idunno.png";
+import Mascot from "../components/Mascot";
 
 /**
  * Home screen: keeps the same two-column rhythm as a server page
@@ -30,10 +30,10 @@ function Home() {
                         </div>
                     </div>
 
-                    <img
-                        src={idunno}
-                        alt="empty content"
-                        className="h-48 w-48 md:h-60 md:w-60"
+                    <Mascot
+                        pose="waving"
+                        alt="Huddle mascot waving"
+                        className="mascot-bob mt-4 h-48 md:h-60"
                     />
                 </div>
             </section>

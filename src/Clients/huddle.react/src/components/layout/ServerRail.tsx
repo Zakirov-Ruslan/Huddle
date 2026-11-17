@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import ReactModal from "react-modal";
 import { FaCirclePlus } from "react-icons/fa6";
-import face from "../../img/huddle-mascot/face.png";
+import Mascot from "../Mascot";
 import type { Server } from "../../api/types";
 import CreateServerDialog from "../dialogs/CreateServerDialog";
 import { AppTooltip } from "../AppTooltip";
@@ -36,17 +36,20 @@ function ServerRail() {
 
     return (
         <>
-            <aside className="flex w-16 shrink-0 flex-col bg-gray-100 lg:w-24">
-                {/* No top padding on phones (icons sit flush, like in a native app);
+            <aside className="flex w-16 shrink-0 flex-col border-r border-gray-300 bg-gray-100 md:border-r-0 lg:w-24">
+                {/* Compact 10px top padding on phones so the first icon is not glued to the edge;
                     from `md` it mirrors the `pt-4` of the content area. */}
-                <div className="no-scrollbar flex min-h-0 flex-1 flex-col items-center gap-2 overflow-y-auto px-1 md:gap-3 md:pt-4 lg:p-4">
+                <div className="no-scrollbar flex min-h-0 flex-1 flex-col items-center gap-2 overflow-y-auto px-1 pt-2.5 md:gap-3 md:pt-4 lg:p-4">
                     <Link
                         to="/h"
-                        className={`${railItemClasses} overflow-hidden`}
+                        className={`${railItemClasses} group overflow-hidden`}
                         data-tooltip-id="nav-home"
                         aria-label="Home"
                     >
-                        <img src={face} alt="home" className="h-9 w-9 -scale-x-100 lg:h-12 lg:w-12" />
+                        <Mascot
+                            pose="head"
+                            className="h-9 w-9 transition-transform duration-200 ease-out group-hover:scale-105 lg:h-12 lg:w-12"
+                        />
                     </Link>
                     <AppTooltip id="nav-home" place="right">home</AppTooltip>
 
@@ -79,11 +82,13 @@ function ServerRail() {
                     <button
                         type="button"
                         onClick={() => setIsCreateServerModalOpen(true)}
-                        className={railItemClasses}
+                        className={`${railItemClasses} group overflow-hidden`}
                         data-tooltip-id="nav-new-server"
                         aria-label="Create server"
                     >
-                        <FaCirclePlus className="scale-125 lg:scale-150" />
+                        <span className="flex items-center justify-center transition-transform duration-200 ease-out group-hover:scale-110">
+                            <FaCirclePlus className="scale-125 lg:scale-150" />
+                        </span>
                     </button>
                     <AppTooltip id="nav-new-server" place="right">add server</AppTooltip>
                 </div>
