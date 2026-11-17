@@ -3,6 +3,7 @@ import { HiSpeakerWave } from "react-icons/hi2";
 import { IoClose } from "react-icons/io5";
 import type { Channel } from "../../api/types";
 import { AppTooltip } from "../AppTooltip";
+import { Skeleton } from "../skeleton/Skeleton";
 
 interface ChannelHeaderProps {
     channel?: Channel | null;
@@ -27,11 +28,13 @@ const ChannelHeader = ({ channel, isMembersPanelOpened, onToggleMembers, onBack 
                     <FaArrowLeft />
                 </button>
 
-                {channel && (
+                {channel ? (
                     <h2 className="flex min-w-0 items-center gap-1 font-semibold text-gray-700">
                         {isTextChannel ? <FaHashtag className="shrink-0" /> : <HiSpeakerWave className="shrink-0" />}
                         <span className="truncate">{channel.name}</span>
                     </h2>
+                ) : (
+                    <Skeleton shape="text" className="h-4 w-32" />
                 )}
             </div>
 

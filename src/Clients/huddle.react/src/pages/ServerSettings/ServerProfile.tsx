@@ -5,6 +5,7 @@ import type { UpdateServerRequest } from "../../api/types";
 import { useAvatarUpload } from "../../hooks/useAvatarUpload";
 import { useFileDrop } from "../../hooks/useFileDrop";
 import ServerAvatar from "../../components/server/ServerAvatar";
+import { SettingsSkeleton } from "../../components/skeleton/Skeletons";
 
 interface PendingAvatar {
   fileId: string;
@@ -63,11 +64,7 @@ function ServerProfile() {
   }
 
   if (isPending) {
-    return (
-      <div className="flex h-full w-full items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900" />
-      </div>
-    );
+    return <SettingsSkeleton />;
   }
 
   if (error) {

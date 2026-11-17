@@ -1,8 +1,8 @@
 ﻿import { Tooltip } from "react-tooltip";
-import type { Message } from "../api/types";
 import { useUserProfile } from "../hooks/queries/users";
 import type { LocalMessage } from "../stores/textChannelStore";
 import MessageAttachments from "./chat/MessageAttachments";
+import { Skeleton } from "./skeleton/Skeleton";
 
 interface AuthorMessageGroupProps {
     authorId: string;
@@ -11,7 +11,7 @@ interface AuthorMessageGroupProps {
 
 const AuthorMessageGroup = ({ authorId, messageGroup }: AuthorMessageGroupProps) => {
 
-    const { data: profile, isLoading: isProfileLoading, error: isProfileError } = useUserProfile(authorId);
+    const { data: profile, isLoading: isProfileLoading } = useUserProfile(authorId);
 
     return (
         <div className="relative mb-4">
@@ -21,7 +21,9 @@ const AuthorMessageGroup = ({ authorId, messageGroup }: AuthorMessageGroupProps)
                         className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#5D6D7B] text-sm font-medium text-white"
                         data-tooltip-id={`message-avatart-item-tooltip-${messageGroup[0]?.id}`}
                     >
-                        {profile?.userName.charAt(0).toUpperCase()}
+                        {isProfileLoading
+                            ? <Skeleton shape="circle" tone="inverse" className="h-8 w-8" />
+                            : profile?.userName.charAt(0).toUpperCase()}
                     </div>
 
                     <Tooltip
@@ -47,9 +49,13 @@ const AuthorMessageGroup = ({ authorId, messageGroup }: AuthorMessageGroupProps)
                         <div className="min-w-0 flex-1">
                             {msgIndex == 0 &&
                                 <div className="flex items-center space-x-2">
-                                    <span className="font-medium text-gray-800 dark:text-slate-200">
-                                        {profile?.userName}
-                                    </span>
+                                    {isProfileLoading ? (
+                                        <Skeleton shape="text" className="h-3.5 w-28" />
+                                    ) : (
+                                        <span className="font-medium text-gray-800 dark:text-slate-200">
+                                            {profile?.userName}
+                                        </span>
+                                    )}
                                 </div>
                             }
                             <div className="flex min-w-0 flex-row align-middle">

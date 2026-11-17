@@ -4,6 +4,7 @@ import ReactModal from "react-modal";
 import { useState } from "react";
 import { useServer } from "../../hooks/queries/servers";
 import DeleteServerDialog from "../../components/dialogs/DeleteServerDialog";
+import { SettingsSkeleton } from "../../components/skeleton/Skeletons";
 
 function ServerSettings() {
 
@@ -25,11 +26,7 @@ function ServerSettings() {
         return <div className="flex h-full items-center justify-center">Invalid server ID</div>;
 
     if (isPending) {
-        return (
-            <div className="flex h-full w-full items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
-            </div>
-        );
+        return <SettingsSkeleton />;
     }
 
     if (error) {

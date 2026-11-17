@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from "react";
 import { useServer, useDeleteServer } from "../../hooks/queries/servers";
+import { Skeleton } from "../skeleton/Skeleton";
 
 interface DeleteServerDialogProps {
     serverId: string,
@@ -33,9 +34,13 @@ const DeleteServerDialog: React.FC<DeleteServerDialogProps> = ({ serverId, onSer
 
     if (serverIsPending) {
         return (
-            <div className="p-6">
-                <div className="flex items-center justify-center">
-                    <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
+            <div className="flex flex-col gap-3 p-6" role="status" aria-label="Loading server">
+                <Skeleton shape="text" className="h-4 w-40" />
+                <Skeleton shape="text" className="h-3 w-full max-w-sm" />
+                <Skeleton className="mt-2 h-9 w-full" />
+                <div className="mt-2 flex justify-end gap-2">
+                    <Skeleton className="h-9 w-24" />
+                    <Skeleton className="h-9 w-24" />
                 </div>
             </div>
         );
