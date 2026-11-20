@@ -1,17 +1,22 @@
-﻿using Huddle.EventBus.Abstractions;
+using Huddle.EventBus.Abstractions;
 using Huddle.Grpc;
+using Huddle.Voice.WebApi.Contracts;
 using Huddle.Voice.WebApi.IntegrationEvents;
 using Huddle.Voice.WebApi.Services;
+using Huddle.Voice.WebApi.Voice;
 using Livekit.Server.Sdk.Dotnet;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using StackExchange.Redis;
 using System.Security.Claims;
-using System.Text.RegularExpressions;
 
 namespace Huddle.Voice.WebApi;
 
 public class Program
 {
+    /// <summary>LiveKit posts its webhooks here, see https://docs.livekit.io/home/server/webhooks/.</summary>
+    private const string WebhookPath = "/api/livekit/webhook";
+
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -21,10 +26,12 @@ public class Program
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
 
-        var SERVER_PORT = builder.Configuration.GetValue<int>("SERVER_PORT");
-        var LIVEKIT_URL = builder.Configuration.GetValue<string>("LIVEKIT_URL");
-        var LIVEKIT_API_KEY = builder.Configuration.GetValue<string>("LIVEKIT_API_KEY");
-        var LIVEKIT_API_SECRET = builder.Configuration.GetValue<string>("LIVEKIT_API_SECRET");
+        var LIVEKIT_URL = builder.Configuration.GetValue<string>("LIVEKIT_URL")
+            ?? throw new InvalidOperationException("LIVEKIT_URL environment variable not defined");
+        var LIVEKIT_API_KEY = builder.Configuration.GetValue<string>("LIVEKIT_API_KEY")
+            ?? throw new InvalidOperationException("LIVEKIT_API_KEY environment variable not defined");
+        var LIVEKIT_API_SECRET = builder.Configuration.GetValue<string>("LIVEKIT_API_SECRET")
+            ?? throw new InvalidOperationException("LIVEKIT_API_SECRET environment variable not defined");
 
         var identityUrl = Environment.GetEnvironmentVariable("IDENTITY_URL")
             ?? throw new ArgumentNullException("IDENTITY_URL environment variable not defined");
@@ -56,6 +63,24 @@ public class Program
         });
         builder.Services.AddScoped<GrpcChannelAccessClient>();
 
+        // Voice presence: LiveKit is the source of truth, Redis keeps a projection of it that is rebuilt
+        // from LiveKit whenever the projection is gone (see RedisVoiceStateStore).
+        var redisConnectionString = builder.Configuration.GetConnectionString("redis")
+            ?? throw new InvalidOperationException("Redis connection string not defined");
+        builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
+        {
+            var options = ConfigurationOptions.Parse(redisConnectionString);
+
+            // The cache must not take the voice service down: the same setting is used by the SignalR
+            // backplane, and the projection is rebuilt from LiveKit as soon as Redis is back.
+            options.AbortOnConnectFail = false;
+
+            return ConnectionMultiplexer.Connect(options);
+        });
+        builder.Services.AddSingleton<IVoiceStateStore, RedisVoiceStateStore>();
+        builder.Services.AddSingleton<IVoiceRoomDirectory, LiveKitVoiceRoomDirectory>();
+        builder.Services.AddSingleton<ServerVoiceStateProvider>();
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -64,7 +89,11 @@ public class Program
             app.MapOpenApi();
         }
 
-        app.UseHttpsRedirection();
+        // LiveKit delivers webhooks over plain HTTP in the development environment and does not follow
+        // redirects, so that single path must not be redirected to HTTPS.
+        app.UseWhen(
+            context => !context.Request.Path.StartsWithSegments(WebhookPath),
+            branch => branch.UseHttpsRedirection());
 
         app.UseAuthentication();
         app.UseAuthorization();
@@ -100,16 +129,13 @@ public class Program
                     return Results.Problem("Failed to validate permissions", statusCode: 500);
                 }
 
-                var apiKey = builder.Configuration["LiveKit:ApiKey"];
-                var apiSecret = builder.Configuration["LiveKit:ApiSecret"];
-                var roomName = $"server-{serverId}-channel-{channelId}";
+                var roomName = VoiceRoomName.Format(Guid.Parse(serverId), Guid.Parse(channelId));
                 var displayName = user.FindFirst("name")?.Value ?? userId;
 
                 var token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
                     .WithIdentity(userId)
                     .WithName(displayName)
                     .WithGrants(new VideoGrants { RoomJoin = true, Room = roomName })
-                    //.WithAttributes(new Dictionary<string, string> { { "mykey", "myvalue" } })
                     .WithTtl(TimeSpan.FromHours(1));
 
                 logger.LogInformation("Token successfuly generated for user {userId} and channel {channelId}", userId, channelId);
@@ -119,83 +145,131 @@ public class Program
         )
         .RequireAuthorization();
 
+        // Voice presence snapshot of a whole server, used when the server page is opened.
+        // One request per server: the participants are grouped by channel on the server side, so the client
+        // neither multiplies requests per channel nor repeats the access check for each of them.
+        app.MapGet(
+            "api/livekit/servers/{serverId:guid}/participants",
+            async (Guid serverId,
+                   HttpContext context,
+                   GrpcChannelAccessClient grpcChannelAccessClient,
+                   ServerVoiceStateProvider voiceStateProvider,
+                   ILogger<Program> logger) =>
+            {
+                var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (context.User.Identity?.IsAuthenticated != true || !Guid.TryParse(userId, out var identityId))
+                    return Results.Unauthorized();
+
+                try
+                {
+                    var canAccess = await grpcChannelAccessClient.CheckServerAccessAsync(serverId, identityId);
+                    if (!canAccess)
+                        return Results.Forbid();
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Exception on grpc access check: {ex.Message}");
+                    return Results.Problem("Failed to validate permissions", statusCode: 500);
+                }
+
+                var snapshot = await voiceStateProvider.GetAsync(serverId, context.RequestAborted);
+
+                return Results.Ok(snapshot.ToDto(serverId));
+            }
+        )
+        .RequireAuthorization();
+
         // Webhook handler
         // https://docs.livekit.io/home/server/webhooks/
+        //
+        // Deliberately without `RequireAuthorization()`: LiveKit authenticates its callbacks with a JWT
+        // signed by the LiveKit API secret, not with a bearer token of a Huddle user, so the standard
+        // JwtBearer scheme used by every other endpoint here would reject them. The request is instead
+        // authenticated by WebhookReceiver.Receive, which verifies that JWT and the sha256 digest of the
+        // body, so an unsigned request (or one with a modified body) is refused.
         var webhookReceiver = new WebhookReceiver(LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
         app.MapPost(
-            "api/livekit/webhook",
-            async (HttpRequest request, IEventBus eventBus, ILogger<Program> logger) =>
+            WebhookPath,
+            async (HttpRequest request,
+                   IEventBus eventBus,
+                   IVoiceStateStore stateStore,
+                   ILogger<Program> logger) =>
             {
+                var authorization = request.Headers.Authorization.ToString();
+                if (string.IsNullOrEmpty(authorization))
+                    return Results.BadRequest("Authorization header is required");
+
                 var body = new StreamReader(request.Body);
                 string postData = await body.ReadToEndAsync();
 
-                var authHeader = request.Headers["Authorization"];
-                if (authHeader.Count == 0)
+                WebhookEvent webhookEvent;
+                try
                 {
-                    return Results.BadRequest("Authorization header is required");
+                    webhookEvent = webhookReceiver.Receive(postData, authorization);
+                }
+                catch (Exception exception)
+                {
+                    logger.LogWarning(exception, "Rejected a LiveKit webhook: the signature could not be verified");
+                    return Results.Unauthorized();
                 }
 
-                WebhookEvent webhookEvent = webhookReceiver.Receive(postData, authHeader.First());
                 logger.LogInformation("Recieved webhookEvent: {@webhookEvent}", webhookEvent);
+
+                if (!VoiceRoomName.TryParse(webhookEvent.Room?.Name, out var room))
+                {
+                    logger.LogWarning("Ignoring a LiveKit webhook for the unknown room {RoomName}", webhookEvent.Room?.Name);
+                    return Results.Ok();
+                }
 
                 switch (webhookEvent.Event)
                 {
-                    case "participant_joined": 
+                    case "participant_joined":
                         {
-                            var matches = Regex.Match(webhookEvent.Room.Name, @"server-(.*)-channel-(.*)");
-                            if (!matches.Success)
-                                throw new Exception("Invalid room name");
+                            if (!TryReadUserId(webhookEvent, logger, out var userId))
+                                return Results.Ok();
 
-                            var serverId = Guid.Parse( matches.Groups[1].Value );
-                            var chanelId = Guid.Parse( matches.Groups[2].Value );
-                            var useId = Guid.Parse(webhookEvent.Participant.Identity);
+                            var participant = new VoiceParticipant(userId, DisplayNameOf(webhookEvent), JoinedAtOf(webhookEvent));
+                            var version = await stateStore.AddParticipantAsync(room.ServerId, room.ChannelId, participant);
 
-                            var @event = new VoiceParticipantJoined(
-                                serverId: serverId,
-                                channelId: chanelId,
-                                userId: useId
-                            );
-                            await eventBus.PublishAsync(@event);
+                            await eventBus.PublishAsync(new VoiceParticipantJoined(
+                                serverId: room.ServerId,
+                                channelId: room.ChannelId,
+                                userId: participant.UserId,
+                                displayName: participant.DisplayName,
+                                joinedAt: participant.JoinedAt,
+                                version: version));
+
                             return Results.Ok();
                         }
                     case "participant_left":
-                        {
-                            var matches = Regex.Match(webhookEvent.Room.Name, @"server-(.*)-channel-(.*)");
-                            if (!matches.Success)
-                                throw new Exception("Invalid room name");
-
-                            var serverId = Guid.Parse(matches.Groups[1].Value);
-                            var chanelId = Guid.Parse(matches.Groups[2].Value);
-                            var useId = Guid.Parse(webhookEvent.Participant.Identity);
-
-                            var @event = new VoiceParticipantLeft(
-                                serverId: serverId,
-                                channelId: chanelId,
-                                userId: useId
-                            );
-                            await eventBus.PublishAsync(@event);
-                            return Results.Ok();
-                        }
                     case "participant_connection_aborted":
                         {
-                            var matches = Regex.Match(webhookEvent.Room.Name, @"server-(.*)-channel-(.*)");
-                            if (!matches.Success)
-                                throw new Exception("Invalid room name");
+                            if (!TryReadUserId(webhookEvent, logger, out var userId))
+                                return Results.Ok();
 
-                            var serverId = Guid.Parse(matches.Groups[1].Value);
-                            var chanelId = Guid.Parse(matches.Groups[2].Value);
-                            var useId = Guid.Parse(webhookEvent.Participant.Identity);
+                            var version = await stateStore.RemoveParticipantAsync(room.ServerId, room.ChannelId, userId);
 
-                            var @event = new VoiceParticipantConnectionAborted(
-                                serverId: serverId,
-                                channelId: chanelId,
-                                userId: useId
-                            );
-                            await eventBus.PublishAsync(@event);
+                            await eventBus.PublishAsync(new VoiceParticipantLeft(
+                                serverId: room.ServerId,
+                                channelId: room.ChannelId,
+                                userId: userId,
+                                reason: webhookEvent.Event,
+                                version: version));
+
+                            return Results.Ok();
+                        }
+                    case "room_finished":
+                        {
+                            var version = await stateStore.RemoveChannelAsync(room.ServerId, room.ChannelId);
+
+                            await eventBus.PublishAsync(new VoiceChannelClosed(
+                                serverId: room.ServerId,
+                                channelId: room.ChannelId,
+                                version: version));
+
                             return Results.Ok();
                         }
                     case "room_started":
-                    case "room_finished":
                     case "track_published":
                     case "track_unpublished":
                     case "egress_started":
@@ -204,13 +278,36 @@ public class Program
                     case "ingress_started":
                     case "ingress_ended":
                     default:
-                        break;
+                        return Results.Ok();
                 }
-
-                return Results.Ok();
             }
-        ).RequireAuthorization();
+        );
 
         app.Run();
+    }
+
+    private static bool TryReadUserId(WebhookEvent webhookEvent, ILogger logger, out Guid userId)
+    {
+        if (Guid.TryParse(webhookEvent.Participant?.Identity, out userId))
+            return true;
+
+        logger.LogWarning(
+            "Ignoring a LiveKit webhook {EventName} with the malformed participant identity {Identity}",
+            webhookEvent.Event,
+            webhookEvent.Participant?.Identity);
+
+        return false;
+    }
+
+    private static string DisplayNameOf(WebhookEvent webhookEvent) =>
+        string.IsNullOrWhiteSpace(webhookEvent.Participant?.Name)
+            ? webhookEvent.Participant?.Identity ?? string.Empty
+            : webhookEvent.Participant.Name;
+
+    private static DateTimeOffset JoinedAtOf(WebhookEvent webhookEvent)
+    {
+        var joinedAt = webhookEvent.Participant?.JoinedAt ?? 0;
+
+        return joinedAt > 0 ? DateTimeOffset.FromUnixTimeSeconds(joinedAt) : DateTimeOffset.UtcNow;
     }
 }
