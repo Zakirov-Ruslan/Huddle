@@ -23,7 +23,12 @@ internal static class LiveKitConfigBuilder
     /// <param name="allowPublicIpDetection">
     /// Whether the public address may be detected with a network request, enabled for the development environment only.
     /// </param>
-    public static string Build(LiveKitOptions options, bool allowPublicIpDetection)
+    /// <param name="apiKey">Key LiveKit signs its webhooks with.</param>
+    /// <param name="webhookUrl">
+    /// Where LiveKit has to report participant and room changes. Without it the voice presence
+    /// of the application stays empty, because nothing would ever tell the voice service about joins.
+    /// </param>
+    public static string Build(LiveKitOptions options, bool allowPublicIpDetection, string apiKey, string? webhookUrl)
     {
         var nodeIp = ResolveNodeIp(options, allowPublicIpDetection);
         var config = new StringBuilder();
@@ -61,6 +66,17 @@ internal static class LiveKitConfigBuilder
         config.AppendLine("      protocol: udp");
         config.AppendLine("      username: \"homeo\"");
         config.AppendLine("      credential: \"homeo\"");
+
+        if (!string.IsNullOrWhiteSpace(webhookUrl))
+        {
+            config.AppendLine();
+            config.AppendLine("# Participant and room changes are pushed to the voice service, which caches the");
+            config.AppendLine("# voice presence and relays it to the clients over SignalR.");
+            config.AppendLine("webhook:");
+            config.AppendLine($"  api_key: {apiKey}");
+            config.AppendLine("  urls:");
+            config.AppendLine($"    - {webhookUrl}");
+        }
 
         return config.ToString();
     }

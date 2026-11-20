@@ -21,4 +21,11 @@ internal sealed class LiveKitOptions
 
     /// <summary>Endpoint that echoes back the caller's public IP address. Detection is skipped when the URL is empty.</summary>
     public string? NodeIpEchoUrl { get; set; } = "https://api.ipify.org";
+
+    /// <summary>
+    /// URL LiveKit posts its webhooks to, usually the HTTP endpoint of the voice service.
+    /// The container runs with host networking, so it cannot reach the dev machine through
+    /// <c>localhost</c> and the default uses <c>host.docker.internal</c> instead.
+    /// </summary>
+    public string? WebhookUrl { get; set; }
 }

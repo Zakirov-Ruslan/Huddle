@@ -8,6 +8,9 @@ using System.Net.Sockets;
 
 internal class Program
 {
+    /// <summary>HTTP endpoint of Huddle.Voice.WebApi, see its <c>launchSettings.json</c>.</summary>
+    private const int VoiceServiceHttpPort = 5184;
+
     private static void Main(string[] args)
     {
         var builder = DistributedApplication.CreateBuilder(args);
@@ -47,10 +50,17 @@ internal class Program
         var liveKitOptions = builder.Configuration.GetSection(LiveKitOptions.SectionName).Get<LiveKitOptions>()
             ?? new LiveKitOptions();
 
+        // LiveKit runs with host networking (see below), so it reaches the dev machine through
+        // host.docker.internal rather than localhost. The port is the HTTP endpoint of Huddle.Voice.WebApi
+        // from its launch settings; override LiveKit:WebhookUrl when the service listens somewhere else.
+        var liveKitWebhookUrl = liveKitOptions.WebhookUrl;
+        if (string.IsNullOrWhiteSpace(liveKitWebhookUrl))
+            liveKitWebhookUrl = $"http://host.docker.internal:{VoiceServiceHttpPort}/api/livekit/webhook";
+
         var liveKit = builder.AddContainer("livekit", "livekit/livekit-server")
             .WithHttpEndpoint(port: 7880, targetPort: 7880, name: "http")
             .WithEndpoint(port: 7881, targetPort: 7881, name: "ice-tcp", protocol: ProtocolType.Tcp)
-            .WithEnvironment("LIVEKIT_CONFIG", LiveKitConfigBuilder.Build(liveKitOptions, builder.Environment.IsDevelopment()))
+            .WithEnvironment("LIVEKIT_CONFIG", LiveKitConfigBuilder.Build(liveKitOptions, builder.Environment.IsDevelopment(), liveKitApiKey, liveKitWebhookUrl))
             .WithEnvironment("LIVEKIT_KEYS", $"{liveKitApiKey}: {liveKitApiSecret}")
             // Host networking keeps the RTC ports reachable without publishing the whole UDP range.
             // Docker Desktop provides the "host" network inside its VM, so there the ports still have to
