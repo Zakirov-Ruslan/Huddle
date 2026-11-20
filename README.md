@@ -36,7 +36,7 @@ everything that can happen in the background.
 | Identity | `Huddle.Identity` | users and login, OIDC/JWT issuing (Duende IdentityServer + ASP.NET Identity) | `identitydb` |
 | Channel | `ChannelService/*` | servers, members, invites, channels, messages; DDD layers, CQRS with MediatR, outbox, gRPC access API | `channeldb` |
 | Files | `Huddle.FileService` | attachments and avatars, validation, presigned URLs, object storage | `filedb`, MinIO |
-| Voice | `Huddle.Voice.WebApi` | LiveKit access tokens and webhooks, voice participant events | — |
+| Voice | `Huddle.Voice.WebApi` | LiveKit access tokens and webhooks, voice presence snapshot per server ([details](src/Huddle.Voice.WebApi/README.md)) | Redis (projection of LiveKit) |
 | Realtime | `Huddle.SignalR` | notifications hub that pushes events to connected clients | Redis backplane |
 | Gateway | `Gateways/Huddle.ApiGateway` | routing, WebSocket passthrough, service discovery | — |
 
