@@ -19,7 +19,7 @@ namespace Huddle.SignalR.Extensions
 
             eventBus.AddSubscription<VoiceParticipantJoined, VoiceParticipantJoinedIntegrationEventHandler>();
             eventBus.AddSubscription<VoiceParticipantLeft, VoiceParticipantLeftIntegrationEventHandler>();
-            eventBus.AddSubscription<VoiceParticipantConnectionAborted, VoiceParticipantConnectionAbortedIntegrationEventHandler>();
+            eventBus.AddSubscription<VoiceChannelClosed, VoiceChannelClosedIntegrationEventHandler>();
         }
     }
 }

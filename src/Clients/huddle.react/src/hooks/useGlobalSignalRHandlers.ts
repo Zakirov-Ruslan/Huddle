@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { SignalRContext } from '../providers/SignalRProvider';
 import { handleCreateMessage } from '../signalRHandlers/messages';
 import { handleCreateChannel } from '../signalRHandlers/channels';
+import { handleVoiceChannelClosed, handleVoiceParticipantJoined, handleVoiceParticipantLeft } from '../signalRHandlers/voice';
 import { getSessionId } from '../utils/authHelpers';
 
 export const useGlobalSignalRHandlers = () => {
@@ -19,11 +20,24 @@ export const useGlobalSignalRHandlers = () => {
         const createChannelHandler = withSessionFilter(handleCreateChannel(queryClient));
         connection.on('CreateChannel', createChannelHandler);
 
+        // Voice presence is a delta against the snapshot cached by `useServerVoiceState`.
+        const voiceParticipantJoinedHandler = handleVoiceParticipantJoined(queryClient);
+        connection.on('VoiceParticipantJoined', voiceParticipantJoinedHandler);
+
+        const voiceParticipantLeftHandler = handleVoiceParticipantLeft(queryClient);
+        connection.on('VoiceParticipantLeft', voiceParticipantLeftHandler);
+
+        const voiceChannelClosedHandler = handleVoiceChannelClosed(queryClient);
+        connection.on('VoiceChannelClosed', voiceChannelClosedHandler);
+
         console.debug('subscribed to all signalRHandlers')
 
         return () => {
             connection.off('CreateMessage', createMessageHandler);
             connection.off('CreateChannel', createChannelHandler);
+            connection.off('VoiceParticipantJoined', voiceParticipantJoinedHandler);
+            connection.off('VoiceParticipantLeft', voiceParticipantLeftHandler);
+            connection.off('VoiceChannelClosed', voiceChannelClosedHandler);
         };
     }, [SignalRContext.connection, queryClient]);
 };

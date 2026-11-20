@@ -50,16 +50,9 @@ export const VoiceStageSkeleton = ({ tiles = 3 }: { tiles?: number }) => (
     </div>
 );
 
-/** Settings pages: sidebar entry + form column. */
+/** Settings content card: heading + form. The navigation column has its own placeholders. */
 export const SettingsSkeleton = () => (
-    <div className="flex h-full w-full flex-col gap-4 p-6 md:flex-row md:gap-8" role="status" aria-label="Loading settings">
-        <div className="w-full md:w-1/3">
-            <Skeleton shape="text" className="mb-4 h-4 w-40" />
-            <div className="flex flex-col gap-2">
-                <Skeleton shape="text" className="h-4 w-48" />
-                <Skeleton shape="text" className="h-4 w-36" />
-            </div>
-        </div>
+    <div className="flex h-full w-full flex-col gap-4 p-6" role="status" aria-label="Loading settings">
         <div className="flex min-w-0 flex-1 flex-col gap-6">
             <div className="flex items-center gap-4">
                 <Skeleton className="h-20 w-20" />

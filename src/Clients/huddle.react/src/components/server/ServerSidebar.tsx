@@ -9,10 +9,12 @@ import { RiArrowDownSLine } from "react-icons/ri";
 import { MdClose } from "react-icons/md";
 import { IoIosSettings } from "react-icons/io";
 import { ImExit } from "react-icons/im";
-import type { Channel, Server } from "../../api/types";
+import type { Channel, Server, ServerVoiceState } from "../../api/types";
 import { AppTooltip } from "../AppTooltip";
 import UserPanel from "../layout/UserPanel";
 import ServerAvatar from "./ServerAvatar";
+import VoiceParticipants from "./VoiceParticipants";
+import { useServerVoiceState } from "../../hooks/queries/livekit";
 import { Skeleton } from "../skeleton/Skeleton";
 
 export type ChannelType = "text" | "voice";
@@ -37,6 +39,8 @@ interface ChannelListProps {
     canCreate: boolean;
     skeletonCount: number;
     onCreate: () => void;
+    /** Voice presence of the server, used to show who sits in each voice channel. */
+    voiceState?: ServerVoiceState;
 }
 
 const ChannelList = ({
@@ -48,6 +52,7 @@ const ChannelList = ({
     canCreate,
     skeletonCount,
     onCreate,
+    voiceState,
 }: ChannelListProps) => {
     const Icon = channelType === "text" ? FaHashtag : HiSpeakerWave;
     const tooltipId = `create-${channelType}-channel-tooltip`;
@@ -90,6 +95,11 @@ const ChannelList = ({
                                 <Icon className="shrink-0" />
                                 <span className="truncate">{channel.name}</span>
                             </Link>
+                            {channelType === "voice" && (
+                                <VoiceParticipants
+                                    participants={voiceState?.channels.find(state => state.channelId === channel.id)?.participants ?? []}
+                                />
+                            )}
                         </li>
                     ))}
             </ul>
@@ -115,6 +125,8 @@ function ServerSidebar({
 }: ServerSidebarProps) {
     const textChannels = server?.channels.filter(ch => ch.channelType === "Text") ?? [];
     const voiceChannels = server?.channels.filter(ch => ch.channelType === "Voice") ?? [];
+
+    const { data: voiceState } = useServerVoiceState(serverId);
 
     return (
         <aside
@@ -218,6 +230,7 @@ function ServerSidebar({
                     canCreate={isOwner}
                     skeletonCount={3}
                     onCreate={() => onCreateChannel("voice")}
+                    voiceState={voiceState}
                 />
             </nav>
 
