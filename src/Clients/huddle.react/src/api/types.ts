@@ -102,6 +102,54 @@ export interface Server {
     channels: Channel[];
 }
 
+export interface VoiceParticipant {
+    userId: string;
+    displayName: string;
+    joinedAt: string;
+}
+
+/** Voice participants of a single channel. Channels without participants are not sent by the API. */
+export interface ChannelVoiceState {
+    channelId: string;
+    participants: VoiceParticipant[];
+}
+
+/**
+ * Snapshot of who sits in the voice channels of a server.
+ * `version` grows with every change and orders the snapshot against the SignalR pushes.
+ */
+export interface ServerVoiceState {
+    serverId: string;
+    version: number;
+    channels: ChannelVoiceState[];
+}
+
+/** Payload of the `VoiceParticipantJoined` notification. */
+export interface VoiceParticipantJoinedNotification {
+    serverId: string;
+    channelId: string;
+    userId: string;
+    displayName: string;
+    joinedAt: string;
+    version: number;
+}
+
+/** Payload of the `VoiceParticipantLeft` notification. */
+export interface VoiceParticipantLeftNotification {
+    serverId: string;
+    channelId: string;
+    userId: string;
+    reason: string;
+    version: number;
+}
+
+/** Payload of the `VoiceChannelClosed` notification. */
+export interface VoiceChannelClosedNotification {
+    serverId: string;
+    channelId: string;
+    version: number;
+}
+
 export interface Invite {
     id: string;
     serverId: string;

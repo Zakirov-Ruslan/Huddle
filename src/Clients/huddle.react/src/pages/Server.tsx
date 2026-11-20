@@ -1,6 +1,7 @@
 ﻿import { useEffect, useMemo, useState } from "react";
 import { Outlet, useNavigate, useParams } from "react-router";
 import { useAuth } from "react-oidc-context";
+import { useQueryClient } from "@tanstack/react-query";
 import ReactModal from "react-modal";
 import { SignalRContext, useSignalRState } from "../providers/SignalRProvider";
 import type { Channel } from "../api/types";
@@ -36,6 +37,7 @@ function Server() {
 
     const navigate = useNavigate();
     const auth = useAuth();
+    const queryClient = useQueryClient();
 
     const { data: server, isPending } = useServer(serverId);
 
@@ -58,6 +60,10 @@ function Server() {
             try {
                 await SignalRContext.invoke("JoinServer", serverId);
                 console.debug('joined to server notification group', serverId);
+
+                // The subscription starts only now: whatever happened before it must be re-read instead of
+                // waiting for a push that was sent to a group this connection was not part of yet.
+                void queryClient.invalidateQueries({ queryKey: ['voiceState', serverId] });
             } catch (error) {
                 console.error('Failed to join server notification group', error);
             }
@@ -65,7 +71,7 @@ function Server() {
 
         serverJoin();
 
-    }, [serverId, isConnected])
+    }, [serverId, isConnected, queryClient])
 
     const isServerOwner = Boolean(server && auth.user && server.ownerIdentityId === auth.user.profile.sub);
 
