@@ -1,5 +1,4 @@
-﻿using Huddle.EventBus.Abstractions;
-using Huddle.SignalR.IntegrationEvents.EventHandlers.Messages;
+using Huddle.EventBus.Abstractions;
 using Huddle.SignalR.IntegrationEvents.Events.Voice;
 using Microsoft.AspNetCore.SignalR;
 using System.Reflection;
@@ -9,9 +8,11 @@ namespace Huddle.SignalR.IntegrationEvents.EventHandlers.Voice
     public class VoiceParticipantLeftIntegrationEventHandler : IIntegrationEventHandler<VoiceParticipantLeft>
     {
         private readonly IHubContext<NotificationsHub> _hubContext;
-        private readonly ILogger<MessageDeletedIntegrationEventHandler> _logger;
+        private readonly ILogger<VoiceParticipantLeftIntegrationEventHandler> _logger;
 
-        public VoiceParticipantLeftIntegrationEventHandler(IHubContext<NotificationsHub> hubContext, ILogger<MessageDeletedIntegrationEventHandler> logger)
+        public VoiceParticipantLeftIntegrationEventHandler(
+            IHubContext<NotificationsHub> hubContext,
+            ILogger<VoiceParticipantLeftIntegrationEventHandler> logger)
         {
             _hubContext = hubContext;
             _logger = logger;
@@ -21,9 +22,16 @@ namespace Huddle.SignalR.IntegrationEvents.EventHandlers.Voice
         {
             _logger.LogInformation("----- Handling integration event: {IntegrationEventId} at {AppName} - ({@IntegrationEvent})", @event.Id, Assembly.GetExecutingAssembly().FullName, @event);
 
-            var participantLeave = new { @event.ServerId, @event.ChannelId, @event.UserId };
+            var participant = new
+            {
+                @event.ServerId,
+                @event.ChannelId,
+                @event.UserId,
+                @event.Reason,
+                @event.Version
+            };
 
-            await _hubContext.Clients.Group($"server:{@event.ServerId}").SendAsync("LeaveChannel", participantLeave);
+            await _hubContext.Clients.Group($"server:{@event.ServerId}").SendAsync("VoiceParticipantLeft", participant);
         }
     }
 }
