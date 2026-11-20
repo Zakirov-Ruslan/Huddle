@@ -116,7 +116,7 @@ function ServerProfile() {
   const serverInitial = (draftName.trim() || server?.name || "S").charAt(0).toUpperCase();
 
   return (
-    <div className="relative flex h-full w-full gap-6 rounded-tl-2xl bg-gray-100 p-6">
+    <div className="relative flex h-full w-full gap-6 p-6">
       <div className="flex w-full min-w-0 flex-col items-start gap-4">
         <h2 className="text-lg font-semibold text-gray-700">Server profile</h2>
         <p className="text-sm text-gray-500">
